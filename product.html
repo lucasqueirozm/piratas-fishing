@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Piratas Fishing | Detalhes do Produto</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="index.html" class="logo">PIRATAS<span>FISHING</span></a>
+    <nav>
+      <ul>
+        <li><a href="index.html#home">Home</a></li>
+        <li><a href="index.html#catalog">Catálogo</a></li>
+      </ul>
+    </nav>
+    <button id="open-cart-btn" class="cart-btn" aria-label="Carrinho de Compras">
+      <i class="fas fa-shopping-cart"></i>
+      <span id="cart-count-badge" class="cart-badge">0</span>
+    </button>
+  </header>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="index.html">Início</a> 
+    <span>></span> 
+    <span id="bc-category">Categoria</span> 
+    <span>></span> 
+    <span class="active" id="bc-product">Produto</span>
+  </div>
+
+  <!-- Product Details Area -->
+  <section id="product-detail-container" class="product-detail-container">
+    
+    <div class="product-gallery">
+      <img id="pd-image" src="" alt="Imagem do Produto">
+    </div>
+
+    <div class="product-info-detail">
+      <span id="pd-category" class="product-category">Categoria</span>
+      <h1 id="pd-title">Nome do Produto</h1>
+      <div class="product-price-large" id="pd-price">R$ 0,00</div>
+      <div class="installments">💳 Em até 12x no cartão</div>
+      
+      <p id="pd-desc" class="product-description">Carregando detalhes do produto...</p>
+
+      <div class="qty-selector-group">
+        <span class="qty-label">Quantidade:</span>
+        <div class="qty-controls-large">
+          <div class="qty-input-wrapper">
+            <button id="pd-qty-minus" class="qty-btn-lg">-</button>
+            <input type="text" id="pd-qty-input" value="1" readonly>
+            <button id="pd-qty-plus" class="qty-btn-lg">+</button>
+          </div>
+          <div class="quick-qty">
+            <button class="quick-qty-btn" data-val="10">10 unid.</button>
+            <button class="quick-qty-btn" data-val="15">15 unid.</button>
+            <button class="quick-qty-btn" data-val="20">20 unid.</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions-group">
+        <button id="pd-add-to-cart" class="btn-primary btn-large">
+          ADICIONAR AO CARRINHO
+        </button>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="logo footer-logo">PIRATAS<span>FISHING</span></div>
+        <p class="footer-text">Equipando pescadores com o que há de melhor para a captura do seu troféu.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Piratas Fishing. Todos os direitos reservados. Mockup apenas para demonstração.</p>
+    </div>
+  </footer>
+
+  <!-- Cart Modal Overlay -->
+  <div id="cart-overlay" class="modal-overlay"></div>
+  
+  <!-- Cart Modal -->
+  <div id="cart-modal" class="cart-modal">
+    <div class="cart-header">
+      <h3>Seu Carrinho</h3>
+      <button id="close-cart-btn" class="close-btn"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div id="cart-items" class="cart-items">
+      <!-- Items will be injected here via JS -->
+      <div class="empty-cart">Seu carrinho está vazio</div>
+    </div>
+    
+    <div class="cart-shipping">
+      <label for="cep-input">Cálculo de Frete</label>
+      <div class="shipping-input-group">
+        <input type="text" id="cep-input" placeholder="Digite seu CEP (00000-000)" maxlength="9">
+        <button id="calc-shipping-btn" class="btn-secondary">Calcular</button>
+      </div>
+      <div id="shipping-result" class="shipping-result"></div>
+    </div>
+
+    <div class="cart-summary">
+      <div class="summary-line">
+        <span>Subtotal</span>
+        <span id="cart-subtotal">R$ 0,00</span>
+      </div>
+      <div class="summary-line">
+        <span>Frete</span>
+        <span id="cart-shipping-cost">R$ 0,00</span>
+      </div>
+      <div class="summary-line total">
+        <span>Total</span>
+        <span id="cart-total">R$ 0,00</span>
+      </div>
+      <button id="checkout-whatsapp-btn" class="btn-primary w-100" disabled>
+        <i class="fab fa-whatsapp"></i> Finalizar no WhatsApp
+      </button>
+    </div>
+  </div>
+
+  <!-- AI Chat FAB -->
+  <button id="chat-fab" class="chat-fab" aria-label="Abrir Chat de IA">
+    <i class="fas fa-robot"></i>
+  </button>
+
+  <!-- AI Chat Window -->
+  <div id="chat-window" class="chat-window">
+    <div class="chat-header">
+      <div class="chat-title">
+        <i class="fas fa-robot"></i> Especialista Piratas
+      </div>
+      <button id="close-chat-btn" class="close-btn"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="chat-messages" class="chat-messages">
+      <div class="message ai-message">
+        Olá! Sou o assistente virtual da Piratas Fishing. Posso te ajudar a escolher a isca perfeita para a sua próxima pescaria?
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chat-input" placeholder="Digite sua dúvida...">
+      <button id="send-chat-btn"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
