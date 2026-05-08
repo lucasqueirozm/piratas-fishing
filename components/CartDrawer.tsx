@@ -129,8 +129,8 @@ export default function CartDrawer() {
               const total = `R$ ${finalTotal.toFixed(2).replace('.', ',')}`;
               const freteText = shippingCost ? `%0AFrete: R$ ${shippingCost.toFixed(2).replace('.', ',')}` : "";
               const msg = `Olá, Piratas Fishing! Gostaria de finalizar meu pedido:%0A%0A${itemsText}${freteText}%0A%0A*Total: ${total}*`;
-              
-              window.open(`https://wa.me/?text=${msg}`, '_blank');
+              const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '';
+              window.open(`https://wa.me/${whatsappNumber}?text=${msg}`, '_blank');
             }}
             className="w-full py-4 bg-[#25D366] hover:bg-[#20b858] disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-black text-lg rounded-lg uppercase tracking-wider transition-colors flex justify-center items-center gap-3 shadow-[0_0_15px_rgba(37,211,102,0.3)]"
           >
