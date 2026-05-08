@@ -10,24 +10,29 @@ export default function Home() {
   return (
     <main className="font-sans selection:bg-[#FF6B00] selection:text-white relative flex-grow">
       {/* 2. HERO */}
-      <section className="relative bg-[#1a1a1a] py-24 sm:py-32 lg:py-40 overflow-hidden flex items-center justify-center min-h-[80vh]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#2a2a2a] via-[#1a1a1a] to-[#111111] pointer-events-none"></div>
+      <section 
+        className="relative bg-[#1a1a1a] py-24 sm:py-32 lg:py-40 overflow-hidden flex items-center justify-center min-h-[80vh] bg-cover bg-center"
+        style={{ backgroundImage: "url('/hero_bg.jpg')" }}
+      >
+        {/* Overlays para escurecer a imagem e integrar com o fundo da página */}
+        <div className="absolute inset-0 bg-black/70 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/20 to-transparent pointer-events-none"></div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center z-10">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tighter uppercase mb-2 drop-shadow-2xl">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tighter uppercase mb-2 drop-shadow-2xl">
             PIRATAS FISHING
           </h1>
-          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#FF6B00] mb-6 uppercase tracking-widest drop-shadow-md">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#FF6B00] mb-6 uppercase tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
             O Segredo da Fisgada
           </h2>
-          <p className="mt-4 text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl font-medium mb-12">
+          <p className="mt-4 text-lg sm:text-xl md:text-2xl text-gray-200 max-w-3xl font-medium mb-12 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
             Isca de camarão fresca e de qualidade para você fisgar mais
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
             <Link 
               href="/catalogo"
-              className="px-8 py-4 bg-[#FF6B00] hover:bg-[#e66000] text-white font-black text-base rounded-md uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-[0_0_20px_rgba(255,107,0,0.5)]"
+              className="px-8 py-4 bg-[#FF6B00] hover:bg-[#e66000] text-white font-black text-lg rounded-md uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-[0_0_20px_rgba(255,107,0,0.5)]"
             >
               Ver Catálogo
             </Link>
@@ -71,7 +76,7 @@ export default function Home() {
               <div className="h-64 bg-black w-full relative flex items-center justify-center overflow-hidden">
                 <Image src="/lure_pink.png" alt="Isca de Camarão Rosa 500g" fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
               </div>
-              <div className="p-8 flex flex-col flex-grow relative z-20">
+              <div className="p-8 flex flex-col flex-grow">
                 <h3 className="text-xl font-black mb-3 text-white leading-tight">Isca de Camarão Rosa 500g</h3>
                 <p className="text-[#FF6B00] text-3xl font-black mb-8 mt-auto tracking-tighter">R$ 35,00</p>
                 <button 
@@ -79,7 +84,7 @@ export default function Home() {
                     e.preventDefault();
                     addToCart({id: 'isca-rosa-500g', name: 'Isca de Camarão Rosa 500g', price: 35, priceStr: 'R$ 35,00', image: '/lure_pink.png'})
                   }}
-                  className="w-full block text-center py-3 bg-[#FF6B00] hover:bg-[#e66000] text-white font-black text-base rounded-lg uppercase tracking-wider transition-colors shadow-lg"
+                  className="relative z-20 w-full block text-center py-3 bg-[#FF6B00] hover:bg-[#e66000] text-white font-black text-base rounded-lg uppercase tracking-wider transition-colors shadow-lg"
                 >
                   Adicionar ao Carrinho
                 </button>
@@ -92,7 +97,7 @@ export default function Home() {
               <div className="h-64 bg-black w-full relative flex items-center justify-center overflow-hidden">
                 <Image src="/lure_salted.png" alt="Isca de Camarão Salgado 1kg" fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
               </div>
-              <div className="p-8 flex flex-col flex-grow relative z-20">
+              <div className="p-8 flex flex-col flex-grow">
                 <h3 className="text-xl font-black mb-3 text-white leading-tight">Isca de Camarão Salgado 1kg</h3>
                 <p className="text-[#FF6B00] text-3xl font-black mb-8 mt-auto tracking-tighter">R$ 60,00</p>
                 <button 
@@ -100,7 +105,7 @@ export default function Home() {
                     e.preventDefault();
                     addToCart({id: 'isca-salgado-1kg', name: 'Isca de Camarão Salgado 1kg', price: 60, priceStr: 'R$ 60,00', image: '/lure_salted.png'})
                   }}
-                  className="w-full block text-center py-3 bg-[#FF6B00] hover:bg-[#e66000] text-white font-black text-base rounded-lg uppercase tracking-wider transition-colors shadow-lg"
+                  className="relative z-20 w-full block text-center py-3 bg-[#FF6B00] hover:bg-[#e66000] text-white font-black text-base rounded-lg uppercase tracking-wider transition-colors shadow-lg"
                 >
                   Adicionar ao Carrinho
                 </button>
@@ -113,7 +118,7 @@ export default function Home() {
               <div className="h-64 bg-black w-full relative flex items-center justify-center overflow-hidden">
                 <Image src="/lure_spiced.png" alt="Isca de Camarão Temperado 250g" fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
               </div>
-              <div className="p-8 flex flex-col flex-grow relative z-20">
+              <div className="p-8 flex flex-col flex-grow">
                 <h3 className="text-xl font-black mb-3 text-white leading-tight">Isca Camarão Temperado 250g</h3>
                 <p className="text-[#FF6B00] text-3xl font-black mb-8 mt-auto tracking-tighter">R$ 22,00</p>
                 <button 
@@ -121,7 +126,7 @@ export default function Home() {
                     e.preventDefault();
                     addToCart({id: 'isca-temperado-250g', name: 'Isca Camarão Temperado 250g', price: 22, priceStr: 'R$ 22,00', image: '/lure_spiced.png'})
                   }}
-                  className="w-full block text-center py-3 bg-[#FF6B00] hover:bg-[#e66000] text-white font-black text-base rounded-lg uppercase tracking-wider transition-colors shadow-lg"
+                  className="relative z-20 w-full block text-center py-3 bg-[#FF6B00] hover:bg-[#e66000] text-white font-black text-base rounded-lg uppercase tracking-wider transition-colors shadow-lg"
                 >
                   Adicionar ao Carrinho
                 </button>
@@ -146,7 +151,7 @@ export default function Home() {
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
               Como comprar é <span className="text-[#FF6B00]">simples</span>
             </h2>
           </div>
@@ -154,17 +159,20 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div className="text-center flex flex-col items-center">
               <div className="text-6xl mb-6 drop-shadow-md">1️⃣</div>
-              <h3 className="text-xl font-black mb-4 uppercase tracking-wide">Escolha sua isca no catálogo</h3>
+              <h3 className="text-xl font-black mb-4 uppercase tracking-wide text-white">Escolha sua isca no catálogo</h3>
+              <p className="text-gray-400 font-bold">Navegue pelas nossas opções de altíssima qualidade.</p>
             </div>
             
             <div className="text-center flex flex-col items-center">
               <div className="text-6xl mb-6 drop-shadow-md">2️⃣</div>
-              <h3 className="text-xl font-black mb-4 uppercase tracking-wide">Calcule o frete pelo seu CEP</h3>
+              <h3 className="text-xl font-black mb-4 uppercase tracking-wide text-white">Calcule o frete pelo seu CEP</h3>
+              <p className="text-gray-400 font-bold">Insira seu CEP no carrinho para adicionar o frete.</p>
             </div>
             
             <div className="text-center flex flex-col items-center">
               <div className="text-6xl mb-6 drop-shadow-md">3️⃣</div>
-              <h3 className="text-xl font-black mb-4 uppercase tracking-wide">Finalize pelo WhatsApp em segundos</h3>
+              <h3 className="text-xl font-black mb-4 uppercase tracking-wide text-white">Finalize pelo WhatsApp</h3>
+              <p className="text-gray-400 font-bold">Escolha a forma de pagamento e feche a compra em segundos.</p>
             </div>
           </div>
         </div>

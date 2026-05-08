@@ -35,7 +35,7 @@ export default function CatalogoPage() {
               <div className="h-64 bg-black w-full relative flex items-center justify-center overflow-hidden">
                 <Image src={p.image} alt={p.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
               </div>
-              <div className="p-8 flex flex-col flex-grow relative z-20">
+              <div className="p-8 flex flex-col flex-grow">
                 <h3 className="text-xl font-black mb-3 text-white leading-tight">{p.name}</h3>
                 <p className="text-[#FF6B00] text-3xl font-black mb-8 mt-auto tracking-tighter">{p.priceStr}</p>
                 <button 
@@ -43,7 +43,7 @@ export default function CatalogoPage() {
                     e.preventDefault();
                     addToCart(p);
                   }}
-                  className="w-full block text-center py-3 bg-[#FF6B00] hover:bg-[#e66000] text-white font-black text-base rounded-lg uppercase tracking-wider transition-colors shadow-lg"
+                  className="relative z-20 w-full block text-center py-3 bg-[#FF6B00] hover:bg-[#e66000] text-white font-black text-base rounded-lg uppercase tracking-wider transition-colors shadow-lg"
                 >
                   Adicionar ao Carrinho
                 </button>
