@@ -1,143 +1,297 @@
-"use client";
+'use client'
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useCart } from '@/components/CartContext';
+import Image from 'next/image'
+import Link from 'next/link'
+import { useCart } from '@/components/CartContext'
+import { products } from '@/lib/products'
+
+const featured = [
+  products.find((p) => p.id === 13)!,
+  products.find((p) => p.id === 24)!,
+  products.find((p) => p.id === 20)!,
+]
+
+const stats = [
+  { value: '31', label: 'Modelos' },
+  { value: '5', label: 'Linhas' },
+  { value: 'Brasil', label: 'Entrega' },
+  { value: 'MP', label: 'Pagamento' },
+]
+
+const features = [
+  {
+    title: 'Isca Artificial',
+    desc: 'Alta durabilidade e máxima atração em água doce e salgada.',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 16.98h-5.99c-1.1 0-1.95.94-2.48 1.9A4 4 0 0 1 2 17c.01-.7.2-1.4.57-2" />
+        <path d="m6 17 3.13-5.78c.53-.97.43-2.17-.3-3.05C7.86 7.09 7 5.96 7 4.5a3.5 3.5 0 0 1 7 0c0 1.46-.86 2.59-1.83 3.67-.73.88-.83 2.08-.3 3.05L15 17" />
+        <path d="M9.5 14.5h5" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Entrega Nacional',
+    desc: 'Enviamos para todo o Brasil pelos Correios com rastreamento em tempo real.',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3" />
+        <rect x="9" y="11" width="14" height="10" rx="2" />
+        <circle cx="12" cy="20" r="1" /><circle cx="20" cy="20" r="1" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Compra Segura',
+    desc: 'PIX, boleto ou cartão via Mercado Pago. Seus dados protegidos pela LGPD.',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="m9 12 2 2 4-4" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Alta Performance',
+    desc: 'Desenvolvidas e testadas por pescadores profissionais em condições reais.',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m13 2-2 2.5h3L12 7" /><path d="M10 14v-3" /><path d="M14 14v-3" />
+        <path d="M11 19c-1.7 0-3-1.3-3-3v-2" /><path d="M13 19c1.7 0 3-1.3 3-3v-2" />
+        <path d="M9 11H6.5a2 2 0 0 1 0-4H9" /><path d="M15 11h2.5a2 2 0 0 0 0-4H15" />
+      </svg>
+    ),
+  },
+]
 
 export default function Home() {
-  const { addToCart } = useCart();
+  const { addToCart } = useCart()
 
   return (
-    <main className="font-sans selection:bg-[#FF6B00] selection:text-white relative flex-grow">
-      {/* 2. HERO */}
-      <section 
-        className="relative bg-[#1a1a1a] py-24 sm:py-32 lg:py-40 overflow-hidden flex items-center justify-center min-h-[80vh] bg-cover bg-center"
-        style={{ backgroundImage: "url('/hero_bg.jpg')" }}
+    <main className="selection:bg-[#FF6B00] selection:text-white flex-grow">
+
+      {/* ─── HERO ─── */}
+      <section
+        className="relative min-h-[90vh] flex items-center justify-center overflow-hidden"
+        style={{ backgroundColor: 'var(--s0)' }}
       >
-        {/* Overlays para escurecer a imagem e integrar com o fundo da página */}
-        <div className="absolute inset-0 bg-black/70 pointer-events-none"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/20 to-transparent pointer-events-none"></div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center z-10">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tighter uppercase mb-2 drop-shadow-2xl">
-            PIRATAS FISHING
+        {/* Optional photo backdrop */}
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-[0.10]"
+          style={{ backgroundImage: "url('/hero_bg.jpg')" }}
+        />
+        {/* Atmospheric gradient */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(ellipse at 62% 38%, rgba(139,0,0,0.38) 0%, transparent 52%),' +
+              'radial-gradient(ellipse at 16% 82%, rgba(255,107,0,0.18) 0%, transparent 42%),' +
+              'radial-gradient(ellipse at 84% 12%, rgba(255,107,0,0.08) 0%, transparent 38%)',
+          }}
+        />
+        {/* Floating orbs */}
+        <div
+          className="absolute top-1/4 left-[12%] w-72 h-72 rounded-full pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle, rgba(255,107,0,0.05) 0%, transparent 70%)',
+            animation: 'float-slow 12s ease-in-out infinite',
+          }}
+        />
+        <div
+          className="absolute bottom-1/4 right-[8%] w-[26rem] h-[26rem] rounded-full pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle, rgba(139,0,0,0.09) 0%, transparent 70%)',
+            animation: 'float-slow 16s ease-in-out infinite reverse',
+          }}
+        />
+        {/* Vertical accent lines */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-0 bottom-0 w-px left-[20%]" style={{ background: 'linear-gradient(to bottom, transparent, rgba(255,107,0,0.10) 35%, rgba(255,107,0,0.10) 65%, transparent)' }} />
+          <div className="absolute top-0 bottom-0 w-px right-[20%]" style={{ background: 'linear-gradient(to bottom, transparent, rgba(255,107,0,0.06) 35%, rgba(255,107,0,0.06) 65%, transparent)' }} />
+        </div>
+
+        {/* Content */}
+        <div
+          className="relative z-10 text-center px-4 max-w-5xl mx-auto"
+          style={{ animation: 'fadeInUp 0.7s ease-out both' }}
+        >
+          <div className="inline-flex items-center gap-2 border text-[#FF6B00] text-[10px] font-bold uppercase tracking-[0.22em] px-5 py-2 rounded-full mb-10" style={{ borderColor: 'rgba(255,107,0,0.28)', backgroundColor: 'rgba(255,107,0,0.06)' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" />
+            </svg>
+            Iscas de Pesca de Alta Performance
+          </div>
+
+          <h1 className="font-black uppercase tracking-tighter leading-none mb-6">
+            <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[7rem]" style={{ color: 'var(--ink)' }}>
+              PIRATAS
+            </span>
+            <span
+              className="block text-6xl sm:text-7xl md:text-8xl lg:text-[7rem]"
+              style={{ WebkitTextStroke: '2px #FF6B00', color: 'transparent' }}
+            >
+              FISHING
+            </span>
           </h1>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#FF6B00] mb-6 uppercase tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-            O Segredo da Fisgada
-          </h2>
-          <p className="mt-4 text-lg sm:text-xl md:text-2xl text-gray-200 max-w-3xl font-medium mb-12 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-            Isca de camarão fresca e de qualidade para você fisgar mais
+
+          <p className="text-lg sm:text-xl md:text-2xl font-light mb-14 max-w-lg mx-auto leading-relaxed" style={{ color: 'var(--ink-dim)' }}>
+            O segredo da fisgada está na isca certa.{' '}
+            <span className="font-semibold text-[#FF6B00]">31 modelos</span> para você pescar mais.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
-            <Link 
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
               href="/catalogo"
-              className="px-8 py-4 bg-[#FF6B00] hover:bg-[#e66000] text-white font-black text-lg rounded-md uppercase tracking-wider transition-all transform hover:-translate-y-1 shadow-[0_0_20px_rgba(255,107,0,0.5)]"
+              className="px-10 py-4 bg-[#FF6B00] hover:bg-[#e05f00] text-white font-bold tracking-wider rounded-lg uppercase text-sm transition-all hover:-translate-y-0.5 shadow-[0_0_28px_rgba(255,107,0,0.30)] hover:shadow-[0_0_40px_rgba(255,107,0,0.50)]"
             >
               Ver Catálogo
             </Link>
+            <Link
+              href="#produtos"
+              className="px-10 py-4 border font-bold tracking-wider rounded-lg uppercase text-sm transition-all hover:-translate-y-0.5 hover:text-[#FF6B00]"
+              style={{ borderColor: 'var(--rim-str)', color: 'var(--ink-dim)' }}
+            >
+              Ver Destaques
+            </Link>
           </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none"
+          style={{ animation: 'scroll-hint 2.4s ease-in-out infinite' }}
+        >
+          <div className="w-px h-10 bg-gradient-to-b from-[#FF6B00]/40 to-transparent" />
         </div>
       </section>
 
-      {/* 3. SEÇÃO "POR QUE ESCOLHER A PIRATAS FISHING?" */}
-      <section className="bg-[#222222] py-24 border-y border-[#8B0000]/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-            <div className="bg-[#1a1a1a] p-10 rounded-2xl border-2 border-gray-800 hover:border-[#FF6B00] transition-colors text-center group shadow-xl">
-              <div className="text-5xl mb-6 group-hover:scale-125 transition-transform inline-block drop-shadow-lg">🎣</div>
-              <h3 className="text-xl font-black mb-4 text-white uppercase tracking-wide">Isca Artificial</h3>
-              <p className="text-gray-400 font-bold text-base leading-relaxed">Iscas artificiais de alta qualidade para pescar mais</p>
-            </div>
-            
-            <div className="bg-[#1a1a1a] p-10 rounded-2xl border-2 border-gray-800 hover:border-[#FF6B00] transition-colors text-center group shadow-xl">
-              <div className="text-5xl mb-6 group-hover:scale-125 transition-transform inline-block drop-shadow-lg">🚚</div>
-              <h3 className="text-xl font-black mb-4 text-white uppercase tracking-wide">Entrega Rápida</h3>
-              <p className="text-gray-400 font-bold text-base leading-relaxed">Enviamos para todo o Brasil pelos Correios</p>
-            </div>
+      {/* ─── STATS STRIP ─── */}
+      <div style={{ backgroundColor: 'var(--s2)', borderTop: '1px solid var(--rim)', borderBottom: '1px solid var(--rim)' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            {stats.map((s) => (
+              <div key={s.label} className="flex flex-col items-center gap-0.5">
+                <span className="text-2xl font-black tracking-tighter text-[#FF6B00]">{s.value}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--ink-faint)' }}>{s.label}</span>
+              </div>
+            ))}
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* 4. SEÇÃO "PRODUTOS EM DESTAQUE" */}
-      <section id="produtos" className="py-24 bg-[#1a1a1a]">
+      {/* ─── POR QUE NOS ESCOLHER ─── */}
+      <section style={{ backgroundColor: 'var(--s1)' }} className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
-              Nossos Produtos
+            <p className="text-[#FF6B00] text-[10px] font-bold uppercase tracking-[0.28em] mb-4">Por que nos escolher</p>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--ink)' }}>
+              Feito para Pescar Mais
             </h2>
-            <div className="w-24 h-1.5 bg-[#FF6B00] mx-auto mt-6 rounded-full"></div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {features.map((f) => (
+              <div
+                key={f.title}
+                className="rounded-2xl p-8 group transition-all duration-300 hover:-translate-y-1 border"
+                style={{
+                  backgroundColor: 'var(--s2)',
+                  borderColor: 'var(--rim)',
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,107,0,0.30)' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--rim)' }}
+              >
+                <div className="text-[#FF6B00] opacity-70 group-hover:opacity-100 transition-opacity mb-5">
+                  {f.icon}
+                </div>
+                <h3 className="font-bold text-sm uppercase tracking-wide mb-3" style={{ color: 'var(--ink)' }}>{f.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--ink-dim)' }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── PRODUTOS EM DESTAQUE ─── */}
+      <section id="produtos" style={{ backgroundColor: 'var(--s0)' }} className="py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-end justify-between mb-14">
+            <div>
+              <p className="text-[#FF6B00] text-[10px] font-bold uppercase tracking-[0.28em] mb-3">Selecionados para você</p>
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--ink)' }}>
+                Destaques
+              </h2>
+            </div>
+            <Link
+              href="/catalogo"
+              className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider transition-colors hover:text-[#FF6B00]"
+              style={{ color: 'var(--ink-faint)' }}
+            >
+              Ver todos
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 mb-16">
-            {/* Produto 1 */}
-            <div className="bg-[#222222] rounded-2xl overflow-hidden border-2 border-gray-800 hover:border-[#8B0000] flex flex-col transition-all hover:shadow-[0_10px_30px_rgba(139,0,0,0.3)] group cursor-pointer relative">
-              <Link href="/produto/isca-rosa-500g" className="absolute inset-0 z-10"></Link>
-              <div className="h-64 bg-black w-full relative flex items-center justify-center overflow-hidden">
-                <Image src="/lure_pink.png" alt="Isca de Camarão Rosa 500g" fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+            {featured.map((p, i) => (
+              <div
+                key={p.id}
+                className="group relative rounded-2xl overflow-hidden border transition-all duration-400 hover:-translate-y-1.5"
+                style={{
+                  backgroundColor: 'var(--s2)',
+                  borderColor: 'var(--rim)',
+                  boxShadow: 'none',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.borderColor = 'rgba(255,107,0,0.30)'
+                  el.style.boxShadow = '0 20px 48px rgba(255,107,0,0.08)'
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.borderColor = 'var(--rim)'
+                  el.style.boxShadow = 'none'
+                }}
+              >
+                <Link href={`/produto/${p.id}`} className="absolute inset-0 z-10" />
+                {i === 0 && (
+                  <div className="absolute top-3 right-3 z-20 bg-[#FF6B00] text-white text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full">
+                    Destaque
+                  </div>
+                )}
+                <div className="relative h-56 overflow-hidden" style={{ backgroundColor: 'var(--s1)' }}>
+                  <Image
+                    src={p.image}
+                    alt={p.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                </div>
+                <div className="p-6">
+                  <p className="text-[#FF6B00] text-[9px] font-bold uppercase tracking-[0.2em] mb-2">{p.category}</p>
+                  <h3 className="font-bold text-base leading-tight mb-1" style={{ color: 'var(--ink)' }}>{p.name}</h3>
+                  <p className="text-xs mb-5" style={{ color: 'var(--ink-faint)' }}>{p.size}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xl font-black tracking-tighter" style={{ color: 'var(--ink)' }}>{p.priceStr}</span>
+                    <button
+                      onClick={(e) => { e.preventDefault(); addToCart(p) }}
+                      className="relative z-20 px-4 py-2 bg-[#FF6B00] hover:bg-[#e05f00] text-white font-semibold text-xs rounded-lg uppercase tracking-wide transition-colors"
+                    >
+                      + Carrinho
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="p-8 flex flex-col flex-grow">
-                <h3 className="text-xl font-black mb-3 text-white leading-tight">Isca de Camarão Rosa 500g</h3>
-                <p className="text-[#FF6B00] text-3xl font-black mb-8 mt-auto tracking-tighter">R$ 35,00</p>
-                <button 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    addToCart({id: 'isca-rosa-500g', name: 'Isca de Camarão Rosa 500g', price: 35, priceStr: 'R$ 35,00', image: '/lure_pink.png'})
-                  }}
-                  className="relative z-20 w-full block text-center py-3 bg-[#FF6B00] hover:bg-[#e66000] text-white font-black text-base rounded-lg uppercase tracking-wider transition-colors shadow-lg"
-                >
-                  Adicionar ao Carrinho
-                </button>
-              </div>
-            </div>
-
-            {/* Produto 2 */}
-            <div className="bg-[#222222] rounded-2xl overflow-hidden border-2 border-gray-800 hover:border-[#8B0000] flex flex-col transition-all hover:shadow-[0_10px_30px_rgba(139,0,0,0.3)] group cursor-pointer relative">
-              <Link href="/produto/isca-salgado-1kg" className="absolute inset-0 z-10"></Link>
-              <div className="h-64 bg-black w-full relative flex items-center justify-center overflow-hidden">
-                <Image src="/lure_salted.png" alt="Isca de Camarão Salgado 1kg" fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
-              </div>
-              <div className="p-8 flex flex-col flex-grow">
-                <h3 className="text-xl font-black mb-3 text-white leading-tight">Isca de Camarão Salgado 1kg</h3>
-                <p className="text-[#FF6B00] text-3xl font-black mb-8 mt-auto tracking-tighter">R$ 60,00</p>
-                <button 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    addToCart({id: 'isca-salgado-1kg', name: 'Isca de Camarão Salgado 1kg', price: 60, priceStr: 'R$ 60,00', image: '/lure_salted.png'})
-                  }}
-                  className="relative z-20 w-full block text-center py-3 bg-[#FF6B00] hover:bg-[#e66000] text-white font-black text-base rounded-lg uppercase tracking-wider transition-colors shadow-lg"
-                >
-                  Adicionar ao Carrinho
-                </button>
-              </div>
-            </div>
-
-            {/* Produto 3 */}
-            <div className="bg-[#222222] rounded-2xl overflow-hidden border-2 border-gray-800 hover:border-[#8B0000] flex flex-col transition-all hover:shadow-[0_10px_30px_rgba(139,0,0,0.3)] group cursor-pointer relative">
-              <Link href="/produto/isca-temperado-250g" className="absolute inset-0 z-10"></Link>
-              <div className="h-64 bg-black w-full relative flex items-center justify-center overflow-hidden">
-                <Image src="/lure_spiced.png" alt="Isca de Camarão Temperado 250g" fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
-              </div>
-              <div className="p-8 flex flex-col flex-grow">
-                <h3 className="text-xl font-black mb-3 text-white leading-tight">Isca Camarão Temperado 250g</h3>
-                <p className="text-[#FF6B00] text-3xl font-black mb-8 mt-auto tracking-tighter">R$ 22,00</p>
-                <button 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    addToCart({id: 'isca-temperado-250g', name: 'Isca Camarão Temperado 250g', price: 22, priceStr: 'R$ 22,00', image: '/lure_spiced.png'})
-                  }}
-                  className="relative z-20 w-full block text-center py-3 bg-[#FF6B00] hover:bg-[#e66000] text-white font-black text-base rounded-lg uppercase tracking-wider transition-colors shadow-lg"
-                >
-                  Adicionar ao Carrinho
-                </button>
-              </div>
-            </div>
+            ))}
           </div>
 
           <div className="text-center">
-            <Link 
-              href="/catalogo" 
-              className="inline-block px-8 py-4 border-4 border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00] hover:text-white font-black text-base rounded-lg uppercase tracking-widest transition-all hover:shadow-[0_0_20px_rgba(255,107,0,0.4)]"
+            <Link
+              href="/catalogo"
+              className="inline-block px-10 py-3.5 border-2 border-[#FF6B00] text-[#FF6B00] hover:bg-[#FF6B00] hover:text-white font-semibold text-sm rounded-lg uppercase tracking-widest transition-all hover:shadow-[0_0_24px_rgba(255,107,0,0.35)]"
             >
               Ver Todos os Produtos
             </Link>
@@ -145,102 +299,118 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. SEÇÃO "COMO COMPRAR" */}
-      <section className="py-24 bg-[#1a1a1a] border-t border-gray-800 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#8B0000] opacity-5 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
-        
+      {/* ─── COMO COMPRAR ─── */}
+      <section style={{ backgroundColor: 'var(--s1)', borderTop: '1px solid var(--rim)' }} className="py-24 relative overflow-hidden">
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 80% 50%, rgba(139,0,0,0.05) 0%, transparent 55%)' }}
+        />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
-              Como comprar é <span className="text-[#FF6B00]">simples</span>
+          <div className="text-center mb-16">
+            <p className="text-[#FF6B00] text-[10px] font-bold uppercase tracking-[0.28em] mb-4">Simples assim</p>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--ink)' }}>
+              Como Comprar
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="text-center flex flex-col items-center">
-              <div className="text-6xl mb-6 drop-shadow-md">1️⃣</div>
-              <h3 className="text-xl font-black mb-4 uppercase tracking-wide text-white">Escolha sua isca no catálogo</h3>
-              <p className="text-gray-400 font-bold">Navegue pelas nossas opções de altíssima qualidade.</p>
-            </div>
-            
-            <div className="text-center flex flex-col items-center">
-              <div className="text-6xl mb-6 drop-shadow-md">2️⃣</div>
-              <h3 className="text-xl font-black mb-4 uppercase tracking-wide text-white">Calcule o frete pelo seu CEP</h3>
-              <p className="text-gray-400 font-bold">Insira seu CEP no carrinho para adicionar o frete.</p>
-            </div>
-            
-            <div className="text-center flex flex-col items-center">
-              <div className="text-6xl mb-6 drop-shadow-md">3️⃣</div>
-              <h3 className="text-xl font-black mb-4 uppercase tracking-wide text-white">Finalize pelo WhatsApp</h3>
-              <p className="text-gray-400 font-bold">Escolha a forma de pagamento e feche a compra em segundos.</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            <div className="hidden md:block absolute top-9 left-[calc(33.33%+2rem)] right-[calc(33.33%+2rem)] h-px" style={{ background: 'linear-gradient(to right, rgba(255,107,0,0.15), rgba(255,107,0,0.35), rgba(255,107,0,0.15))' }} />
+
+            {[
+              { n: '01', title: 'Escolha sua isca', desc: 'Navegue pelo catálogo e adicione ao carrinho.' },
+              { n: '02', title: 'Informe seu endereço', desc: 'Preencha seus dados e calcule o frete em tempo real.' },
+              { n: '03', title: 'Pague com segurança', desc: 'PIX, boleto ou cartão via Mercado Pago.' },
+            ].map((step) => (
+              <div key={step.n} className="flex flex-col items-center text-center px-6">
+                <div
+                  className="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-6 relative z-10 border"
+                  style={{
+                    backgroundColor: 'var(--s2)',
+                    borderColor: 'rgba(255,107,0,0.25)',
+                    boxShadow: '0 0 20px rgba(255,107,0,0.06)',
+                  }}
+                >
+                  <span className="text-[#FF6B00] font-black text-lg tracking-tighter">{step.n}</span>
+                </div>
+                <h3 className="font-bold text-sm uppercase tracking-wide mb-3" style={{ color: 'var(--ink)' }}>{step.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--ink-dim)' }}>{step.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 6. FOOTER */}
-      <footer className="bg-[#111111] pt-20 pb-10 border-t-4 border-[#FF6B00] w-full">
+      {/* ─── FOOTER ─── */}
+      <footer style={{ backgroundColor: 'var(--s0)', borderTop: '1px solid var(--rim)' }} className="pt-20 pb-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
             <div className="flex flex-col items-center md:items-start">
-              <div className="relative h-12 w-36 mb-6">
-                <Image src="/logo.png" alt="Piratas Fishing Logo" fill className="object-contain object-center md:object-left" />
-              </div>
-              <p className="text-gray-400 font-bold text-base text-center md:text-left tracking-wide uppercase">
-                O Segredo da Fisgada.
-              </p>
+              <p className="text-lg font-black tracking-widest mb-2" style={{ color: 'var(--ink)' }}>🏴‍☠️ Piratas Fishing</p>
+              <p className="text-sm" style={{ color: 'var(--ink-faint)' }}>O Segredo da Fisgada.</p>
             </div>
 
             <div className="flex flex-col items-center md:items-start">
-              <h4 className="text-lg font-black text-white mb-6 uppercase tracking-widest border-b-2 border-[#8B0000] pb-2 inline-block">Links Rápidos</h4>
-              <ul className="space-y-4 text-center md:text-left w-full">
-                <li><Link href="/catalogo" className="text-gray-400 hover:text-[#FF6B00] font-bold text-base transition-colors block">Catálogo</Link></li>
-                <li><Link href="/sobre" className="text-gray-400 hover:text-[#FF6B00] font-bold text-base transition-colors block">Sobre</Link></li>
-                <li><Link href="/privacidade" className="text-gray-400 hover:text-[#FF6B00] font-bold text-base transition-colors block">Privacidade</Link></li>
+              <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-6 pb-2 border-b border-[rgba(255,107,0,0.3)]" style={{ color: 'var(--ink)' }}>
+                Links Rápidos
+              </h4>
+              <ul className="space-y-3 text-center md:text-left w-full">
+                {[
+                  { href: '/catalogo', label: 'Catálogo' },
+                  { href: '/sobre', label: 'Sobre' },
+                  { href: '/contato', label: 'Contato' },
+                  { href: '/privacidade', label: 'Privacidade' },
+                ].map((l) => (
+                  <li key={l.href}>
+                    <Link href={l.href} className="text-sm font-medium transition-colors hover:text-[#FF6B00]" style={{ color: 'var(--ink-faint)' }}>
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 
             <div className="flex flex-col items-center md:items-start">
-              <h4 className="text-lg font-black text-white mb-6 uppercase tracking-widest border-b-2 border-[#8B0000] pb-2 inline-block">Contato</h4>
-              <ul className="space-y-4 text-center md:text-left w-full">
+              <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-6 pb-2 border-b border-[rgba(255,107,0,0.3)]" style={{ color: 'var(--ink)' }}>
+                Contato
+              </h4>
+              <ul className="space-y-3 w-full">
+                {process.env.NEXT_PUBLIC_EMAIL && (
+                  <li>
+                    <a
+                      href={`mailto:${process.env.NEXT_PUBLIC_EMAIL}`}
+                      className="flex items-center justify-center md:justify-start gap-2.5 text-sm font-medium transition-colors hover:text-[#FF6B00]"
+                      style={{ color: 'var(--ink-faint)' }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                      </svg>
+                      E-mail
+                    </a>
+                  </li>
+                )}
                 <li>
-                  <a href="https://wa.me/?text=Ol%C3%A1" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#25D366] font-bold text-base transition-colors flex items-center justify-center md:justify-start gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+                  <a href="#" className="flex items-center justify-center md:justify-start gap-2.5 text-sm font-medium transition-colors hover:text-[#E1306C]" style={{ color: 'var(--ink-faint)' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
                     </svg>
-                    <span>WhatsApp</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-[#E1306C] font-bold text-base transition-colors flex items-center justify-center md:justify-start gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                    </svg>
-                    <span>Instagram</span>
+                    Instagram
                   </a>
                 </li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-gray-800 pt-8 text-center">
-            <p className="text-gray-500 font-bold uppercase tracking-wider text-xs">
-              © 2026 Piratas Fishing. Todos os direitos reservados.
+          <div className="pt-8 text-center" style={{ borderTop: '1px solid var(--rim)' }}>
+            <p className="text-xs uppercase tracking-wider" style={{ color: 'var(--ink-faint)' }}>
+              © 2026 Piratas Fishing. Todos os direitos reservados.{' '}
+              <Link href="/privacidade" className="hover:text-[#FF6B00] transition-colors">Política de Privacidade</Link>
             </p>
           </div>
         </div>
       </footer>
-
-      {/* Botão Flutuante de IA */}
-      <a 
-        href="#" 
-        title="Fale com nossa IA"
-        className="fixed bottom-6 right-6 bg-[#FF6B00] text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl shadow-[0_4px_15px_rgba(255,107,0,0.5)] hover:scale-110 transition-transform z-50 group"
-      >
-        🤖
-      </a>
     </main>
-  );
+  )
 }
