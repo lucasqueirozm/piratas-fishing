@@ -1,12 +1,16 @@
 import { NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
-import { getOrders } from '@/lib/orders'
+import { getOrders, updateOrderFulfillment } from '@/lib/orders'
+import type { OrderStatus } from '@/lib/orders'
 
-export async function GET(req: NextRequest) {
+async function checkAuth() {
   const cookieStore = await cookies()
   const session = cookieStore.get('admin_session')?.value
+  return session && session === process.env.ADMIN_PASSWORD
+}
 
-  if (!session || session !== process.env.ADMIN_PASSWORD) {
+export async function GET(req: NextRequest) {
+  if (!await checkAuth()) {
     return Response.json({ error: 'Não autorizado.' }, { status: 401 })
   }
 
@@ -14,4 +18,15 @@ export async function GET(req: NextRequest) {
   const orders = await getOrders(Math.min(limit, 200))
 
   return Response.json({ orders })
+}
+
+export async function PATCH(req: NextRequest) {
+  if (!await checkAuth()) {
+    return Response.json({ error: 'Não autorizado.' }, { status: 401 })
+  }
+
+  const body = await req.json() as { orderId: string; status: OrderStatus; trackingCode?: string }
+  await updateOrderFulfillment(body.orderId, body.status, body.trackingCode)
+
+  return Response.json({ ok: true })
 }

@@ -111,6 +111,18 @@ export default function Home() {
           <div className="absolute top-0 bottom-0 w-px right-[20%]" style={{ background: 'linear-gradient(to bottom, transparent, rgba(255,107,0,0.06) 35%, rgba(255,107,0,0.06) 65%, transparent)' }} />
         </div>
 
+        {/* Logo background watermark */}
+        <div className="absolute inset-0 flex items-end justify-center pb-16 pointer-events-none overflow-hidden">
+          <Image
+            src="/logo.png"
+            alt=""
+            width={600}
+            height={200}
+            className="w-[min(600px,80vw)] opacity-[0.06] object-contain select-none"
+            aria-hidden
+          />
+        </div>
+
         {/* Content */}
         <div
           className="relative z-10 text-center px-4 max-w-5xl mx-auto"
@@ -136,8 +148,7 @@ export default function Home() {
           </h1>
 
           <p className="text-lg sm:text-xl md:text-2xl font-light mb-14 max-w-lg mx-auto leading-relaxed" style={{ color: 'var(--ink-dim)' }}>
-            O segredo da fisgada está na isca certa.{' '}
-            <span className="font-semibold text-[#FF6B00]">31 modelos</span> para você pescar mais.
+            O segredo da fisgada está na isca certa.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -345,7 +356,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
             <div className="flex flex-col items-center md:items-start">
-              <p className="text-lg font-black tracking-widest mb-2" style={{ color: 'var(--ink)' }}>🏴‍☠️ Piratas Fishing</p>
+              <Image src="/logo.png" alt="Piratas Fishing" width={140} height={48} className="h-12 w-auto object-contain mb-2" />
               <p className="text-sm" style={{ color: 'var(--ink-faint)' }}>O Segredo da Fisgada.</p>
             </div>
 

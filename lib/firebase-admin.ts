@@ -1,30 +1,13 @@
-import { initializeApp, getApps, cert, App } from 'firebase-admin/app'
-import { getFirestore } from 'firebase-admin/firestore'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-let adminApp: App
+let client: SupabaseClient | null = null
 
-function getAdminApp(): App {
-  if (adminApp) return adminApp
-
-  if (getApps().length > 0) {
-    adminApp = getApps()[0]
-    return adminApp
+export function getAdminDb(): SupabaseClient {
+  if (!client) {
+    client = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    )
   }
-
-  const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n')
-
-  adminApp = initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-      privateKey,
-    }),
-  })
-
-  return adminApp
-}
-
-export function getAdminDb() {
-  getAdminApp()
-  return getFirestore()
+  return client
 }

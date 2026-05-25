@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
 import { useCart } from './CartContext'
 import { useTheme } from './ThemeProvider'
@@ -114,10 +115,8 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-[72px]">
 
           {/* Logo */}
-          <Link href="/" className="flex-shrink-0 group">
-            <span className="text-base font-black tracking-widest uppercase transition-colors duration-200 group-hover:text-[#FF6B00]" style={{ color: 'var(--ink)' }}>
-              🏴‍☠️ Piratas Fishing
-            </span>
+          <Link href="/" className="flex-shrink-0">
+            <Image src="/logo.png" alt="Piratas Fishing" width={140} height={48} className="h-12 w-auto object-contain" priority />
           </Link>
 
           {/* Desktop links */}

@@ -8,6 +8,13 @@ export default function CartDrawer() {
   const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal } = useCart()
   const router = useRouter()
 
+  const MIN_ORDER = 100
+  const FREE_SHIP = 199.99
+  const belowMin = cartTotal < MIN_ORDER
+  const belowFreeShip = cartTotal >= MIN_ORDER && cartTotal < FREE_SHIP
+  const hasFreeShip = cartTotal >= FREE_SHIP
+  const progressPct = Math.min(100, (cartTotal / FREE_SHIP) * 100)
+
   if (!isCartOpen) return null
 
   function handleCheckout() {
@@ -114,6 +121,44 @@ export default function CartDrawer() {
         {/* Footer */}
         {cart.length > 0 && (
           <div className="px-6 py-5 border-t space-y-4" style={{ backgroundColor: 'var(--s0)', borderColor: 'var(--rim)' }}>
+
+            {/* Progress bar */}
+            <div>
+              <div className="h-1.5 rounded-full overflow-hidden mb-2.5" style={{ backgroundColor: 'var(--s4)' }}>
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${progressPct}%`,
+                    backgroundColor: hasFreeShip ? '#22c55e' : belowMin ? '#ef4444' : '#FF6B00',
+                  }}
+                />
+              </div>
+              {belowMin && (
+                <p className="text-xs text-center">
+                  <span style={{ color: 'var(--ink-faint)' }}>Faltam </span>
+                  <span className="font-black" style={{ color: '#ef4444' }}>
+                    R$ {(MIN_ORDER - cartTotal).toFixed(2).replace('.', ',')}
+                  </span>
+                  <span style={{ color: 'var(--ink-faint)' }}> para o pedido mínimo (R$ 100,00)</span>
+                </p>
+              )}
+              {belowFreeShip && (
+                <p className="text-xs text-center">
+                  <span style={{ color: 'var(--ink-faint)' }}>Faltam </span>
+                  <span className="font-black text-[#FF6B00]">
+                    R$ {(FREE_SHIP - cartTotal).toFixed(2).replace('.', ',')}
+                  </span>
+                  <span style={{ color: 'var(--ink-faint)' }}> para frete grátis</span>
+                </p>
+              )}
+              {hasFreeShip && (
+                <p className="text-xs text-center font-bold" style={{ color: '#22c55e' }}>
+                  Frete grátis desbloqueado!
+                </p>
+              )}
+            </div>
+
+            {/* Totals */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-sm">
                 <span style={{ color: 'var(--ink-dim)' }}>Subtotal</span>
@@ -121,7 +166,10 @@ export default function CartDrawer() {
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span style={{ color: 'var(--ink-dim)' }}>Frete</span>
-                <span className="italic text-xs" style={{ color: 'var(--ink-faint)' }}>calculado no checkout</span>
+                {hasFreeShip
+                  ? <span className="text-xs font-black" style={{ color: '#22c55e' }}>Grátis</span>
+                  : <span className="italic text-xs" style={{ color: 'var(--ink-faint)' }}>calculado no checkout</span>
+                }
               </div>
               <div className="flex justify-between items-center pt-3 border-t" style={{ borderColor: 'var(--rim)' }}>
                 <span className="text-sm font-bold uppercase tracking-wide" style={{ color: 'var(--ink-dim)' }}>Total parcial</span>
@@ -131,18 +179,21 @@ export default function CartDrawer() {
               </div>
             </div>
 
-            <p className="text-[10px] text-center" style={{ color: 'var(--ink-faint)' }}>
-              Frete calculado no próximo passo.
-            </p>
-
             <button
               onClick={handleCheckout}
-              className="w-full py-4 bg-[#FF6B00] hover:bg-[#e05f00] text-white font-bold text-sm rounded-xl uppercase tracking-wider transition-all flex justify-center items-center gap-2.5 shadow-[0_0_20px_rgba(255,107,0,0.3)] hover:shadow-[0_0_30px_rgba(255,107,0,0.45)]"
+              disabled={belowMin}
+              className="w-full py-4 bg-[#FF6B00] hover:bg-[#e05f00] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl uppercase tracking-wider transition-all flex justify-center items-center gap-2.5 shadow-[0_0_20px_rgba(255,107,0,0.3)] enabled:hover:shadow-[0_0_30px_rgba(255,107,0,0.45)]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" />
-              </svg>
-              Ir para o Checkout
+              {belowMin ? (
+                `Mínimo R$ 100,00 (faltam R$ ${(MIN_ORDER - cartTotal).toFixed(2).replace('.', ',')})`
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" />
+                  </svg>
+                  Ir para o Checkout
+                </>
+              )}
             </button>
           </div>
         )}

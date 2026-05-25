@@ -50,10 +50,15 @@ type ShippingState =
   | { status: 'error'; message: string }
   | { status: 'unconfigured' }
 
+const MIN_ORDER = 100
+const FREE_SHIPPING_THRESHOLD = 199.99
+
 export default function CheckoutPage() {
   const { cart, cartTotal, cartItemCount } = useCart()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
+
+  const freeShipping = cartTotal >= FREE_SHIPPING_THRESHOLD
 
   const [form, setForm] = useState<FormData>({
     name: '', email: '', cpf: '', phone: '',
@@ -64,7 +69,7 @@ export default function CheckoutPage() {
   const [shipping, setShipping] = useState<ShippingState>({ status: 'idle' })
   const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null)
 
-  const shippingCost = selectedShipping?.price ?? 0
+  const shippingCost = freeShipping ? 0 : (selectedShipping?.price ?? 0)
   const finalTotal = cartTotal + shippingCost
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
@@ -138,6 +143,7 @@ export default function CheckoutPage() {
   }
 
   function validate(): string {
+    if (cartTotal < MIN_ORDER) return `Pedido mínimo de R$ 100,00. Adicione mais R$ ${(MIN_ORDER - cartTotal).toFixed(2).replace('.', ',')} ao carrinho.`
     if (!form.name.trim()) return 'Informe seu nome completo.'
     if (!form.email.includes('@')) return 'Informe um e-mail válido.'
     if (form.cpf.replace(/\D/g, '').length !== 11) return 'CPF inválido.'
@@ -149,7 +155,7 @@ export default function CheckoutPage() {
     if (!form.city.trim()) return 'Informe a cidade.'
     if (!form.state) return 'Selecione o estado.'
     if (cart.length === 0) return 'Seu carrinho está vazio.'
-    if (!selectedShipping && shipping.status !== 'unconfigured') return 'Selecione uma opção de frete.'
+    if (!freeShipping && !selectedShipping && shipping.status !== 'unconfigured') return 'Selecione uma opção de frete.'
     return ''
   }
 
@@ -316,11 +322,23 @@ export default function CheckoutPage() {
               <h2 className="text-xl font-black uppercase tracking-wider mb-1 text-[#FF6B00]">Frete</h2>
               <p className="text-xs mb-5" style={{ color: 'var(--ink-faint)' }}>Calculado automaticamente ao informar o CEP.</p>
 
-              {shipping.status === 'idle' && (
+              {freeShipping && (
+                <div className="flex items-center gap-3 p-4 rounded-xl border-2 border-green-500/40 bg-green-500/10">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-black" style={{ color: '#22c55e' }}>Frete grátis!</p>
+                    <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>Sua compra acima de R$ 199,99 garante frete grátis.</p>
+                  </div>
+                </div>
+              )}
+
+              {!freeShipping && shipping.status === 'idle' && (
                 <p className="text-sm" style={{ color: 'var(--ink-faint)' }}>Preencha o CEP acima para ver as opções de entrega.</p>
               )}
 
-              {shipping.status === 'loading' && (
+              {!freeShipping && shipping.status === 'loading' && (
                 <div className="flex items-center gap-3 text-sm" style={{ color: 'var(--ink-dim)' }}>
                   <svg className="animate-spin h-5 w-5 text-[#FF6B00]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -330,17 +348,17 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              {shipping.status === 'error' && (
+              {!freeShipping && shipping.status === 'error' && (
                 <p className="text-red-400 text-sm">{shipping.message}</p>
               )}
 
-              {shipping.status === 'unconfigured' && (
+              {!freeShipping && shipping.status === 'unconfigured' && (
                 <div className="bg-yellow-900/30 border border-yellow-700/50 rounded-lg p-4 text-sm text-yellow-300">
                   Integração com Melhor Envio ainda não configurada. O frete será combinado com o vendedor após o pedido.
                 </div>
               )}
 
-              {shipping.status === 'ok' && (
+              {!freeShipping && shipping.status === 'ok' && (
                 <div className="space-y-3">
                   {shipping.options.map((opt) => (
                     <label
@@ -421,11 +439,13 @@ export default function CheckoutPage() {
                 <div className="flex justify-between text-sm" style={{ color: 'var(--ink-dim)' }}>
                   <span>Frete</span>
                   <span>
-                    {selectedShipping
-                      ? selectedShipping.priceStr
-                      : shipping.status === 'unconfigured'
-                        ? 'A combinar'
-                        : <span style={{ color: 'var(--ink-faint)', fontStyle: 'italic' }}>—</span>
+                    {freeShipping
+                      ? <span className="font-black" style={{ color: '#22c55e' }}>Grátis</span>
+                      : selectedShipping
+                        ? selectedShipping.priceStr
+                        : shipping.status === 'unconfigured'
+                          ? 'A combinar'
+                          : <span style={{ color: 'var(--ink-faint)', fontStyle: 'italic' }}>—</span>
                     }
                   </span>
                 </div>

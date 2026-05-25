@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
           failure: `${baseUrl}/checkout/failure`,
           pending: `${baseUrl}/checkout/pending`,
         },
-        auto_return: 'approved',
+        ...(baseUrl.startsWith('http://localhost') ? {} : { auto_return: 'approved' as const }),
         notification_url: `${baseUrl}/api/payment-webhook`,
         statement_descriptor: 'PIRATAS FISHING',
       },
@@ -82,8 +82,8 @@ export async function POST(req: NextRequest) {
 
     return Response.json({ initPoint: result.init_point, orderId })
   } catch (err: unknown) {
-    console.error('[create-payment]', err)
-    const message = err instanceof Error ? err.message : 'Erro interno'
+    console.error('[create-payment]', JSON.stringify(err, Object.getOwnPropertyNames(err as object)))
+    const message = err instanceof Error ? err.message : (err as { message?: string })?.message ?? 'Erro interno'
     return Response.json({ error: message }, { status: 500 })
   }
 }
