@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
   PieChart, Pie, Cell, BarChart, Bar,
@@ -452,9 +453,18 @@ export default function AdminDashboardPage() {
     <main className="min-h-screen" style={{ backgroundColor: 'var(--s0)' }}>
       {/* Header */}
       <header className="border-b px-6 py-4 flex items-center justify-between sticky top-0 z-40" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
-        <div>
-          <p className="text-xl font-black" style={{ color: 'var(--ink)' }}>🏴‍☠️ Piratas Fishing — Admin</p>
-          <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>Painel de pedidos</p>
+        <div className="flex items-center gap-6">
+          <div>
+            <p className="text-xl font-black" style={{ color: 'var(--ink)' }}>🏴‍☠️ Piratas Fishing</p>
+          </div>
+          <nav className="flex gap-1">
+            <Link href="/admin" className="px-4 py-1.5 rounded-lg text-sm font-bold" style={{ backgroundColor: '#FF6B00', color: '#fff' }}>
+              Dashboard
+            </Link>
+            <Link href="/admin/kanban" className="px-4 py-1.5 rounded-lg text-sm font-bold transition-colors" style={{ color: 'var(--ink-dim)' }}>
+              Kanban
+            </Link>
+          </nav>
         </div>
         <div className="flex items-center gap-4">
           <button
