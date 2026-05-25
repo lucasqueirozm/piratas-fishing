@@ -522,49 +522,6 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            {/* ── Kanban ── */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-black uppercase tracking-wider" style={{ color: '#FF6B00' }}>
-                  Fluxo de pedidos
-                </h2>
-                <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>Clique no card para ver detalhes</p>
-              </div>
-              <div className="flex gap-4 overflow-x-auto pb-4">
-                {FULFILLMENT_STATUSES.map((status) => {
-                  const colOrders = fulfillmentOrders.filter((o) => o.status === status)
-                  const color = COLUMN_COLOR[status]!
-                  return (
-                    <div key={status} className="flex-shrink-0 w-64 space-y-3">
-                      <div className="flex items-center gap-2 px-1">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-                        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--ink-dim)' }}>
-                          {COLUMN_LABEL[status]}
-                        </span>
-                        <span className="ml-auto text-xs font-black px-2 py-0.5 rounded-full" style={{ backgroundColor: `${color}20`, color }}>
-                          {colOrders.length}
-                        </span>
-                      </div>
-                      {colOrders.length === 0 ? (
-                        <div className="rounded-xl border border-dashed h-24 flex items-center justify-center text-xs" style={{ borderColor: 'var(--rim)', color: 'var(--ink-faint)' }}>
-                          Nenhum pedido
-                        </div>
-                      ) : (
-                        colOrders.map((order) => (
-                          <OrderCard
-                            key={order.id}
-                            order={order}
-                            onAdvance={handleAdvance}
-                            onOpenDetail={setSelectedOrder}
-                          />
-                        ))
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
             {/* ── KPIs ── */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {[
