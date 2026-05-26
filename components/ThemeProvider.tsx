@@ -11,9 +11,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('dark')
 
   useEffect(() => {
-    const saved = (localStorage.getItem('pf-theme') as Theme | null) ?? 'dark'
-    setTheme(saved)
-    document.documentElement.setAttribute('data-theme', saved)
+    const saved = localStorage.getItem('pf-theme') as Theme | null
+    const system: Theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    const initial = saved ?? system
+    setTheme(initial)
+    document.documentElement.setAttribute('data-theme', initial)
   }, [])
 
   function toggle() {

@@ -90,13 +90,23 @@ export default function CartDrawer() {
                   <div className="flex items-center gap-2 mt-2">
                     <button
                       onClick={() => updateQuantity(product.id, -1)}
-                      className="w-6 h-6 flex items-center justify-center rounded transition-colors font-bold text-sm"
+                      className="w-6 h-6 flex items-center justify-center rounded transition-colors font-bold text-sm cursor-pointer"
                       style={{ backgroundColor: 'var(--s4)', color: 'var(--ink-dim)' }}
                     >−</button>
-                    <span className="text-sm font-bold w-5 text-center" style={{ color: 'var(--ink)' }}>{quantity}</span>
+                    <input
+                      type="number"
+                      min={1}
+                      value={quantity}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value)
+                        if (!isNaN(val) && val >= 1) updateQuantity(product.id, val - quantity)
+                      }}
+                      className="w-10 text-sm font-bold text-center rounded outline-none border"
+                      style={{ backgroundColor: 'var(--s0)', borderColor: 'var(--rim)', color: 'var(--ink)' }}
+                    />
                     <button
                       onClick={() => updateQuantity(product.id, 1)}
-                      className="w-6 h-6 flex items-center justify-center rounded transition-colors font-bold text-sm"
+                      className="w-6 h-6 flex items-center justify-center rounded transition-colors font-bold text-sm cursor-pointer"
                       style={{ backgroundColor: 'var(--s4)', color: 'var(--ink-dim)' }}
                     >+</button>
                   </div>
@@ -122,41 +132,37 @@ export default function CartDrawer() {
         {cart.length > 0 && (
           <div className="px-6 py-5 border-t space-y-4" style={{ backgroundColor: 'var(--s0)', borderColor: 'var(--rim)' }}>
 
-            {/* Progress bar */}
+            {/* Frete grátis progress */}
             <div>
-              <div className="h-1.5 rounded-full overflow-hidden mb-2.5" style={{ backgroundColor: 'var(--s4)' }}>
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${progressPct}%`,
-                    backgroundColor: hasFreeShip ? '#22c55e' : belowMin ? '#ef4444' : '#FF6B00',
-                  }}
-                />
-              </div>
-              {belowMin && (
-                <p className="text-xs text-center">
-                  <span style={{ color: 'var(--ink-faint)' }}>Faltam </span>
-                  <span className="font-black" style={{ color: '#ef4444' }}>
-                    R$ {(MIN_ORDER - cartTotal).toFixed(2).replace('.', ',')}
-                  </span>
-                  <span style={{ color: 'var(--ink-faint)' }}> para o pedido mínimo (R$ 100,00)</span>
-                </p>
-              )}
-              {belowFreeShip && (
-                <p className="text-xs text-center">
-                  <span style={{ color: 'var(--ink-faint)' }}>Faltam </span>
-                  <span className="font-black text-[#FF6B00]">
-                    R$ {(FREE_SHIP - cartTotal).toFixed(2).replace('.', ',')}
-                  </span>
-                  <span style={{ color: 'var(--ink-faint)' }}> para frete grátis</span>
-                </p>
+              {!hasFreeShip && (
+                <>
+                  <div className="flex justify-between text-xs mb-1.5" style={{ color: 'var(--ink-faint)' }}>
+                    <span>Frete grátis acima de R$ 199,99</span>
+                    <span className="font-bold" style={{ color: '#FF6B00' }}>
+                      faltam R$ {(FREE_SHIP - cartTotal).toFixed(2).replace('.', ',')}
+                    </span>
+                  </div>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--s4)' }}>
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${progressPct}%`, backgroundColor: '#FF6B00' }}
+                    />
+                  </div>
+                </>
               )}
               {hasFreeShip && (
                 <p className="text-xs text-center font-bold" style={{ color: '#22c55e' }}>
-                  Frete grátis desbloqueado!
+                  🎉 Frete grátis desbloqueado!
                 </p>
               )}
             </div>
+
+            {/* Aviso pedido mínimo */}
+            {belowMin && (
+              <p className="text-xs text-center py-1 px-3 rounded-lg" style={{ backgroundColor: 'var(--s2)', color: 'var(--ink-faint)' }}>
+                Pedido mínimo: <span className="font-bold" style={{ color: 'var(--ink-dim)' }}>R$ 100,00</span>
+              </p>
+            )}
 
             {/* Totals */}
             <div className="space-y-2">
