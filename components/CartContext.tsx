@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, ReactNode } from 'react'
+import { track } from '@/lib/track'
 
 export type Product = {
   id: number
@@ -45,6 +46,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { product, quantity }]
     })
+    track('cart_open')
     setIsCartOpen(true)
   }
 

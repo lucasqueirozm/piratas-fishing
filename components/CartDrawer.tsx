@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCart } from './CartContext'
+import { track } from '@/lib/track'
 
 export default function CartDrawer() {
   const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal } = useCart()
@@ -18,6 +19,7 @@ export default function CartDrawer() {
   if (!isCartOpen) return null
 
   function handleCheckout() {
+    track('checkout_start')
     setIsCartOpen(false)
     router.push('/checkout')
   }

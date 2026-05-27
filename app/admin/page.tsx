@@ -71,6 +71,19 @@ const STATUS_COLORS_PIE: Partial<Record<OrderStatus, string>> = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+function getRevenueByState(orders: Order[]) {
+  const map: Record<string, number> = {}
+  orders.filter((o) => FULFILLMENT_STATUSES.includes(o.status)).forEach((o) => {
+    const s = o.customer.address.state
+    if (s) map[s] = (map[s] ?? 0) + o.total
+  })
+  return Object.entries(map)
+    .map(([state, revenue]) => ({ state, revenue }))
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 7)
+}
+
+
 function fmt(value: number) {
   return `R$ ${value.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
 }
@@ -373,6 +386,7 @@ export default function AdminDashboardPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [search, setSearch] = useState('')
   const [dateRange, setDateRange] = useState<0 | 7 | 30 | 90>(30)
+  const [funnelCounts, setFunnelCounts] = useState({ page_view: 0, cart_open: 0, checkout_start: 0 })
   const router = useRouter()
   const hasFetched = useRef(false)
 
@@ -387,6 +401,20 @@ export default function AdminDashboardPage() {
       })
       .finally(() => setLoading(false))
   }, [router])
+
+  useEffect(() => {
+    fetch(`/api/admin-stats?days=${dateRange}`)
+      .then(async (res) => {
+        if (!res.ok) return
+        const data = await res.json() as { funnelCounts: Record<string, number> }
+        setFunnelCounts({
+          page_view: data.funnelCounts.page_view ?? 0,
+          cart_open: data.funnelCounts.cart_open ?? 0,
+          checkout_start: data.funnelCounts.checkout_start ?? 0,
+        })
+      })
+      .catch(() => {})
+  }, [dateRange])
 
   function handleLogout() {
     startLogout(async () => {
@@ -430,6 +458,7 @@ export default function AdminDashboardPage() {
   const revenueData = useMemo(() => getRevenueData(orders, dateRange), [orders, dateRange])
   const statusData = useMemo(() => getStatusData(filteredByDate), [filteredByDate])
   const topProducts = useMemo(() => getTopProducts(paidFiltered), [paidFiltered])
+  const revenueByState = useMemo(() => getRevenueByState(paidFiltered), [paidFiltered])
 
   const searchLower = search.toLowerCase()
   const matchesSearch = (o: Order) =>
@@ -485,178 +514,310 @@ export default function AdminDashboardPage() {
         </div>
       </header>
 
-      <div className="max-w-[1400px] mx-auto px-4 py-8 space-y-8">
-        {loading ? (
-          <div className="flex items-center justify-center h-64" style={{ color: 'var(--ink-faint)' }}>Carregando...</div>
-        ) : (
-          <>
-            {/* ── Filters bar ── */}
-            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-              <div className="relative flex-1 max-w-sm">
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-                </svg>
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Buscar por nome, e-mail ou CPF..."
-                  className="w-full rounded-xl pl-9 pr-4 py-2.5 text-sm border outline-none"
-                  style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)', color: 'var(--ink)' }}
-                />
+      <div className="max-w-[1600px] mx-auto px-4 py-8 flex gap-6 items-start">
+
+        {/* ── Main column ── */}
+        <div className="flex-1 min-w-0 space-y-8">
+          {loading ? (
+            <div className="flex items-center justify-center h-64" style={{ color: 'var(--ink-faint)' }}>Carregando...</div>
+          ) : (
+            <>
+              {/* ── Filters bar ── */}
+              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                <div className="relative flex-1 max-w-sm">
+                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+                  </svg>
+                  <input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Buscar por nome, e-mail ou CPF..."
+                    className="w-full rounded-xl pl-9 pr-4 py-2.5 text-sm border outline-none"
+                    style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)', color: 'var(--ink)' }}
+                  />
+                </div>
+                <div className="flex gap-1 rounded-xl p-1 border" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
+                  {DATE_RANGES.map((r) => (
+                    <button
+                      key={r.value}
+                      onClick={() => setDateRange(r.value)}
+                      className="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
+                      style={
+                        dateRange === r.value
+                          ? { backgroundColor: '#FF6B00', color: '#fff' }
+                          : { color: 'var(--ink-dim)' }
+                      }
+                    >
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="flex gap-1 rounded-xl p-1 border" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
-                {DATE_RANGES.map((r) => (
-                  <button
-                    key={r.value}
-                    onClick={() => setDateRange(r.value)}
-                    className="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
-                    style={
-                      dateRange === r.value
-                        ? { backgroundColor: '#FF6B00', color: '#fff' }
-                        : { color: 'var(--ink-dim)' }
-                    }
-                  >
-                    {r.label}
-                  </button>
+
+              {/* ── KPIs ── */}
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {[
+                  { label: 'Receita', value: fmt(stats.totalRevenue), color: '#FF6B00' },
+                  { label: 'Pedidos', value: String(stats.totalOrders), color: 'var(--ink)' },
+                  { label: 'Pagos', value: String(stats.paidOrders), color: '#22c55e' },
+                  { label: 'Pendentes', value: String(stats.pendingOrders), color: '#f59e0b' },
+                  { label: 'Ticket médio', value: fmt(stats.avgTicket), color: '#8b5cf6' },
+                ].map((kpi) => (
+                  <div key={kpi.label} className="rounded-2xl p-5 border" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
+                    <p className="text-xs uppercase tracking-widest mb-1" style={{ color: 'var(--ink-faint)' }}>{kpi.label}</p>
+                    <p className="text-xl font-black" style={{ color: kpi.color }}>{kpi.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* ── Charts ── */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {/* Revenue line chart */}
+                <div className="lg:col-span-2 rounded-2xl border p-6" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
+                  <p className="text-sm font-black uppercase tracking-wider mb-6" style={{ color: 'var(--ink-dim)' }}>
+                    Receita — últimos {dateRange === 0 ? 30 : dateRange} dias
+                  </p>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <LineChart data={revenueData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--rim)" vertical={false} />
+                      <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--ink-faint)' }} tickLine={false} axisLine={false} />
+                      <YAxis tick={{ fontSize: 11, fill: 'var(--ink-faint)' }} tickLine={false} axisLine={false} tickFormatter={(v) => `R$${v}`} width={55} />
+                      <Tooltip content={<RevenueTooltip />} />
+                      <Line type="monotone" dataKey="revenue" stroke="#FF6B00" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#FF6B00' }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Status donut */}
+                <div className="rounded-2xl border p-6" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
+                  <p className="text-sm font-black uppercase tracking-wider mb-6" style={{ color: 'var(--ink-dim)' }}>
+                    Pedidos por status
+                  </p>
+                  {statusData.length === 0 ? (
+                    <div className="h-[220px] flex items-center justify-center text-sm" style={{ color: 'var(--ink-faint)' }}>Sem dados</div>
+                  ) : (
+                    <>
+                      <ResponsiveContainer width="100%" height={160}>
+                        <PieChart>
+                          <Pie data={statusData} dataKey="value" innerRadius={50} outerRadius={75} paddingAngle={3} strokeWidth={0}>
+                            {statusData.map((entry, i) => (
+                              <Cell key={i} fill={STATUS_COLORS_PIE[entry.status as OrderStatus] ?? '#6b7280'} />
+                            ))}
+                          </Pie>
+                          <Tooltip formatter={(v, n) => [v, n]} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="space-y-1 mt-2">
+                        {statusData.map((d, i) => (
+                          <div key={i} className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: STATUS_COLORS_PIE[d.status as OrderStatus] ?? '#6b7280' }} />
+                              <span style={{ color: 'var(--ink-dim)' }}>{d.name}</span>
+                            </div>
+                            <span className="font-bold" style={{ color: 'var(--ink)' }}>{d.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Top products bar chart */}
+              {topProducts.length > 0 && (
+                <div className="rounded-2xl border p-6" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
+                  <p className="text-sm font-black uppercase tracking-wider mb-6" style={{ color: 'var(--ink-dim)' }}>
+                    Produtos mais vendidos (por receita)
+                  </p>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart data={topProducts} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--rim)" horizontal={false} />
+                      <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--ink-faint)' }} tickLine={false} axisLine={false} tickFormatter={(v) => `R$${v}`} />
+                      <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: 'var(--ink-faint)' }} tickLine={false} axisLine={false} width={140} />
+                      <Tooltip content={<BarTooltip />} />
+                      <Bar dataKey="receita" fill="#FF6B00" radius={[0, 6, 6, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {/* ── Pré-pagamento ── */}
+              {preOrders.length > 0 && (
+                <div className="rounded-2xl border overflow-hidden" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
+                  <div className="p-5 border-b" style={{ borderColor: 'var(--rim)' }}>
+                    <h2 className="text-sm font-black uppercase tracking-wider" style={{ color: 'var(--ink-dim)' }}>
+                      Pré-pagamento ({preOrders.length})
+                    </h2>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b text-xs uppercase tracking-wider" style={{ borderColor: 'var(--rim)', color: 'var(--ink-faint)' }}>
+                          <th className="text-left py-3 px-4">ID</th>
+                          <th className="text-left py-3 px-4">Cliente</th>
+                          <th className="text-left py-3 px-4">Data</th>
+                          <th className="text-left py-3 px-4">Total</th>
+                          <th className="text-left py-3 px-4">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {preOrders.map((order) => (
+                          <tr
+                            key={order.id}
+                            className="border-b cursor-pointer transition-colors hover:bg-white/5"
+                            style={{ borderColor: 'var(--rim)' }}
+                            onClick={() => setSelectedOrder(order)}
+                          >
+                            <td className="py-3 px-4 font-mono text-xs" style={{ color: 'var(--ink-faint)' }}>{order.id?.slice(0, 8)}…</td>
+                            <td className="py-3 px-4">
+                              <p className="font-bold" style={{ color: 'var(--ink)' }}>{order.customer.name}</p>
+                              <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>{order.customer.email}</p>
+                            </td>
+                            <td className="py-3 px-4" style={{ color: 'var(--ink-dim)' }}>{fmtDate(order.createdAt)}</td>
+                            <td className="py-3 px-4 font-bold" style={{ color: 'var(--ink)' }}>{fmt(order.total)}</td>
+                            <td className="py-3 px-4">
+                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${PRE_STATUS_COLOR[order.status] ?? 'bg-gray-500/20 text-gray-400'}`}>
+                                {PRE_STATUS_LABEL[order.status] ?? order.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* ── Statistics Sidebar ── */}
+        <aside className="w-72 shrink-0 space-y-4 sticky top-[73px]">
+
+          {/* Funil de conversão */}
+          <div className="rounded-2xl border p-5" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
+            <p className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: 'var(--ink-faint)' }}>
+              Funil de conversão
+            </p>
+            {(() => {
+              const visits = funnelCounts.page_view
+              const cartOpens = funnelCounts.cart_open
+              const checkoutStarts = funnelCounts.checkout_start
+              const purchases = stats.paidOrders
+              const stages = [
+                { label: 'Visitas ao site', value: visits, pct: 100, color: '#6366f1' },
+                { label: 'Abriram o carrinho', value: cartOpens, pct: visits ? Math.round((cartOpens / visits) * 100) : 0, color: '#f59e0b' },
+                { label: 'Iniciaram checkout', value: checkoutStarts, pct: visits ? Math.round((checkoutStarts / visits) * 100) : 0, color: '#FF6B00' },
+                { label: 'Compraram', value: purchases, pct: visits ? Math.round((purchases / visits) * 100) : 0, color: '#22c55e' },
+              ]
+              return (
+                <div className="space-y-3">
+                  {stages.map((stage, i) => (
+                    <div key={i}>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs" style={{ color: 'var(--ink-dim)' }}>{stage.label}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold" style={{ color: 'var(--ink)' }}>{stage.value}</span>
+                          {i > 0 && (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: `${stage.color}22`, color: stage.color }}>
+                              {stage.pct}%
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--s3)' }}>
+                        <div
+                          className="h-full rounded-full transition-all duration-700"
+                          style={{ width: `${stage.pct}%`, backgroundColor: stage.color }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
+            {funnelCounts.page_view === 0 && (
+              <p className="text-xs text-center mt-3" style={{ color: 'var(--ink-faint)' }}>
+                Os dados aparecerão após os primeiros acessos serem registrados.
+              </p>
+            )}
+          </div>
+
+          {/* Receita por estado */}
+          {revenueByState.length > 0 && (
+            <div className="rounded-2xl border p-5" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
+              <p className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: 'var(--ink-faint)' }}>
+                Receita por estado
+              </p>
+              <div className="space-y-2.5">
+                {revenueByState.map(({ state, revenue }) => {
+                  const maxRevenue = revenueByState[0].revenue
+                  const pct = Math.round((revenue / maxRevenue) * 100)
+                  return (
+                    <div key={state}>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs font-bold" style={{ color: 'var(--ink-dim)' }}>{state}</span>
+                        <span className="text-xs font-black" style={{ color: '#FF6B00' }}>{fmt(revenue)}</span>
+                      </div>
+                      <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--s3)' }}>
+                        <div
+                          className="h-full rounded-full"
+                          style={{ width: `${pct}%`, backgroundColor: '#FF6B00', opacity: 0.6 + (pct / 250) }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Produtos — top 3 por qtd */}
+          {topProducts.length > 0 && (
+            <div className="rounded-2xl border p-5" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
+              <p className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: 'var(--ink-faint)' }}>
+                Top produtos
+              </p>
+              <div className="space-y-3">
+                {topProducts.slice(0, 4).map((p, i) => (
+                  <div key={p.name} className="flex items-center gap-3">
+                    <span
+                      className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black shrink-0"
+                      style={{ backgroundColor: i === 0 ? '#FF6B00' : 'var(--s3)', color: i === 0 ? '#fff' : 'var(--ink-faint)' }}
+                    >
+                      {i + 1}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold truncate" style={{ color: 'var(--ink)' }}>{p.name}</p>
+                      <p className="text-[10px]" style={{ color: 'var(--ink-faint)' }}>{p.quantidade} un · {fmt(p.receita)}</p>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
+          )}
 
-            {/* ── KPIs ── */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {/* Resumo de pedidos */}
+          <div className="rounded-2xl border p-5" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
+            <p className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: 'var(--ink-faint)' }}>
+              Resumo do período
+            </p>
+            <div className="space-y-2">
               {[
-                { label: 'Receita', value: fmt(stats.totalRevenue), color: '#FF6B00' },
-                { label: 'Pedidos', value: String(stats.totalOrders), color: 'var(--ink)' },
-                { label: 'Pagos', value: String(stats.paidOrders), color: '#22c55e' },
-                { label: 'Pendentes', value: String(stats.pendingOrders), color: '#f59e0b' },
-                { label: 'Ticket médio', value: fmt(stats.avgTicket), color: '#8b5cf6' },
-              ].map((kpi) => (
-                <div key={kpi.label} className="rounded-2xl p-5 border" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
-                  <p className="text-xs uppercase tracking-widest mb-1" style={{ color: 'var(--ink-faint)' }}>{kpi.label}</p>
-                  <p className="text-xl font-black" style={{ color: kpi.color }}>{kpi.value}</p>
+                { label: 'Taxa de conversão', value: funnelCounts.page_view > 0 ? `${Math.round((stats.paidOrders / funnelCounts.page_view) * 100)}%` : '—', color: '#22c55e' },
+                { label: 'Pedidos completos', value: String(orders.filter(o => o.status === 'completed').length), color: '#22c55e' },
+                { label: 'Pedidos em aberto', value: String(orders.filter(o => FULFILLMENT_STATUSES.includes(o.status) && o.status !== 'completed').length), color: '#f59e0b' },
+                { label: 'Total de pedidos', value: String(orders.length), color: 'var(--ink-dim)' },
+              ].map(({ label, value, color }) => (
+                <div key={label} className="flex justify-between items-center text-xs">
+                  <span style={{ color: 'var(--ink-faint)' }}>{label}</span>
+                  <span className="font-black" style={{ color }}>{value}</span>
                 </div>
               ))}
             </div>
+          </div>
+        </aside>
 
-            {/* ── Charts ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              {/* Revenue line chart */}
-              <div className="lg:col-span-2 rounded-2xl border p-6" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
-                <p className="text-sm font-black uppercase tracking-wider mb-6" style={{ color: 'var(--ink-dim)' }}>
-                  Receita — últimos {dateRange === 0 ? 30 : dateRange} dias
-                </p>
-                <ResponsiveContainer width="100%" height={220}>
-                  <LineChart data={revenueData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--rim)" vertical={false} />
-                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--ink-faint)' }} tickLine={false} axisLine={false} />
-                    <YAxis tick={{ fontSize: 11, fill: 'var(--ink-faint)' }} tickLine={false} axisLine={false} tickFormatter={(v) => `R$${v}`} width={55} />
-                    <Tooltip content={<RevenueTooltip />} />
-                    <Line type="monotone" dataKey="revenue" stroke="#FF6B00" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#FF6B00' }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Status donut */}
-              <div className="rounded-2xl border p-6" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
-                <p className="text-sm font-black uppercase tracking-wider mb-6" style={{ color: 'var(--ink-dim)' }}>
-                  Pedidos por status
-                </p>
-                {statusData.length === 0 ? (
-                  <div className="h-[220px] flex items-center justify-center text-sm" style={{ color: 'var(--ink-faint)' }}>Sem dados</div>
-                ) : (
-                  <>
-                    <ResponsiveContainer width="100%" height={160}>
-                      <PieChart>
-                        <Pie data={statusData} dataKey="value" innerRadius={50} outerRadius={75} paddingAngle={3} strokeWidth={0}>
-                          {statusData.map((entry, i) => (
-                            <Cell key={i} fill={STATUS_COLORS_PIE[entry.status as OrderStatus] ?? '#6b7280'} />
-                          ))}
-                        </Pie>
-                        <Tooltip formatter={(v, n) => [v, n]} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="space-y-1 mt-2">
-                      {statusData.map((d, i) => (
-                        <div key={i} className="flex items-center justify-between text-xs">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: STATUS_COLORS_PIE[d.status as OrderStatus] ?? '#6b7280' }} />
-                            <span style={{ color: 'var(--ink-dim)' }}>{d.name}</span>
-                          </div>
-                          <span className="font-bold" style={{ color: 'var(--ink)' }}>{d.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Top products bar chart */}
-            {topProducts.length > 0 && (
-              <div className="rounded-2xl border p-6" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
-                <p className="text-sm font-black uppercase tracking-wider mb-6" style={{ color: 'var(--ink-dim)' }}>
-                  Produtos mais vendidos (por receita)
-                </p>
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart data={topProducts} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--rim)" horizontal={false} />
-                    <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--ink-faint)' }} tickLine={false} axisLine={false} tickFormatter={(v) => `R$${v}`} />
-                    <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: 'var(--ink-faint)' }} tickLine={false} axisLine={false} width={140} />
-                    <Tooltip content={<BarTooltip />} />
-                    <Bar dataKey="receita" fill="#FF6B00" radius={[0, 6, 6, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-
-            {/* ── Pré-pagamento ── */}
-            {preOrders.length > 0 && (
-              <div className="rounded-2xl border overflow-hidden" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
-                <div className="p-5 border-b" style={{ borderColor: 'var(--rim)' }}>
-                  <h2 className="text-sm font-black uppercase tracking-wider" style={{ color: 'var(--ink-dim)' }}>
-                    Pré-pagamento ({preOrders.length})
-                  </h2>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b text-xs uppercase tracking-wider" style={{ borderColor: 'var(--rim)', color: 'var(--ink-faint)' }}>
-                        <th className="text-left py-3 px-4">ID</th>
-                        <th className="text-left py-3 px-4">Cliente</th>
-                        <th className="text-left py-3 px-4">Data</th>
-                        <th className="text-left py-3 px-4">Total</th>
-                        <th className="text-left py-3 px-4">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {preOrders.map((order) => (
-                        <tr
-                          key={order.id}
-                          className="border-b cursor-pointer transition-colors hover:bg-white/5"
-                          style={{ borderColor: 'var(--rim)' }}
-                          onClick={() => setSelectedOrder(order)}
-                        >
-                          <td className="py-3 px-4 font-mono text-xs" style={{ color: 'var(--ink-faint)' }}>{order.id?.slice(0, 8)}…</td>
-                          <td className="py-3 px-4">
-                            <p className="font-bold" style={{ color: 'var(--ink)' }}>{order.customer.name}</p>
-                            <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>{order.customer.email}</p>
-                          </td>
-                          <td className="py-3 px-4" style={{ color: 'var(--ink-dim)' }}>{fmtDate(order.createdAt)}</td>
-                          <td className="py-3 px-4 font-bold" style={{ color: 'var(--ink)' }}>{fmt(order.total)}</td>
-                          <td className="py-3 px-4">
-                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${PRE_STATUS_COLOR[order.status] ?? 'bg-gray-500/20 text-gray-400'}`}>
-                              {PRE_STATUS_LABEL[order.status] ?? order.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </>
-        )}
       </div>
 
       {/* Order detail modal */}

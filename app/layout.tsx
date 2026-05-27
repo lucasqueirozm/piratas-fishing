@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/components/ThemeProvider'
 import Navbar from '@/components/Navbar'
 import CartDrawer from '@/components/CartDrawer'
 import CookieBanner from '@/components/CookieBanner'
+import PageTracker from '@/components/PageTracker'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col" style={{ backgroundColor: 'var(--s0)', color: 'var(--ink)' }}>
         <ThemeProvider>
           <CartProvider>
+            <PageTracker />
             <Navbar />
             {children}
             <CartDrawer />
