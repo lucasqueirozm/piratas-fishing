@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useState, useTransition, useRef, useMemo } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
   PieChart, Pie, Cell, BarChart, Bar,
@@ -70,18 +69,6 @@ const STATUS_COLORS_PIE: Partial<Record<OrderStatus, string>> = {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function getRevenueByState(orders: Order[]) {
-  const map: Record<string, number> = {}
-  orders.filter((o) => FULFILLMENT_STATUSES.includes(o.status)).forEach((o) => {
-    const s = o.customer.address.state
-    if (s) map[s] = (map[s] ?? 0) + o.total
-  })
-  return Object.entries(map)
-    .map(([state, revenue]) => ({ state, revenue }))
-    .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, 7)
-}
 
 
 function fmt(value: number) {
@@ -382,11 +369,9 @@ function BarTooltip({ active, payload }: { active?: boolean; payload?: { payload
 export default function AdminDashboardPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
-  const [logoutPending, startLogout] = useTransition()
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [search, setSearch] = useState('')
   const [dateRange, setDateRange] = useState<0 | 7 | 30 | 90>(30)
-  const [funnelCounts, setFunnelCounts] = useState({ page_view: 0, cart_open: 0, checkout_start: 0 })
   const router = useRouter()
   const hasFetched = useRef(false)
 
@@ -401,27 +386,6 @@ export default function AdminDashboardPage() {
       })
       .finally(() => setLoading(false))
   }, [router])
-
-  useEffect(() => {
-    fetch(`/api/admin-stats?days=${dateRange}`)
-      .then(async (res) => {
-        if (!res.ok) return
-        const data = await res.json() as { funnelCounts: Record<string, number> }
-        setFunnelCounts({
-          page_view: data.funnelCounts.page_view ?? 0,
-          cart_open: data.funnelCounts.cart_open ?? 0,
-          checkout_start: data.funnelCounts.checkout_start ?? 0,
-        })
-      })
-      .catch(() => {})
-  }, [dateRange])
-
-  function handleLogout() {
-    startLogout(async () => {
-      await fetch('/api/admin-login', { method: 'DELETE' })
-      router.push('/admin/login')
-    })
-  }
 
   async function handleAdvance(orderId: string, nextStatus: OrderStatus, trackingCode?: string) {
     await fetch('/api/admin-orders', {
@@ -458,7 +422,6 @@ export default function AdminDashboardPage() {
   const revenueData = useMemo(() => getRevenueData(orders, dateRange), [orders, dateRange])
   const statusData = useMemo(() => getStatusData(filteredByDate), [filteredByDate])
   const topProducts = useMemo(() => getTopProducts(paidFiltered), [paidFiltered])
-  const revenueByState = useMemo(() => getRevenueByState(paidFiltered), [paidFiltered])
 
   const searchLower = search.toLowerCase()
   const matchesSearch = (o: Order) =>
@@ -479,23 +442,12 @@ export default function AdminDashboardPage() {
   ]
 
   return (
-    <main className="min-h-screen" style={{ backgroundColor: 'var(--s0)' }}>
-      {/* Header */}
-      <header className="border-b px-6 py-4 flex items-center justify-between sticky top-0 z-40" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
-        <div className="flex items-center gap-6">
-          <div>
-            <p className="text-xl font-black" style={{ color: 'var(--ink)' }}>🏴‍☠️ Piratas Fishing</p>
-          </div>
-          <nav className="flex gap-1">
-            <Link href="/admin" className="px-4 py-1.5 rounded-lg text-sm font-bold" style={{ backgroundColor: '#FF6B00', color: '#fff' }}>
-              Dashboard
-            </Link>
-            <Link href="/admin/kanban" className="px-4 py-1.5 rounded-lg text-sm font-bold transition-colors" style={{ color: 'var(--ink-dim)' }}>
-              Kanban
-            </Link>
-          </nav>
-        </div>
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--s0)' }}>
+      <div className="max-w-[1200px] mx-auto px-6 py-6 space-y-6">
+
+        {/* Page title + actions */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg font-black uppercase tracking-widest" style={{ color: 'var(--ink-dim)' }}>Dashboard</h1>
           <button
             onClick={() => exportCSV(orders)}
             className="text-xs font-bold px-4 py-2 rounded-lg border transition-colors"
@@ -503,21 +455,9 @@ export default function AdminDashboardPage() {
           >
             ↓ Exportar CSV
           </button>
-          <button
-            onClick={handleLogout}
-            disabled={logoutPending}
-            className="text-sm font-bold transition-colors"
-            style={{ color: 'var(--ink-dim)' }}
-          >
-            Sair
-          </button>
         </div>
-      </header>
 
-      <div className="max-w-[1600px] mx-auto px-4 py-8 flex gap-6 items-start">
-
-        {/* ── Main column ── */}
-        <div className="flex-1 min-w-0 space-y-8">
+        <div className="space-y-8">
           {loading ? (
             <div className="flex items-center justify-center h-64" style={{ color: 'var(--ink-faint)' }}>Carregando...</div>
           ) : (
@@ -690,140 +630,12 @@ export default function AdminDashboardPage() {
             </>
           )}
         </div>
-
-        {/* ── Statistics Sidebar ── */}
-        <aside className="w-72 shrink-0 space-y-4 sticky top-[73px]">
-
-          {/* Funil de conversão */}
-          <div className="rounded-2xl border p-5" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
-            <p className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: 'var(--ink-faint)' }}>
-              Funil de conversão
-            </p>
-            {(() => {
-              const visits = funnelCounts.page_view
-              const cartOpens = funnelCounts.cart_open
-              const checkoutStarts = funnelCounts.checkout_start
-              const purchases = stats.paidOrders
-              const stages = [
-                { label: 'Visitas ao site', value: visits, pct: 100, color: '#6366f1' },
-                { label: 'Abriram o carrinho', value: cartOpens, pct: visits ? Math.round((cartOpens / visits) * 100) : 0, color: '#f59e0b' },
-                { label: 'Iniciaram checkout', value: checkoutStarts, pct: visits ? Math.round((checkoutStarts / visits) * 100) : 0, color: '#FF6B00' },
-                { label: 'Compraram', value: purchases, pct: visits ? Math.round((purchases / visits) * 100) : 0, color: '#22c55e' },
-              ]
-              return (
-                <div className="space-y-3">
-                  {stages.map((stage, i) => (
-                    <div key={i}>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-xs" style={{ color: 'var(--ink-dim)' }}>{stage.label}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold" style={{ color: 'var(--ink)' }}>{stage.value}</span>
-                          {i > 0 && (
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: `${stage.color}22`, color: stage.color }}>
-                              {stage.pct}%
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--s3)' }}>
-                        <div
-                          className="h-full rounded-full transition-all duration-700"
-                          style={{ width: `${stage.pct}%`, backgroundColor: stage.color }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )
-            })()}
-            {funnelCounts.page_view === 0 && (
-              <p className="text-xs text-center mt-3" style={{ color: 'var(--ink-faint)' }}>
-                Os dados aparecerão após os primeiros acessos serem registrados.
-              </p>
-            )}
-          </div>
-
-          {/* Receita por estado */}
-          {revenueByState.length > 0 && (
-            <div className="rounded-2xl border p-5" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
-              <p className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: 'var(--ink-faint)' }}>
-                Receita por estado
-              </p>
-              <div className="space-y-2.5">
-                {revenueByState.map(({ state, revenue }) => {
-                  const maxRevenue = revenueByState[0].revenue
-                  const pct = Math.round((revenue / maxRevenue) * 100)
-                  return (
-                    <div key={state}>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-xs font-bold" style={{ color: 'var(--ink-dim)' }}>{state}</span>
-                        <span className="text-xs font-black" style={{ color: '#FF6B00' }}>{fmt(revenue)}</span>
-                      </div>
-                      <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--s3)' }}>
-                        <div
-                          className="h-full rounded-full"
-                          style={{ width: `${pct}%`, backgroundColor: '#FF6B00', opacity: 0.6 + (pct / 250) }}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Produtos — top 3 por qtd */}
-          {topProducts.length > 0 && (
-            <div className="rounded-2xl border p-5" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
-              <p className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: 'var(--ink-faint)' }}>
-                Top produtos
-              </p>
-              <div className="space-y-3">
-                {topProducts.slice(0, 4).map((p, i) => (
-                  <div key={p.name} className="flex items-center gap-3">
-                    <span
-                      className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black shrink-0"
-                      style={{ backgroundColor: i === 0 ? '#FF6B00' : 'var(--s3)', color: i === 0 ? '#fff' : 'var(--ink-faint)' }}
-                    >
-                      {i + 1}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold truncate" style={{ color: 'var(--ink)' }}>{p.name}</p>
-                      <p className="text-[10px]" style={{ color: 'var(--ink-faint)' }}>{p.quantidade} un · {fmt(p.receita)}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Resumo de pedidos */}
-          <div className="rounded-2xl border p-5" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
-            <p className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: 'var(--ink-faint)' }}>
-              Resumo do período
-            </p>
-            <div className="space-y-2">
-              {[
-                { label: 'Taxa de conversão', value: funnelCounts.page_view > 0 ? `${Math.round((stats.paidOrders / funnelCounts.page_view) * 100)}%` : '—', color: '#22c55e' },
-                { label: 'Pedidos completos', value: String(orders.filter(o => o.status === 'completed').length), color: '#22c55e' },
-                { label: 'Pedidos em aberto', value: String(orders.filter(o => FULFILLMENT_STATUSES.includes(o.status) && o.status !== 'completed').length), color: '#f59e0b' },
-                { label: 'Total de pedidos', value: String(orders.length), color: 'var(--ink-dim)' },
-              ].map(({ label, value, color }) => (
-                <div key={label} className="flex justify-between items-center text-xs">
-                  <span style={{ color: 'var(--ink-faint)' }}>{label}</span>
-                  <span className="font-black" style={{ color }}>{value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </aside>
-
       </div>
 
       {/* Order detail modal */}
       {selectedOrder && (
         <OrderModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
       )}
-    </main>
+    </div>
   )
 }

@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import type { Order, OrderStatus } from '@/lib/orders'
 
 const FULFILLMENT_STATUSES: OrderStatus[] = ['paid', 'packed', 'shipped', 'tracking_sent', 'completed']
@@ -267,37 +266,25 @@ export default function AdminKanbanPage() {
 
   return (
     <div className="flex flex-col h-screen" style={{ backgroundColor: 'var(--s0)' }}>
-      {/* Header */}
-      <header className="flex-shrink-0 border-b px-6 py-3 flex items-center gap-6" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
-        <div>
-          <p className="font-black" style={{ color: 'var(--ink)' }}>🏴‍☠️ Piratas Fishing</p>
+      {/* Toolbar */}
+      <div className="flex-shrink-0 border-b px-6 py-3 flex items-center gap-4" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
+        <span className="text-sm font-black uppercase tracking-widest" style={{ color: 'var(--ink-dim)' }}>Kanban</span>
+        <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: 'rgba(255,107,0,0.1)', color: '#FF6B00' }}>
+          {totalActive} em aberto
+        </span>
+        <div className="relative ml-auto">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+          </svg>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar pedido..."
+            className="rounded-lg pl-8 pr-4 py-1.5 text-sm border outline-none"
+            style={{ backgroundColor: 'var(--s2)', borderColor: 'var(--rim)', color: 'var(--ink)', width: 220 }}
+          />
         </div>
-        <nav className="flex gap-1">
-          <Link href="/admin" className="px-4 py-1.5 rounded-lg text-sm font-bold transition-colors" style={{ color: 'var(--ink-dim)' }}>
-            Dashboard
-          </Link>
-          <Link href="/admin/kanban" className="px-4 py-1.5 rounded-lg text-sm font-bold transition-colors" style={{ backgroundColor: '#FF6B00', color: '#fff' }}>
-            Kanban
-          </Link>
-        </nav>
-        <div className="flex items-center gap-3 ml-auto">
-          <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: 'rgba(255,107,0,0.1)', color: '#FF6B00' }}>
-            {totalActive} em aberto
-          </span>
-          <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-            </svg>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar pedido..."
-              className="rounded-lg pl-8 pr-4 py-1.5 text-sm border outline-none"
-              style={{ backgroundColor: 'var(--s2)', borderColor: 'var(--rim)', color: 'var(--ink)', width: 200 }}
-            />
-          </div>
-        </div>
-      </header>
+      </div>
 
       {/* Body */}
       <div className="flex flex-1 overflow-hidden">
