@@ -90,15 +90,25 @@ export default function EstatisticasPage() {
   const cartOpens = funnelCounts.cart_open
   const checkoutStarts = funnelCounts.checkout_start
   const purchases = paid.length
+  const totalRevenue = paid.reduce((s, o) => s + o.total, 0)
 
-  const pct = (a: number, b: number) => (b > 0 ? Math.round((a / b) * 100) : 0)
+  // Caps at 100% — purchases can exceed visits when tracking was activated after orders existed
+  const pct = (a: number, b: number) => (b > 0 ? Math.min(100, Math.round((a / b) * 100)) : 0)
+
+  // Detected data skew: more purchases than visits means tracking started after orders
+  const dataSkewed = eventsReady && visits > 0 && purchases > visits
 
   const funnel = [
-    { label: 'Visitas ao site', value: visits, bar: 100, pctLabel: null, color: '#6366f1' },
+    { label: 'Visitas ao site', value: visits, bar: 100, pctLabel: null as string | null, color: '#6366f1' },
     { label: 'Abriram o carrinho', value: cartOpens, bar: pct(cartOpens, visits), pctLabel: `${pct(cartOpens, visits)}%`, color: '#f59e0b' },
     { label: 'Iniciaram checkout', value: checkoutStarts, bar: pct(checkoutStarts, visits), pctLabel: `${pct(checkoutStarts, visits)}%`, color: '#FF6B00' },
     { label: 'Compraram', value: purchases, bar: pct(purchases, visits), pctLabel: `${pct(purchases, visits)}%`, color: '#22c55e' },
   ]
+
+  const conversionRate = visits > 0 && purchases <= visits ? `${pct(purchases, visits)}%` : '—'
+  const abandonRate = cartOpens > 0 && cartOpens >= purchases
+    ? `${Math.round(((cartOpens - purchases) / cartOpens) * 100)}%`
+    : '—'
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--s0)' }}>
@@ -126,11 +136,53 @@ export default function EstatisticasPage() {
         ) : (
           <div className="space-y-6">
 
+            {/* ── Cards de resumo (topo) ── */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                {
+                  label: 'Taxa de conversão',
+                  value: conversionRate,
+                  sub: 'visitas → compra',
+                  color: '#22c55e',
+                },
+                {
+                  label: 'Abandono de carrinho',
+                  value: abandonRate,
+                  sub: 'abriram mas não compraram',
+                  color: '#f59e0b',
+                },
+                {
+                  label: 'Pedidos pagos',
+                  value: String(purchases),
+                  sub: `no período de ${dateRange === 0 ? 'todo período' : `${dateRange} dias`}`,
+                  color: '#FF6B00',
+                },
+                {
+                  label: 'Ticket médio',
+                  value: purchases > 0 ? fmt(totalRevenue / purchases) : '—',
+                  sub: 'por pedido pago',
+                  color: '#8b5cf6',
+                },
+              ].map((card) => (
+                <div key={card.label} className="rounded-2xl border p-5" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
+                  <p className="text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--ink-faint)' }}>{card.label}</p>
+                  <p className="text-2xl font-black mb-1" style={{ color: card.color }}>{card.value}</p>
+                  <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>{card.sub}</p>
+                </div>
+              ))}
+            </div>
+
             {/* ── Funil de conversão ── */}
             <div className="rounded-2xl border p-6" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
               <p className="text-xs font-black uppercase tracking-widest mb-6" style={{ color: 'var(--ink-faint)' }}>
                 Funil de conversão
               </p>
+
+              {dataSkewed && (
+                <div className="mb-4 px-4 py-3 rounded-xl text-xs" style={{ backgroundColor: 'rgba(245,158,11,0.1)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}>
+                  ⚠️ O rastreamento de visitas foi ativado recentemente. Pedidos anteriores ao tracking estão contabilizados, então as porcentagens do funil ainda não refletem dados reais. Os números se estabilizam automaticamente com o tempo.
+                </div>
+              )}
 
               {!eventsReady ? (
                 <div className="rounded-xl p-4 text-sm text-center" style={{ backgroundColor: 'var(--s2)', color: 'var(--ink-faint)' }}>
@@ -255,42 +307,6 @@ export default function EstatisticasPage() {
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* ── Resumo geral ── */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                {
-                  label: 'Taxa de conversão',
-                  value: visits > 0 ? `${pct(purchases, visits)}%` : '—',
-                  sub: 'visitas → compra',
-                  color: '#22c55e',
-                },
-                {
-                  label: 'Abandono de carrinho',
-                  value: cartOpens > 0 ? `${pct(cartOpens - purchases, cartOpens)}%` : '—',
-                  sub: 'abriram mas não compraram',
-                  color: '#f59e0b',
-                },
-                {
-                  label: 'Pedidos pagos',
-                  value: String(purchases),
-                  sub: `no período de ${dateRange === 0 ? 'todo período' : `${dateRange} dias`}`,
-                  color: '#FF6B00',
-                },
-                {
-                  label: 'Ticket médio',
-                  value: purchases > 0 ? fmt(paid.reduce((s, o) => s + o.total, 0) / purchases) : '—',
-                  sub: 'por pedido pago',
-                  color: '#8b5cf6',
-                },
-              ].map((card) => (
-                <div key={card.label} className="rounded-2xl border p-5" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
-                  <p className="text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--ink-faint)' }}>{card.label}</p>
-                  <p className="text-2xl font-black mb-1" style={{ color: card.color }}>{card.value}</p>
-                  <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>{card.sub}</p>
-                </div>
-              ))}
             </div>
 
           </div>
