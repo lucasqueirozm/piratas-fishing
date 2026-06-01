@@ -35,7 +35,8 @@ button, a, [role="button"], label[for], select { cursor: pointer; }
 @theme inline {
   --color-background: var(--s0);
   --color-foreground: var(--ink);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-barlow);
+  --font-display: var(--font-barlow-condensed);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -43,7 +44,18 @@ body {
   background-color: var(--s0);
   color: var(--ink);
   font-family: var(--font-sans, Arial, sans-serif);
+  font-size: 1rem;
+  line-height: 1.65;
+  font-kerning: normal;
+  font-optical-sizing: auto;
   transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display, var(--font-sans, Arial, sans-serif));
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 
 /* ─── Animations ─────────────────────────────────────────────────────────── */

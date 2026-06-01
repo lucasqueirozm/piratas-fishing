@@ -135,7 +135,7 @@ export default function Home() {
             Iscas de Pesca de Alta Performance
           </div>
 
-          <h1 className="font-black uppercase tracking-tighter leading-none mb-6">
+          <h1 className="font-black uppercase tracking-tight leading-none mb-6">
             <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[7rem]" style={{ color: 'var(--ink)' }}>
               PIRATAS
             </span>

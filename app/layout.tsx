@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Barlow, Barlow_Condensed, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { CartProvider } from '@/components/CartContext'
 import { ThemeProvider } from '@/components/ThemeProvider'
@@ -8,7 +8,20 @@ import CartDrawer from '@/components/CartDrawer'
 import CookieBanner from '@/components/CookieBanner'
 import PageTracker from '@/components/PageTracker'
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
+const barlow = Barlow({
+  variable: '--font-barlow',
+  subsets: ['latin'],
+  weight: ['400', '600'],
+  display: 'swap',
+})
+
+const barlowCondensed = Barlow_Condensed({
+  variable: '--font-barlow-condensed',
+  subsets: ['latin'],
+  weight: ['700', '900'],
+  display: 'swap',
+})
+
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -31,7 +44,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${barlow.variable} ${barlowCondensed.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       {/* Inline script runs before React hydration — prevents flash of wrong theme */}
