@@ -13,7 +13,7 @@ button, a, [role="button"], label[for], select { cursor: pointer; }
   /* ink */
   --ink:      #e8e4dc;
   --ink-dim:  #8a8480;
-  --ink-faint:#48443e;
+  --ink-faint:#8d8680;
   /* borders */
   --rim:       rgba(255,255,255,0.065);
   --rim-str:   rgba(255,255,255,0.11);
@@ -27,7 +27,7 @@ button, a, [role="button"], label[for], select { cursor: pointer; }
   --s4: #f8f5ef;
   --ink:      #1a150e;
   --ink-dim:  #5c5040;
-  --ink-faint:#9b8a78;
+  --ink-faint:#726555;
   --rim:       rgba(0,0,0,0.07);
   --rim-str:   rgba(0,0,0,0.13);
 }
@@ -65,4 +65,14 @@ body {
 @keyframes mega-open {
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

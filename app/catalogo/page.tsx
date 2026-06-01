@@ -34,7 +34,6 @@ export default function CatalogoPage() {
       {/* Page header */}
       <div className="py-14 border-b" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-[#FF6B00] text-[10px] font-bold uppercase tracking-[0.28em] mb-3">Nossa linha completa</p>
           <h1 className="text-4xl sm:text-5xl font-bold uppercase tracking-tight mb-4" style={{ color: 'var(--ink)' }}>
             Catálogo
           </h1>

@@ -14,8 +14,8 @@ const featured = [
 const stats = [
   { value: '31', label: 'Modelos' },
   { value: '5', label: 'Linhas' },
-  { value: 'Brasil', label: 'Entrega' },
-  { value: 'MP', label: 'Pagamento' },
+  { value: 'Correios', label: 'Entrega' },
+  { value: 'MercadoPago', label: 'Pagamento' },
 ]
 
 const features = [
@@ -195,7 +195,6 @@ export default function Home() {
       <section style={{ backgroundColor: 'var(--s1)' }} className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <p className="text-[#FF6B00] text-[10px] font-bold uppercase tracking-[0.28em] mb-4">Por que nos escolher</p>
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--ink)' }}>
               Feito para Pescar Mais
             </h2>
@@ -228,7 +227,6 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-14">
             <div>
-              <p className="text-[#FF6B00] text-[10px] font-bold uppercase tracking-[0.28em] mb-3">Selecionados para você</p>
               <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--ink)' }}>
                 Destaques
               </h2>
@@ -318,7 +316,6 @@ export default function Home() {
         />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <p className="text-[#FF6B00] text-[10px] font-bold uppercase tracking-[0.28em] mb-4">Simples assim</p>
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--ink)' }}>
               Como Comprar
             </h2>
@@ -333,16 +330,7 @@ export default function Home() {
               { n: '03', title: 'Pague com segurança', desc: 'PIX, boleto ou cartão via Mercado Pago.' },
             ].map((step) => (
               <div key={step.n} className="flex flex-col items-center text-center px-6">
-                <div
-                  className="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-6 relative z-10 border"
-                  style={{
-                    backgroundColor: 'var(--s2)',
-                    borderColor: 'rgba(255,107,0,0.25)',
-                    boxShadow: '0 0 20px rgba(255,107,0,0.06)',
-                  }}
-                >
-                  <span className="text-[#FF6B00] font-black text-lg tracking-tighter">{step.n}</span>
-                </div>
+                <span className="text-5xl font-black mb-5 block leading-none" style={{ color: '#FF6B00', opacity: 0.55 }}>{step.n}</span>
                 <h3 className="font-bold text-sm uppercase tracking-wide mb-3" style={{ color: 'var(--ink)' }}>{step.title}</h3>
                 <p className="text-sm leading-relaxed" style={{ color: 'var(--ink-dim)' }}>{step.desc}</p>
               </div>

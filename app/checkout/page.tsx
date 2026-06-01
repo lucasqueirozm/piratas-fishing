@@ -245,20 +245,20 @@ export default function CheckoutPage() {
               <h2 className="text-xl font-black uppercase tracking-wider mb-5 text-[#FF6B00]">Dados Pessoais</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Nome completo *</label>
-                  <input name="name" value={form.name} onChange={handleChange} required className={inputClass} style={inputStyle} />
+                  <label htmlFor="name" className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Nome completo *</label>
+                  <input id="name" name="name" value={form.name} onChange={handleChange} required autoComplete="name" className={inputClass} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>E-mail *</label>
-                  <input name="email" type="email" value={form.email} onChange={handleChange} required className={inputClass} style={inputStyle} />
+                  <label htmlFor="email" className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>E-mail *</label>
+                  <input id="email" name="email" type="email" value={form.email} onChange={handleChange} required autoComplete="email" className={inputClass} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>CPF *</label>
-                  <input name="cpf" value={form.cpf} onChange={handleChange} placeholder="000.000.000-00" className={inputClass} style={inputStyle} />
+                  <label htmlFor="cpf" className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>CPF *</label>
+                  <input id="cpf" name="cpf" value={form.cpf} onChange={handleChange} placeholder="000.000.000-00" autoComplete="off" className={inputClass} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Telefone *</label>
-                  <input name="phone" value={form.phone} onChange={handleChange} placeholder="(21) 99999-9999" className={inputClass} style={inputStyle} />
+                  <label htmlFor="phone" className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Telefone *</label>
+                  <input id="phone" name="phone" value={form.phone} onChange={handleChange} placeholder="(21) 99999-9999" autoComplete="tel" className={inputClass} style={inputStyle} />
                 </div>
               </div>
             </section>
@@ -268,14 +268,16 @@ export default function CheckoutPage() {
               <h2 className="text-xl font-black uppercase tracking-wider mb-5 text-[#FF6B00]">Endereço de Entrega</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>CEP *</label>
+                  <label htmlFor="cep" className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>CEP *</label>
                   <div className="relative">
                     <input
+                      id="cep"
                       name="cep"
                       value={form.cep}
                       onChange={handleChange}
                       onBlur={(e) => fetchAddress(e.target.value)}
                       placeholder="00000-000"
+                      autoComplete="postal-code"
                       className={`${inputClass} pr-10`}
                       style={inputStyle}
                     />
@@ -288,28 +290,28 @@ export default function CheckoutPage() {
                   </div>
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Logradouro *</label>
-                  <input name="street" value={form.street} onChange={handleChange} className={inputClass} style={inputStyle} />
+                  <label htmlFor="street" className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Logradouro *</label>
+                  <input id="street" name="street" value={form.street} onChange={handleChange} autoComplete="address-line1" className={inputClass} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Número *</label>
-                  <input name="number" value={form.number} onChange={handleChange} className={inputClass} style={inputStyle} />
+                  <label htmlFor="number" className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Número *</label>
+                  <input id="number" name="number" value={form.number} onChange={handleChange} autoComplete="off" className={inputClass} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Complemento</label>
-                  <input name="complement" value={form.complement} onChange={handleChange} placeholder="Apto, bloco..." className={inputClass} style={inputStyle} />
+                  <label htmlFor="complement" className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Complemento</label>
+                  <input id="complement" name="complement" value={form.complement} onChange={handleChange} placeholder="Apto, bloco..." autoComplete="address-line2" className={inputClass} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Bairro *</label>
-                  <input name="neighborhood" value={form.neighborhood} onChange={handleChange} className={inputClass} style={inputStyle} />
+                  <label htmlFor="neighborhood" className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Bairro *</label>
+                  <input id="neighborhood" name="neighborhood" value={form.neighborhood} onChange={handleChange} autoComplete="off" className={inputClass} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Cidade *</label>
-                  <input name="city" value={form.city} onChange={handleChange} className={inputClass} style={inputStyle} />
+                  <label htmlFor="city" className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Cidade *</label>
+                  <input id="city" name="city" value={form.city} onChange={handleChange} autoComplete="address-level2" className={inputClass} style={inputStyle} />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Estado *</label>
-                  <select name="state" value={form.state} onChange={handleChange} className={inputClass} style={inputStyle}>
+                  <label htmlFor="state" className="block text-sm mb-1" style={{ color: 'var(--ink-faint)' }}>Estado *</label>
+                  <select id="state" name="state" value={form.state} onChange={handleChange} autoComplete="address-level1" className={inputClass} style={inputStyle}>
                     <option value="">Selecione</option>
                     {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>

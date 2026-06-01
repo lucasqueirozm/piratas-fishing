@@ -148,6 +148,7 @@ function KanbanCard({
   async function handleAdvance(e: React.MouseEvent) {
     e.stopPropagation()
     if (needsTracking && !trackingInput.trim()) return
+    if (next === 'completed' && !window.confirm(`Finalizar pedido de ${order.customer.name}? Esta ação não pode ser desfeita.`)) return
     setLoading(true)
     await onAdvance(order.id!, next!, needsTracking ? trackingInput.trim() : undefined)
     setLoading(false)
