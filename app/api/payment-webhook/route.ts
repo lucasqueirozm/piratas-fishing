@@ -17,8 +17,9 @@ function verifyMpSignature(req: NextRequest, rawBody: string): boolean {
   if (!secret) {
     if (process.env.NODE_ENV === 'production') {
       console.error('[payment-webhook] MP_WEBHOOK_SECRET não configurado em produção!')
+      return false
     }
-    return true // permissivo apenas em desenvolvimento
+    return true // sem verificação apenas em desenvolvimento local
   }
 
   const xSignature = req.headers.get('x-signature')

@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from 'crypto'
+import { ADMIN_SESSION_MESSAGE } from './session-const'
 
 // Gera um token de sessão opaco derivado da ADMIN_PASSWORD via HMAC.
 // Opaco: não é possível recuperar a senha a partir do token.
@@ -6,7 +7,7 @@ import { createHmac, timingSafeEqual } from 'crypto'
 // Se a ADMIN_PASSWORD mudar, todas as sessões existentes expiram automaticamente.
 export function createSessionToken(): string {
   return createHmac('sha256', process.env.ADMIN_PASSWORD ?? 'no-password')
-    .update('piratas-admin-session-v1')
+    .update(ADMIN_SESSION_MESSAGE)
     .digest('hex')
 }
 

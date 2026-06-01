@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { getAdminDb } from '@/lib/firebase-admin'
+import { getAdminDb } from '@/lib/supabase'
 
 const ALLOWED = new Set(['page_view', 'cart_open', 'checkout_start'])
 

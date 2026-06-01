@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
-import { getAdminDb } from '@/lib/firebase-admin'
+import { getAdminDb } from '@/lib/supabase'
 import { verifySessionToken } from '@/lib/admin-auth'
 
 async function checkAuth() {

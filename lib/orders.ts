@@ -1,4 +1,4 @@
-import { getAdminDb } from './firebase-admin'
+import { getAdminDb } from './supabase'
 
 export type OrderStatus = 'pending' | 'paid' | 'failed' | 'cancelled' | 'in_process' | 'packed' | 'shipped' | 'tracking_sent' | 'completed'
 
