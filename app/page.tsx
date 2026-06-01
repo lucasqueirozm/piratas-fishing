@@ -194,30 +194,33 @@ export default function Home() {
       {/* ─── POR QUE NOS ESCOLHER ─── */}
       <section style={{ backgroundColor: 'var(--s1)' }} className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--ink)' }}>
-              Feito para Pescar Mais
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {features.map((f) => (
-              <div
-                key={f.title}
-                className="rounded-2xl p-8 group transition-all duration-300 hover:-translate-y-1 border"
-                style={{
-                  backgroundColor: 'var(--s2)',
-                  borderColor: 'var(--rim)',
-                }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,107,0,0.30)' }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--rim)' }}
-              >
-                <div className="text-[#FF6B00] opacity-70 group-hover:opacity-100 transition-opacity mb-5">
-                  {f.icon}
+          <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-12 lg:gap-20 items-center">
+
+            {/* Left: heading anchor */}
+            <div>
+              <h2 className="text-4xl sm:text-5xl font-bold mb-6" style={{ color: 'var(--ink)' }}>
+                Feito para Pescar Mais
+              </h2>
+              <p className="text-base leading-relaxed" style={{ color: 'var(--ink-dim)' }}>
+                Iscas desenvolvidas por quem pesca, testadas em campo por pescadores profissionais em água doce e salgada.
+              </p>
+            </div>
+
+            {/* Right: 2×2 horizontal features — no card containers */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              {features.map((f) => (
+                <div key={f.title} className="flex gap-4 items-start">
+                  <div className="shrink-0 text-[#FF6B00] opacity-75 mt-0.5">
+                    {f.icon}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base mb-1.5" style={{ color: 'var(--ink)' }}>{f.title}</h3>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--ink-dim)' }}>{f.desc}</p>
+                  </div>
                 </div>
-                <h3 className="font-bold text-sm uppercase tracking-wide mb-3" style={{ color: 'var(--ink)' }}>{f.title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--ink-dim)' }}>{f.desc}</p>
-              </div>
-            ))}
+              ))}
+            </div>
+
           </div>
         </div>
       </section>
@@ -225,7 +228,7 @@ export default function Home() {
       {/* ─── PRODUTOS EM DESTAQUE ─── */}
       <section id="produtos" style={{ backgroundColor: 'var(--s0)' }} className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-14">
+          <div className="flex items-end justify-between mb-9">
             <div>
               <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'var(--ink)' }}>
                 Destaques
@@ -284,7 +287,7 @@ export default function Home() {
                   <h3 className="font-bold text-base leading-tight mb-1" style={{ color: 'var(--ink)' }}>{p.name}</h3>
                   <p className="text-xs mb-5" style={{ color: 'var(--ink-faint)' }}>{p.size}</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-xl font-black tracking-tighter" style={{ color: 'var(--ink)' }}>{p.priceStr}</span>
+                    <span className="text-xl font-black tracking-tight" style={{ color: 'var(--ink)' }}>{p.priceStr}</span>
                     <button
                       onClick={(e) => { e.preventDefault(); addToCart(p) }}
                       className="relative z-20 px-4 py-2 bg-[#FF6B00] hover:bg-[#e05f00] text-white font-semibold text-xs rounded-lg uppercase tracking-wide transition-colors"
@@ -321,18 +324,19 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            <div className="hidden md:block absolute top-9 left-[calc(33.33%+2rem)] right-[calc(33.33%+2rem)] h-px" style={{ background: 'linear-gradient(to right, rgba(255,107,0,0.15), rgba(255,107,0,0.35), rgba(255,107,0,0.15))' }} />
-
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-4">
             {[
               { n: '01', title: 'Escolha sua isca', desc: 'Navegue pelo catálogo e adicione ao carrinho.' },
               { n: '02', title: 'Informe seu endereço', desc: 'Preencha seus dados e calcule o frete em tempo real.' },
               { n: '03', title: 'Pague com segurança', desc: 'PIX, boleto ou cartão via Mercado Pago.' },
             ].map((step) => (
-              <div key={step.n} className="flex flex-col items-center text-center px-6">
-                <span className="text-5xl font-black mb-5 block leading-none" style={{ color: '#FF6B00', opacity: 0.55 }}>{step.n}</span>
-                <h3 className="font-bold text-sm uppercase tracking-wide mb-3" style={{ color: 'var(--ink)' }}>{step.title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: 'var(--ink-dim)' }}>{step.desc}</p>
+              <div key={step.n} className="flex flex-col items-center text-center px-8 py-4">
+                <span
+                  className="text-8xl font-black mb-4 block leading-none tabular-nums"
+                  style={{ color: '#FF6B00', opacity: 0.4, fontFamily: 'var(--font-display)' }}
+                >{step.n}</span>
+                <h3 className="font-bold text-base mb-2" style={{ color: 'var(--ink)' }}>{step.title}</h3>
+                <p className="text-sm leading-relaxed max-w-[22ch]" style={{ color: 'var(--ink-dim)' }}>{step.desc}</p>
               </div>
             ))}
           </div>
