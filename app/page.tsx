@@ -6,16 +6,9 @@ import { useCart } from '@/components/CartContext'
 import { products } from '@/lib/products'
 
 const featured = [
-  products.find((p) => p.id === 13)!,
-  products.find((p) => p.id === 24)!,
+  products.find((p) => p.id === 1)!,
   products.find((p) => p.id === 20)!,
-]
-
-const stats = [
-  { value: '31', label: 'modelos de isca' },
-  { value: '5', label: 'categorias' },
-  { value: 'Correios', label: 'envio rastreável' },
-  { value: 'MercadoPago', label: 'PIX, cartão ou boleto' },
+  products.find((p) => p.id === 28)!,
 ]
 
 const features = [
@@ -118,7 +111,7 @@ export default function Home() {
             alt=""
             width={600}
             height={200}
-            className="w-[min(600px,80vw)] opacity-[0.06] object-contain select-none"
+            className="w-[min(600px,80vw)] opacity-[0.14] object-contain select-none"
             aria-hidden
           />
         </div>
@@ -176,20 +169,6 @@ export default function Home() {
           <div className="w-px h-10 bg-gradient-to-b from-[#FF6B00]/40 to-transparent" />
         </div>
       </section>
-
-      {/* ─── STATS STRIP ─── */}
-      <div style={{ backgroundColor: 'var(--s2)', borderTop: '1px solid var(--rim)', borderBottom: '1px solid var(--rim)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {stats.map((s) => (
-              <div key={s.label} className="flex flex-col items-center gap-0.5">
-                <span className="text-2xl font-black tracking-tight text-[#FF6B00]">{s.value}</span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--ink-faint)' }}>{s.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* ─── POR QUE NOS ESCOLHER ─── */}
       <section style={{ backgroundColor: 'var(--s1)' }} className="py-24">
@@ -274,12 +253,22 @@ export default function Home() {
                   </div>
                 )}
                 <div className="relative h-56 overflow-hidden" style={{ backgroundColor: 'var(--s1)' }}>
-                  <Image
-                    src={p.image}
-                    alt={p.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
+                  {p.image ? (
+                    <Image
+                      src={p.image}
+                      alt={p.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center" style={{ color: 'var(--rim-str)' }}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round" opacity="0.3">
+                        <path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.46-3.44 6-7 6-3.56 0-7.56-2.54-8.5-6Z"/>
+                        <circle cx="17.5" cy="12" r="0.5" fill="currentColor"/>
+                        <path d="M2 12c1 2 3 4 5 4"/>
+                      </svg>
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                 </div>
                 <div className="p-6">
@@ -393,7 +382,7 @@ export default function Home() {
                   </li>
                 )}
                 <li>
-                  <a href="#" className="flex items-center justify-center md:justify-start gap-2.5 text-sm font-medium transition-colors hover:text-[#E1306C]" style={{ color: 'var(--ink-faint)' }}>
+                  <a href="https://www.instagram.com/piratas_fishing/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center md:justify-start gap-2.5 text-sm font-medium transition-colors hover:text-[#E1306C]" style={{ color: 'var(--ink-faint)' }}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
                       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />

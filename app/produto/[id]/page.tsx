@@ -66,14 +66,25 @@ export default function ProdutoPage() {
               className="relative w-full aspect-square rounded-2xl overflow-hidden border shadow-[0_0_60px_rgba(0,0,0,0.3)]"
               style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}
             >
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority
-              />
+              {product.image ? (
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  priority
+                />
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ color: 'var(--rim-str)' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.3">
+                    <path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.46-3.44 6-7 6-3.56 0-7.56-2.54-8.5-6Z"/>
+                    <circle cx="17.5" cy="12" r="0.5" fill="currentColor"/>
+                    <path d="M2 12c1 2 3 4 5 4"/>
+                  </svg>
+                  <span className="text-xs uppercase tracking-widest" style={{ opacity: 0.3 }}>Foto em breve</span>
+                </div>
+              )}
             </div>
             {/* Ambient glow behind image */}
             <div
