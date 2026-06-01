@@ -369,6 +369,8 @@ function BarTooltip({ active, payload }: { active?: boolean; payload?: { payload
 export default function AdminDashboardPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+  const [saveError, setSaveError] = useState('')
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [search, setSearch] = useState('')
   const [dateRange, setDateRange] = useState<0 | 7 | 30 | 90>(30)
@@ -378,28 +380,46 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (hasFetched.current) return
     hasFetched.current = true
-    fetch('/api/admin-orders')
-      .then(async (res) => {
+    async function load() {
+      try {
+        const res = await fetch('/api/admin-orders')
         if (res.status === 401) { router.push('/admin/login'); return }
+        if (!res.ok) throw new Error('Erro do servidor')
         const data = await res.json() as { orders: Order[] }
         setOrders(data.orders ?? [])
-      })
-      .finally(() => setLoading(false))
+      } catch {
+        setLoadError('Não foi possível carregar os pedidos. Recarregue a página.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
   }, [router])
 
+  useEffect(() => {
+    if (!saveError) return
+    const t = setTimeout(() => setSaveError(''), 5000)
+    return () => clearTimeout(t)
+  }, [saveError])
+
   async function handleAdvance(orderId: string, nextStatus: OrderStatus, trackingCode?: string) {
-    await fetch('/api/admin-orders', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId, status: nextStatus, trackingCode }),
-    })
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === orderId
-          ? { ...o, status: nextStatus, ...(trackingCode !== undefined ? { trackingCode } : {}) }
-          : o,
-      ),
-    )
+    try {
+      const res = await fetch('/api/admin-orders', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, status: nextStatus, trackingCode }),
+      })
+      if (!res.ok) throw new Error('Erro do servidor')
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId
+            ? { ...o, status: nextStatus, ...(trackingCode !== undefined ? { trackingCode } : {}) }
+            : o,
+        ),
+      )
+    } catch {
+      setSaveError('Erro ao atualizar pedido. Tente novamente.')
+    }
   }
 
   // ── Derived data ──────────────────────────────────────────────────────────
@@ -460,6 +480,13 @@ export default function AdminDashboardPage() {
         <div className="space-y-8">
           {loading ? (
             <div className="flex items-center justify-center h-64" style={{ color: 'var(--ink-faint)' }}>Carregando...</div>
+          ) : loadError ? (
+            <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
+              <p className="text-sm font-bold" style={{ color: '#f87171' }}>{loadError}</p>
+              <button onClick={() => window.location.reload()} className="text-sm font-bold px-4 py-2 rounded-lg" style={{ backgroundColor: 'var(--s1)', color: 'var(--ink-dim)' }}>
+                Recarregar
+              </button>
+            </div>
           ) : (
             <>
               {/* ── Filters bar ── */}
@@ -609,9 +636,9 @@ export default function AdminDashboardPage() {
                             onClick={() => setSelectedOrder(order)}
                           >
                             <td className="py-3 px-4 font-mono text-xs" style={{ color: 'var(--ink-faint)' }}>{order.id?.slice(0, 8)}…</td>
-                            <td className="py-3 px-4">
-                              <p className="font-bold" style={{ color: 'var(--ink)' }}>{order.customer.name}</p>
-                              <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>{order.customer.email}</p>
+                            <td className="py-3 px-4 max-w-[200px]">
+                              <p className="font-bold truncate" style={{ color: 'var(--ink)' }}>{order.customer.name}</p>
+                              <p className="text-xs truncate" style={{ color: 'var(--ink-faint)' }}>{order.customer.email}</p>
                             </td>
                             <td className="py-3 px-4" style={{ color: 'var(--ink-dim)' }}>{fmtDate(order.createdAt)}</td>
                             <td className="py-3 px-4 font-bold" style={{ color: 'var(--ink)' }}>{fmt(order.total)}</td>
@@ -635,6 +662,20 @@ export default function AdminDashboardPage() {
       {/* Order detail modal */}
       {selectedOrder && (
         <OrderModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+      )}
+
+      {/* Error toast */}
+      {saveError && (
+        <div
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl text-sm font-bold shadow-xl border"
+          style={{ backgroundColor: 'var(--s2)', borderColor: 'rgba(239,68,68,0.4)', color: '#f87171' }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          {saveError}
+        </div>
       )}
     </div>
   )

@@ -167,8 +167,8 @@ function KanbanCard({
       }}
     >
       <div className="flex justify-between items-start gap-2">
-        <p className="font-bold text-sm leading-tight" style={{ color: 'var(--ink)' }}>{order.customer.name}</p>
-        <span className="text-sm font-black whitespace-nowrap" style={{ color: '#FF6B00' }}>{fmt(order.total)}</span>
+        <p className="font-bold text-sm leading-tight truncate" style={{ color: 'var(--ink)' }}>{order.customer.name}</p>
+        <span className="text-sm font-black whitespace-nowrap shrink-0" style={{ color: '#FF6B00' }}>{fmt(order.total)}</span>
       </div>
 
       <div className="flex justify-between text-xs" style={{ color: 'var(--ink-dim)' }}>
@@ -216,6 +216,8 @@ function KanbanCard({
 export default function AdminKanbanPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+  const [saveError, setSaveError] = useState('')
   const [selected, setSelected] = useState<Order | null>(null)
   const [search, setSearch] = useState('')
   const router = useRouter()
@@ -224,33 +226,51 @@ export default function AdminKanbanPage() {
   useEffect(() => {
     if (hasFetched.current) return
     hasFetched.current = true
-    fetch('/api/admin-orders')
-      .then(async (res) => {
+    async function load() {
+      try {
+        const res = await fetch('/api/admin-orders')
         if (res.status === 401) { router.push('/admin/login'); return }
+        if (!res.ok) throw new Error('Erro do servidor')
         const data = await res.json() as { orders: Order[] }
         setOrders(data.orders ?? [])
-      })
-      .finally(() => setLoading(false))
+      } catch {
+        setLoadError('Não foi possível carregar os pedidos. Recarregue a página.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
   }, [router])
 
+  useEffect(() => {
+    if (!saveError) return
+    const t = setTimeout(() => setSaveError(''), 5000)
+    return () => clearTimeout(t)
+  }, [saveError])
+
   async function handleAdvance(orderId: string, nextStatus: OrderStatus, trackingCode?: string) {
-    await fetch('/api/admin-orders', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId, status: nextStatus, trackingCode }),
-    })
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === orderId
-          ? { ...o, status: nextStatus, ...(trackingCode !== undefined ? { trackingCode } : {}) }
-          : o,
-      ),
-    )
-    setSelected((prev) =>
-      prev?.id === orderId
-        ? { ...prev, status: nextStatus, ...(trackingCode !== undefined ? { trackingCode } : {}) }
-        : prev,
-    )
+    try {
+      const res = await fetch('/api/admin-orders', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId, status: nextStatus, trackingCode }),
+      })
+      if (!res.ok) throw new Error('Erro do servidor')
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId
+            ? { ...o, status: nextStatus, ...(trackingCode !== undefined ? { trackingCode } : {}) }
+            : o,
+        ),
+      )
+      setSelected((prev) =>
+        prev?.id === orderId
+          ? { ...prev, status: nextStatus, ...(trackingCode !== undefined ? { trackingCode } : {}) }
+          : prev,
+      )
+    } catch {
+      setSaveError('Erro ao atualizar pedido. Tente novamente.')
+    }
   }
 
   const searchLower = search.toLowerCase()
@@ -293,6 +313,13 @@ export default function AdminKanbanPage() {
         <div className="flex-1 overflow-x-auto p-6">
           {loading ? (
             <div className="flex items-center justify-center h-full" style={{ color: 'var(--ink-faint)' }}>Carregando...</div>
+          ) : loadError ? (
+            <div className="flex flex-col items-center justify-center h-full gap-4 text-center px-8">
+              <p className="text-sm font-bold" style={{ color: '#f87171' }}>{loadError}</p>
+              <button onClick={() => window.location.reload()} className="text-sm font-bold px-4 py-2 rounded-lg transition-colors" style={{ backgroundColor: 'var(--s2)', color: 'var(--ink-dim)' }}>
+                Recarregar
+              </button>
+            </div>
           ) : (
             <div className="flex gap-5 h-full" style={{ minWidth: 'max-content' }}>
               {FULFILLMENT_STATUSES.map((status) => {
@@ -344,6 +371,20 @@ export default function AdminKanbanPage() {
           <DetailPanel order={selected} onClose={() => setSelected(null)} />
         )}
       </div>
+
+      {/* Error toast */}
+      {saveError && (
+        <div
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl text-sm font-bold shadow-xl border"
+          style={{ backgroundColor: 'var(--s2)', borderColor: 'rgba(239,68,68,0.4)', color: '#f87171' }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          {saveError}
+        </div>
+      )}
     </div>
   )
 }
