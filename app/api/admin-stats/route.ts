@@ -1,11 +1,13 @@
 import { NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
 import { getAdminDb } from '@/lib/firebase-admin'
+import { verifySessionToken } from '@/lib/admin-auth'
 
 async function checkAuth() {
   const cookieStore = await cookies()
   const session = cookieStore.get('admin_session')?.value
-  return session && session === process.env.ADMIN_PASSWORD
+  if (!session) return false
+  return verifySessionToken(session)
 }
 
 export async function GET(req: NextRequest) {
@@ -13,7 +15,8 @@ export async function GET(req: NextRequest) {
     return Response.json({ error: 'Não autorizado.' }, { status: 401 })
   }
 
-  const days = parseInt(req.nextUrl.searchParams.get('days') ?? '30')
+  const rawDays = parseInt(req.nextUrl.searchParams.get('days') ?? '30')
+  const days = isNaN(rawDays) || rawDays < 0 ? 30 : Math.min(rawDays, 365)
   const cutoff = days > 0 ? new Date(Date.now() - days * 86400000).toISOString() : null
 
   const db = getAdminDb()
