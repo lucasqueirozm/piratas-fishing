@@ -12,10 +12,10 @@ const featured = [
 ]
 
 const stats = [
-  { value: '31', label: 'Modelos' },
-  { value: '5', label: 'Linhas' },
-  { value: 'Correios', label: 'Entrega' },
-  { value: 'MercadoPago', label: 'Pagamento' },
+  { value: '31', label: 'modelos de isca' },
+  { value: '5', label: 'categorias' },
+  { value: 'Correios', label: 'envio rastreável' },
+  { value: 'MercadoPago', label: 'PIX, cartão ou boleto' },
 ]
 
 const features = [
@@ -183,7 +183,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {stats.map((s) => (
               <div key={s.label} className="flex flex-col items-center gap-0.5">
-                <span className="text-2xl font-black tracking-tighter text-[#FF6B00]">{s.value}</span>
+                <span className="text-2xl font-black tracking-tight text-[#FF6B00]">{s.value}</span>
                 <span className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--ink-faint)' }}>{s.label}</span>
               </div>
             ))}

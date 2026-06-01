@@ -96,7 +96,7 @@ export default function ProdutoPage() {
               {product.description}
             </p>
 
-            <div className="text-4xl lg:text-5xl font-black tracking-tighter mb-8" style={{ color: 'var(--ink)' }}>
+            <div className="text-4xl lg:text-5xl font-black tracking-tight mb-8" style={{ color: 'var(--ink)' }}>
               {product.priceStr}
             </div>
 
@@ -123,12 +123,18 @@ export default function ProdutoPage() {
               >
                 Adicionar 1 Unidade
               </button>
+
+              {product.price < 100 && (
+                <p className="text-xs mt-3 pt-3 border-t" style={{ borderColor: 'var(--rim)', color: 'var(--ink-faint)' }}>
+                  Pedido mínimo R$ 100 — ao menos {Math.ceil(100 / product.price)} unidades desta isca para finalizar a compra.
+                </p>
+              )}
             </div>
 
             {/* Shipping calculator */}
             <div className="rounded-2xl p-5 mb-6 border" style={{ backgroundColor: 'var(--s2)', borderColor: 'var(--rim)' }}>
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3" style={{ color: 'var(--ink-faint)' }}>
-                Calcular frete (SEDEX)
+                Calcular frete
               </p>
               <div className="flex gap-2">
                 <input
@@ -151,7 +157,7 @@ export default function ProdutoPage() {
                   className="px-4 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-all disabled:opacity-50"
                   style={{ backgroundColor: '#FF6B00', color: '#fff' }}
                 >
-                  {loadingShip ? '...' : 'OK'}
+                  {loadingShip ? 'Calculando...' : 'Calcular'}
                 </button>
               </div>
               {shippingError && (
