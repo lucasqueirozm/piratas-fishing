@@ -184,6 +184,9 @@ export default function ProdutoPage() {
                   </span>
                 </div>
               )}
+              <p className="mt-3 text-[10px] leading-relaxed" style={{ color: 'var(--ink-faint)' }}>
+                Postagem em até 5 dias úteis após confirmação do pagamento.
+              </p>
             </div>
 
             {/* Trust signals */}

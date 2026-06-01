@@ -322,7 +322,8 @@ export default function CheckoutPage() {
             {/* Opções de Frete */}
             <section className="rounded-2xl p-6 border" style={{ backgroundColor: 'var(--s2)', borderColor: 'var(--rim)' }}>
               <h2 className="text-xl font-black uppercase tracking-wider mb-1 text-[#FF6B00]">Frete</h2>
-              <p className="text-xs mb-5" style={{ color: 'var(--ink-faint)' }}>Calculado automaticamente ao informar o CEP.</p>
+              <p className="text-xs mb-1" style={{ color: 'var(--ink-faint)' }}>Calculado automaticamente ao informar o CEP.</p>
+              <p className="text-xs mb-5" style={{ color: 'var(--ink-faint)' }}>Postagem em até 5 dias úteis após confirmação do pagamento.</p>
 
               {freeShipping && (
                 <div className="flex items-center gap-3 p-4 rounded-xl border-2 border-green-500/40 bg-green-500/10">

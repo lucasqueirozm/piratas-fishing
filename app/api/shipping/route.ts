@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
     const services: MelhorEnvioService[] = await res.json()
 
     const options: ShippingOption[] = services
-      .filter((s) => !s.error && s.price != null && /sedex|pac/i.test(s.name))
+      .filter((s) => !s.error && s.price != null && /correios/i.test(s.company.name))
       .map((s) => {
         const price = parseFloat(s.custom_price ?? s.price ?? '0')
         const time = s.custom_delivery_time ?? s.delivery_time ?? 0
