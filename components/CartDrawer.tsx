@@ -12,7 +12,6 @@ export default function CartDrawer() {
   const MIN_ORDER = 100
   const FREE_SHIP = 199.99
   const belowMin = cartTotal < MIN_ORDER
-  const belowFreeShip = cartTotal >= MIN_ORDER && cartTotal < FREE_SHIP
   const hasFreeShip = cartTotal >= FREE_SHIP
   const progressPct = Math.min(100, (cartTotal / FREE_SHIP) * 100)
 
@@ -82,7 +81,16 @@ export default function CartDrawer() {
                 style={{ backgroundColor: 'var(--s2)', borderColor: 'var(--rim)' }}
               >
                 <div className="w-14 h-14 relative rounded-lg overflow-hidden flex-shrink-0 border" style={{ borderColor: 'var(--rim)', backgroundColor: 'var(--s0)' }}>
-                  <Image src={product.image} alt={product.name} fill className="object-cover" />
+                  {product.image
+                    ? <Image src={product.image} alt={product.name} fill className="object-cover" />
+                    : <div className="absolute inset-0 flex items-center justify-center" style={{ color: 'var(--rim-str)' }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" opacity="0.4">
+                          <path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.46-3.44 6-7 6-3.56 0-7.56-2.54-8.5-6Z"/>
+                          <circle cx="17.5" cy="12" r="0.5" fill="currentColor"/>
+                          <path d="M2 12c1 2 3 4 5 4"/>
+                        </svg>
+                      </div>
+                  }
                 </div>
 
                 <div className="flex-1 min-w-0">

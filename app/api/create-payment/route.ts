@@ -20,9 +20,16 @@ export async function POST(req: NextRequest) {
 
     const { customer, items, shipping } = body
 
-    // Validação básica de campos obrigatórios
+    // Validação de campos obrigatórios
     if (!customer?.name || !customer?.email || !customer?.cpf || !customer?.phone) {
       return Response.json({ error: 'Dados do cliente incompletos.' }, { status: 400 })
+    }
+    const addr = customer?.address
+    if (!addr?.cep || addr.cep.replace(/\D/g, '').length !== 8) {
+      return Response.json({ error: 'CEP inválido.' }, { status: 400 })
+    }
+    if (!addr.street?.trim() || !addr.number?.trim() || !addr.neighborhood?.trim() || !addr.city?.trim() || !addr.state?.trim()) {
+      return Response.json({ error: 'Endereço incompleto.' }, { status: 400 })
     }
     if (!Array.isArray(items) || items.length === 0) {
       return Response.json({ error: 'Nenhum item no pedido.' }, { status: 400 })
@@ -54,9 +61,15 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'Pedido mínimo de R$ 100,00.' }, { status: 400 })
     }
 
-    // Frete vem do cliente (calculado via Melhor Envio na tela anterior).
-    // Limitado a valores plausíveis: 0 a R$ 300.
-    const validatedShipping = Math.max(0, Math.min(Number(shipping) || 0, 300))
+    // Frete validado no servidor: gratuito acima de R$199,99; obrigatório (>0) abaixo disso.
+    const FREE_SHIPPING_THRESHOLD = 199.99
+    const clientShipping = Number(shipping) || 0
+    if (validatedSubtotal < FREE_SHIPPING_THRESHOLD && clientShipping <= 0) {
+      return Response.json({ error: 'Frete inválido.' }, { status: 400 })
+    }
+    const validatedShipping = validatedSubtotal >= FREE_SHIPPING_THRESHOLD
+      ? 0
+      : Math.min(clientShipping, 300)
     const validatedTotal = validatedSubtotal + validatedShipping
 
     // 1. Persistir pedido com status "pending" antes de ir ao MP

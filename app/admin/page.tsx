@@ -28,19 +28,6 @@ const COLUMN_COLOR: Partial<Record<OrderStatus, string>> = {
   completed: '#22c55e',
 }
 
-const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
-  paid: 'packed',
-  packed: 'shipped',
-  shipped: 'tracking_sent',
-  tracking_sent: 'completed',
-}
-
-const NEXT_LABEL: Partial<Record<OrderStatus, string>> = {
-  paid: 'Embalar',
-  packed: 'Marcar enviado',
-  shipped: 'Enviar rastreio',
-  tracking_sent: 'Finalizar',
-}
 
 const PRE_STATUS_LABEL: Partial<Record<OrderStatus, string>> = {
   pending: 'Pendente',
@@ -260,86 +247,6 @@ function OrderModal({ order, onClose }: { order: Order; onClose: () => void }) {
   )
 }
 
-// ─── Kanban Card ─────────────────────────────────────────────────────────────
-
-function OrderCard({
-  order,
-  onAdvance,
-  onOpenDetail,
-}: {
-  order: Order
-  onAdvance: (orderId: string, nextStatus: OrderStatus, trackingCode?: string) => Promise<void>
-  onOpenDetail: (order: Order) => void
-}) {
-  const [loading, setLoading] = useState(false)
-  const [trackingInput, setTrackingInput] = useState(order.trackingCode ?? '')
-  const next = NEXT_STATUS[order.status]
-  const needsTracking = order.status === 'shipped'
-
-  async function handleAdvance(e: React.MouseEvent) {
-    e.stopPropagation()
-    if (needsTracking && !trackingInput.trim()) return
-    setLoading(true)
-    await onAdvance(order.id!, next!, needsTracking ? trackingInput.trim() : undefined)
-    setLoading(false)
-  }
-
-  return (
-    <div
-      className="rounded-xl border p-4 space-y-3 text-sm cursor-pointer transition-all hover:shadow-lg"
-      style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}
-      onClick={() => onOpenDetail(order)}
-    >
-      <div className="flex justify-between items-start gap-2">
-        <div>
-          <p className="font-bold" style={{ color: 'var(--ink)' }}>{order.customer.name}</p>
-          <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>{order.customer.email}</p>
-        </div>
-        <span className="font-black text-[#FF6B00] whitespace-nowrap">{fmt(order.total)}</span>
-      </div>
-
-      <div className="flex justify-between text-xs" style={{ color: 'var(--ink-dim)' }}>
-        <span>{order.items.reduce((s, i) => s + i.quantity, 0)} item(s)</span>
-        <span>{fmtDate(order.createdAt)}</span>
-      </div>
-
-      <p className="font-mono text-xs" style={{ color: 'var(--ink-faint)' }}>#{order.id?.slice(0, 8)}</p>
-
-      {order.trackingCode && order.status !== 'shipped' && (
-        <div className="rounded-lg px-3 py-2 text-xs font-mono" style={{ backgroundColor: 'var(--s2)', color: 'var(--ink-dim)' }}>
-          📦 {order.trackingCode}
-        </div>
-      )}
-
-      {needsTracking && (
-        <input
-          value={trackingInput}
-          onChange={(e) => { e.stopPropagation(); setTrackingInput(e.target.value) }}
-          onClick={(e) => e.stopPropagation()}
-          placeholder="Código de rastreio..."
-          className="w-full rounded-lg px-3 py-2 text-xs outline-none border"
-          style={{ backgroundColor: 'var(--s0)', borderColor: 'var(--rim-str)', color: 'var(--ink)' }}
-        />
-      )}
-
-      {next && (
-        <button
-          onClick={handleAdvance}
-          disabled={loading || (needsTracking && !trackingInput.trim())}
-          className="w-full py-2 rounded-lg text-xs font-bold text-white transition-opacity disabled:opacity-40"
-          style={{ backgroundColor: COLUMN_COLOR[next] }}
-        >
-          {loading ? '...' : `→ ${NEXT_LABEL[order.status]}`}
-        </button>
-      )}
-
-      {order.status === 'completed' && (
-        <div className="text-center text-xs font-bold" style={{ color: '#22c55e' }}>Concluído ✓</div>
-      )}
-    </div>
-  )
-}
-
 // ─── Custom Tooltip ───────────────────────────────────────────────────────────
 
 function RevenueTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) {
@@ -402,26 +309,6 @@ export default function AdminDashboardPage() {
     return () => clearTimeout(t)
   }, [saveError])
 
-  async function handleAdvance(orderId: string, nextStatus: OrderStatus, trackingCode?: string) {
-    try {
-      const res = await fetch('/api/admin-orders', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId, status: nextStatus, trackingCode }),
-      })
-      if (!res.ok) throw new Error('Erro do servidor')
-      setOrders((prev) =>
-        prev.map((o) =>
-          o.id === orderId
-            ? { ...o, status: nextStatus, ...(trackingCode !== undefined ? { trackingCode } : {}) }
-            : o,
-        ),
-      )
-    } catch {
-      setSaveError('Erro ao atualizar pedido. Tente novamente.')
-    }
-  }
-
   // ── Derived data ──────────────────────────────────────────────────────────
 
   const filteredByDate = useMemo(() => filterByDays(orders, dateRange), [orders, dateRange])
@@ -451,7 +338,6 @@ export default function AdminDashboardPage() {
     o.customer.cpf.includes(search) ||
     (o.id ?? '').toLowerCase().includes(searchLower)
 
-  const fulfillmentOrders = orders.filter((o) => FULFILLMENT_STATUSES.includes(o.status) && matchesSearch(o))
   const preOrders = orders.filter((o) => !FULFILLMENT_STATUSES.includes(o.status) && matchesSearch(o))
 
   const DATE_RANGES: { label: string; value: 0 | 7 | 30 | 90 }[] = [

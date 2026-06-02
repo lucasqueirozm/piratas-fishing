@@ -17,6 +17,7 @@ export default function CatalogoPage() {
     try {
       const c = new URLSearchParams(window.location.search).get('c')
       if (c && (categories as string[]).includes(c)) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setActiveCategory(c)
       }
     } catch {
