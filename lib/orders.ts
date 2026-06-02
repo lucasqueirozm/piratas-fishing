@@ -1,6 +1,6 @@
 import { getAdminDb } from './supabase'
 
-export type OrderStatus = 'pending' | 'paid' | 'failed' | 'cancelled' | 'in_process' | 'packed' | 'shipped' | 'tracking_sent' | 'completed'
+export type OrderStatus = 'pending' | 'paid' | 'failed' | 'cancelled' | 'in_process' | 'supplier_sent' | 'packed' | 'shipped' | 'tracking_sent' | 'completed'
 
 export type OrderItem = {
   productId: number

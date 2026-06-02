@@ -6,7 +6,7 @@ import { verifySessionToken } from '@/lib/admin-auth'
 
 const VALID_STATUSES = new Set<string>([
   'pending', 'paid', 'failed', 'cancelled', 'in_process',
-  'packed', 'shipped', 'tracking_sent', 'completed',
+  'supplier_sent', 'packed', 'shipped', 'tracking_sent', 'completed',
 ])
 
 async function checkAuth() {

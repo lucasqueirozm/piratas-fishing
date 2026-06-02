@@ -10,10 +10,11 @@ import type { Order, OrderStatus } from '@/lib/orders'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const FULFILLMENT_STATUSES: OrderStatus[] = ['paid', 'packed', 'shipped', 'tracking_sent', 'completed']
+const FULFILLMENT_STATUSES: OrderStatus[] = ['paid', 'supplier_sent', 'packed', 'shipped', 'tracking_sent', 'completed']
 
 const COLUMN_LABEL: Partial<Record<OrderStatus, string>> = {
   paid: 'Pedido recebido',
+  supplier_sent: 'Enviada Fornecedor',
   packed: 'Embalado',
   shipped: 'Enviado',
   tracking_sent: 'Rastreio enviado',
@@ -22,6 +23,7 @@ const COLUMN_LABEL: Partial<Record<OrderStatus, string>> = {
 
 const COLUMN_COLOR: Partial<Record<OrderStatus, string>> = {
   paid: '#3b82f6',
+  supplier_sent: '#f97316',
   packed: '#f59e0b',
   shipped: '#8b5cf6',
   tracking_sent: '#06b6d4',
@@ -45,6 +47,7 @@ const PRE_STATUS_COLOR: Partial<Record<OrderStatus, string>> = {
 
 const STATUS_COLORS_PIE: Partial<Record<OrderStatus, string>> = {
   paid: '#3b82f6',
+  supplier_sent: '#f97316',
   packed: '#f59e0b',
   shipped: '#8b5cf6',
   tracking_sent: '#06b6d4',

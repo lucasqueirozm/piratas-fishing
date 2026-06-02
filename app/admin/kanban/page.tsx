@@ -4,10 +4,11 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Order, OrderStatus } from '@/lib/orders'
 
-const FULFILLMENT_STATUSES: OrderStatus[] = ['paid', 'packed', 'shipped', 'tracking_sent', 'completed']
+const FULFILLMENT_STATUSES: OrderStatus[] = ['paid', 'supplier_sent', 'packed', 'shipped', 'tracking_sent', 'completed']
 
 const COLUMN_LABEL: Partial<Record<OrderStatus, string>> = {
   paid: 'Pedido recebido',
+  supplier_sent: 'Enviada Fornecedor',
   packed: 'Embalado',
   shipped: 'Enviado',
   tracking_sent: 'Rastreio enviado',
@@ -16,6 +17,7 @@ const COLUMN_LABEL: Partial<Record<OrderStatus, string>> = {
 
 const COLUMN_COLOR: Partial<Record<OrderStatus, string>> = {
   paid: '#3b82f6',
+  supplier_sent: '#f97316',
   packed: '#f59e0b',
   shipped: '#8b5cf6',
   tracking_sent: '#06b6d4',
@@ -23,17 +25,27 @@ const COLUMN_COLOR: Partial<Record<OrderStatus, string>> = {
 }
 
 const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
-  paid: 'packed',
+  paid: 'supplier_sent',
+  supplier_sent: 'packed',
   packed: 'shipped',
   shipped: 'tracking_sent',
   tracking_sent: 'completed',
 }
 
 const NEXT_LABEL: Partial<Record<OrderStatus, string>> = {
-  paid: 'Embalar',
+  paid: 'Enviar ao fornecedor',
+  supplier_sent: 'Embalar',
   packed: 'Marcar enviado',
   shipped: 'Enviar rastreio',
   tracking_sent: 'Finalizar',
+}
+
+const PREV_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
+  supplier_sent: 'paid',
+  packed: 'supplier_sent',
+  shipped: 'packed',
+  tracking_sent: 'shipped',
+  completed: 'tracking_sent',
 }
 
 function fmt(value: number) {
@@ -133,25 +145,35 @@ function KanbanCard({
   order,
   selected,
   onSelect,
-  onAdvance,
+  onMove,
 }: {
   order: Order
   selected: boolean
   onSelect: (order: Order) => void
-  onAdvance: (orderId: string, next: OrderStatus, trackingCode?: string) => Promise<void>
+  onMove: (orderId: string, status: OrderStatus, trackingCode?: string) => Promise<void>
 }) {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState<'forward' | 'back' | null>(null)
   const [trackingInput, setTrackingInput] = useState(order.trackingCode ?? '')
   const next = NEXT_STATUS[order.status]
+  const prev = PREV_STATUS[order.status]
   const needsTracking = order.status === 'shipped'
 
-  async function handleAdvance(e: React.MouseEvent) {
+  async function handleForward(e: React.MouseEvent) {
     e.stopPropagation()
     if (needsTracking && !trackingInput.trim()) return
-    if (next === 'completed' && !window.confirm(`Finalizar pedido de ${order.customer.name}? Esta ação não pode ser desfeita.`)) return
-    setLoading(true)
-    await onAdvance(order.id!, next!, needsTracking ? trackingInput.trim() : undefined)
-    setLoading(false)
+    if (next === 'completed' && !window.confirm(`Finalizar pedido de ${order.customer.name}?`)) return
+    setLoading('forward')
+    await onMove(order.id!, next!, needsTracking ? trackingInput.trim() : undefined)
+    setLoading(null)
+  }
+
+  async function handleBack(e: React.MouseEvent) {
+    e.stopPropagation()
+    const prevLabel = COLUMN_LABEL[prev!] ?? prev
+    if (!window.confirm(`Voltar pedido de ${order.customer.name} para "${prevLabel}"?`)) return
+    setLoading('back')
+    await onMove(order.id!, prev!)
+    setLoading(null)
   }
 
   const color = COLUMN_COLOR[order.status]!
@@ -193,19 +215,32 @@ function KanbanCard({
         />
       )}
 
+      {/* Avançar */}
       {next && (
         <button
-          onClick={handleAdvance}
-          disabled={loading || (needsTracking && !trackingInput.trim())}
+          onClick={handleForward}
+          disabled={loading !== null || (needsTracking && !trackingInput.trim())}
           className="w-full py-2 rounded-lg text-xs font-bold text-white transition-opacity disabled:opacity-40"
           style={{ backgroundColor: COLUMN_COLOR[next] }}
         >
-          {loading ? '...' : `→ ${NEXT_LABEL[order.status]}`}
+          {loading === 'forward' ? '...' : `→ ${NEXT_LABEL[order.status]}`}
         </button>
       )}
 
       {order.status === 'completed' && (
         <p className="text-center text-xs font-bold" style={{ color: '#22c55e' }}>Concluído ✓</p>
+      )}
+
+      {/* Voltar */}
+      {prev && (
+        <button
+          onClick={handleBack}
+          disabled={loading !== null}
+          className="w-full py-1.5 rounded-lg text-xs font-semibold transition-opacity disabled:opacity-40 border"
+          style={{ color: 'var(--ink-faint)', borderColor: 'var(--rim)', backgroundColor: 'transparent' }}
+        >
+          {loading === 'back' ? '...' : `← ${COLUMN_LABEL[prev]}`}
+        </button>
       )}
     </div>
   )
@@ -248,24 +283,24 @@ export default function AdminKanbanPage() {
     return () => clearTimeout(t)
   }, [saveError])
 
-  async function handleAdvance(orderId: string, nextStatus: OrderStatus, trackingCode?: string) {
+  async function handleMove(orderId: string, newStatus: OrderStatus, trackingCode?: string) {
     try {
       const res = await fetch('/api/admin-orders', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId, status: nextStatus, trackingCode }),
+        body: JSON.stringify({ orderId, status: newStatus, trackingCode }),
       })
       if (!res.ok) throw new Error('Erro do servidor')
       setOrders((prev) =>
         prev.map((o) =>
           o.id === orderId
-            ? { ...o, status: nextStatus, ...(trackingCode !== undefined ? { trackingCode } : {}) }
+            ? { ...o, status: newStatus, ...(trackingCode !== undefined ? { trackingCode } : {}) }
             : o,
         ),
       )
       setSelected((prev) =>
         prev?.id === orderId
-          ? { ...prev, status: nextStatus, ...(trackingCode !== undefined ? { trackingCode } : {}) }
+          ? { ...prev, status: newStatus, ...(trackingCode !== undefined ? { trackingCode } : {}) }
           : prev,
       )
     } catch {
@@ -316,7 +351,7 @@ export default function AdminKanbanPage() {
           ) : loadError ? (
             <div className="flex flex-col items-center justify-center h-full gap-4 text-center px-8">
               <p className="text-sm font-bold" style={{ color: '#f87171' }}>{loadError}</p>
-              <button onClick={() => window.location.reload()} className="text-sm font-bold px-4 py-2 rounded-lg transition-colors" style={{ backgroundColor: 'var(--s2)', color: 'var(--ink-dim)' }}>
+              <button onClick={() => window.location.reload()} className="text-sm font-bold px-4 py-2 rounded-lg" style={{ backgroundColor: 'var(--s2)', color: 'var(--ink-dim)' }}>
                 Recarregar
               </button>
             </div>
@@ -354,7 +389,7 @@ export default function AdminKanbanPage() {
                             order={order}
                             selected={selected?.id === order.id}
                             onSelect={setSelected}
-                            onAdvance={handleAdvance}
+                            onMove={handleMove}
                           />
                         ))
                       )}
