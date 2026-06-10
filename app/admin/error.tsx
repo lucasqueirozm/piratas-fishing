@@ -4,10 +4,10 @@ import { useEffect } from 'react'
 
 export default function AdminError({
   error,
-  reset,
+  unstable_retry,
 }: {
   error: Error & { digest?: string }
-  reset: () => void
+  unstable_retry: () => void
 }) {
   useEffect(() => {
     console.error('[admin] erro na página:', error)
@@ -24,7 +24,7 @@ export default function AdminError({
           {error.message || 'Ocorreu um erro inesperado.'}
         </p>
         <button
-          onClick={reset}
+          onClick={() => unstable_retry()}
           className="px-6 py-2 rounded-xl font-semibold text-white"
           style={{ backgroundColor: '#FF6B00' }}
         >

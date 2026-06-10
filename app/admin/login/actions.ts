@@ -2,7 +2,7 @@
 
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { timingSafeEqual } from 'crypto'
+import { timingSafeEqual, createHash } from 'crypto'
 import { createSessionToken } from '@/lib/admin-auth'
 
 export type LoginState = { error: string } | null
@@ -43,10 +43,11 @@ function clearAttempts(key: string): void {
 }
 
 function timingSafeStringEqual(a: string, b: string): boolean {
-  const aBuf = Buffer.from(a, 'utf8')
-  const bBuf = Buffer.from(b, 'utf8')
-  if (aBuf.length !== bBuf.length) return false
-  return timingSafeEqual(aBuf, bBuf)
+  // Hash ambas as strings antes de comparar: os digests têm sempre 32 bytes,
+  // eliminando o vazamento de comprimento via early-return.
+  const aHash = createHash('sha256').update(a).digest()
+  const bHash = createHash('sha256').update(b).digest()
+  return timingSafeEqual(aHash, bHash)
 }
 
 export async function loginAction(

@@ -8,8 +8,13 @@ export const contentType = 'image/png'
 export const alt = 'Piratas Fishing'
 
 export default function Image() {
-  const logoData = readFileSync(join(process.cwd(), 'public/logo.png'))
-  const logoSrc = `data:image/png;base64,${logoData.toString('base64')}`
+  let logoSrc = ''
+  try {
+    const logoData = readFileSync(join(process.cwd(), 'public/logo.png'))
+    logoSrc = `data:image/png;base64,${logoData.toString('base64')}`
+  } catch {
+    // logo.png ausente — renderiza fundo escuro sem imagem
+  }
 
   return new ImageResponse(
     (
