@@ -18,7 +18,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-musgo.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -28,7 +28,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-verde-pirata.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -38,7 +38,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-kill-bill.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -48,7 +48,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-apache.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -58,7 +58,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-ouro-ovado.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -68,7 +68,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-fumaca.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -78,7 +78,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-fumaca-ova-preta.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -88,7 +88,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-fumaca-ova-verde.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -98,7 +98,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-desincapado.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -108,7 +108,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-palhacinho.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -128,7 +128,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-laranjinha.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -138,7 +138,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-spartano.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -148,7 +148,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-tricolor.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -158,7 +158,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-tricolor-cauda-verde.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -168,7 +168,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-ferrinho.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -178,7 +178,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-fumaca-ova-vermelha.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -188,7 +188,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-roxinho-translucido.jpg',
+    image: '',
     category: 'Turbo',
   },
   {
@@ -198,7 +198,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-roxo.jpg',
+    image: '',
     category: 'Turbo',
   },
 
@@ -210,7 +210,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/reality-tricolor.jpg',
+    image: '',
     category: 'Reality',
   },
   {
@@ -220,7 +220,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/reality-roxinho.jpg',
+    image: '',
     category: 'Reality',
   },
   {
@@ -230,7 +230,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/reality-salmao.jpg',
+    image: '',
     category: 'Reality',
   },
   {
@@ -240,7 +240,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/reality-prateado.jpg',
+    image: '',
     category: 'Reality',
   },
   {
@@ -250,7 +250,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/reality-glow.jpg',
+    image: '',
     category: 'Reality',
   },
   {
@@ -270,7 +270,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/turbo-fuligem.jpg',
+    image: '',
     category: 'Reality',
   },
   {
@@ -280,7 +280,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '9 cm',
-    image: '/produtos/reality-kill-bill.jpg',
+    image: '',
     category: 'Reality',
   },
 
@@ -292,7 +292,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '10 cm',
-    image: '/produtos/shad-kill-bill.jpg',
+    image: '',
     category: 'Shad',
   },
   {
@@ -302,7 +302,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '10 cm',
-    image: '/produtos/shad-roxo.jpg',
+    image: '',
     category: 'Shad',
   },
   {
@@ -312,7 +312,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '10 cm',
-    image: '/produtos/shad-ferrinho.jpg',
+    image: '',
     category: 'Shad',
   },
   {
@@ -322,7 +322,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '10 cm',
-    image: '/produtos/shad-fuligem.jpg',
+    image: '',
     category: 'Shad',
   },
   {
@@ -332,7 +332,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '10 cm',
-    image: '/produtos/shad-prateado.jpg',
+    image: '',
     category: 'Shad',
   },
   {
@@ -342,7 +342,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '10 cm',
-    image: '/produtos/shad-salmao.jpg',
+    image: '',
     category: 'Shad',
   },
   {
@@ -352,7 +352,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '10 cm',
-    image: '/produtos/fumaca-cauda-vermelha.jpg',
+    image: '',
     category: 'Shad',
   },
   {
@@ -362,7 +362,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '10 cm',
-    image: '/produtos/shad-tricolor-cauda-verde-fluorescente.jpg',
+    image: '',
     category: 'Shad',
   },
   {
@@ -372,7 +372,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '10 cm',
-    image: '/produtos/shad-musgo.jpg',
+    image: '',
     category: 'Shad',
   },
   {
@@ -382,7 +382,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '10 cm',
-    image: '/produtos/shad-verde-fluorescente.jpg',
+    image: '',
     category: 'Shad',
   },
   {
@@ -392,7 +392,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '10 cm',
-    image: '/produtos/shad-fumaca.jpg',
+    image: '',
     category: 'Shad',
   },
   {
@@ -402,7 +402,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '10 cm',
-    image: '/produtos/turbo-cha.jpg',
+    image: '',
     category: 'Shad',
   },
   {
@@ -422,7 +422,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     size: '10 cm',
-    image: '/produtos/reality-vermelho.jpg',
+    image: '',
     category: 'Shad',
   },
 ]
