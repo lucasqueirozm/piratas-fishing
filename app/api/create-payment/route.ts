@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
       validatedItems.push({
         productId: product.id,
         productName: product.name,
+        size: typeof item.size === 'string' ? item.size : undefined,
         quantity: qty,
         unitPrice: product.price,
         totalPrice: product.price * qty,

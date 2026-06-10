@@ -274,15 +274,16 @@ export default function Home() {
                 <div className="p-6">
                   <p className="text-[#FF6B00] text-[9px] font-bold uppercase tracking-[0.2em] mb-2">{p.category}</p>
                   <h3 className="font-bold text-base leading-tight mb-1" style={{ color: 'var(--ink)' }}>{p.name}</h3>
-                  <p className="text-xs mb-5" style={{ color: 'var(--ink-faint)' }}>{p.size}</p>
+                  <p className="text-xs mb-5" style={{ color: 'var(--ink-faint)' }}>{p.sizes.join(' · ')}</p>
                   <div className="flex items-center justify-between">
                     <span className="text-xl font-black tracking-tight" style={{ color: 'var(--ink)' }}>{p.priceStr}</span>
-                    <button
-                      onClick={(e) => { e.preventDefault(); addToCart(p) }}
+                    <Link
+                      href={`/produto/${p.id}`}
+                      onClick={(e) => e.stopPropagation()}
                       className="relative z-20 px-4 py-2 bg-[#FF6B00] hover:bg-[#e05f00] text-white font-semibold text-xs rounded-lg uppercase tracking-wide transition-colors"
                     >
-                      + Carrinho
-                    </button>
+                      Ver Produto
+                    </Link>
                   </div>
                 </div>
               </div>

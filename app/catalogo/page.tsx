@@ -3,13 +3,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { useCart } from '@/components/CartContext'
+import { useRouter } from 'next/navigation'
 import { products, categories, type Product } from '@/lib/products'
 
 const ALL = 'Todos'
 
 export default function CatalogoPage() {
-  const { addToCart } = useCart()
   const [activeCategory, setActiveCategory] = useState<string>(ALL)
 
   // Read ?c= URL param on mount for deep links from the mega menu
@@ -82,7 +81,7 @@ export default function CatalogoPage() {
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filtered.map((p) => (
-            <ProductCard key={p.id} product={p} onAdd={() => addToCart(p)} />
+            <ProductCard key={p.id} product={p} />
           ))}
         </div>
       </div>
@@ -126,7 +125,8 @@ function FilterBtn({
   )
 }
 
-function ProductCard({ product: p, onAdd }: { product: Product; onAdd: () => void }) {
+function ProductCard({ product: p }: { product: Product }) {
+  const router = useRouter()
   return (
     <div
       className="group relative rounded-xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-0.5 border"
@@ -180,13 +180,13 @@ function ProductCard({ product: p, onAdd }: { product: Product; onAdd: () => voi
       {/* Info */}
       <div className="p-3 flex flex-col flex-grow">
         <h3 className="text-sm font-bold leading-tight mb-1 line-clamp-2" style={{ color: 'var(--ink)' }}>{p.name}</h3>
-        <p className="text-[10px] mb-2" style={{ color: 'var(--ink-faint)' }}>{p.size}</p>
+        <p className="text-[10px] mb-2" style={{ color: 'var(--ink-faint)' }}>{p.sizes.join(' · ')}</p>
         <p className="text-[#FF6B00] text-base font-black tracking-tight mt-auto mb-2">{p.priceStr}</p>
         <button
-          onClick={(e) => { e.preventDefault(); onAdd() }}
+          onClick={(e) => { e.preventDefault(); router.push(`/produto/${p.id}`) }}
           className="relative z-20 w-full text-center py-2 bg-[#FF6B00] hover:bg-[#e05f00] text-white font-semibold text-xs rounded-lg uppercase tracking-wide transition-colors"
         >
-          + Carrinho
+          Escolher Tamanho
         </button>
       </div>
     </div>

@@ -184,9 +184,10 @@ export default function CheckoutPage() {
                 state: form.state,
               },
             },
-            items: cart.map(({ product, quantity }) => ({
+            items: cart.map(({ product, size, quantity }) => ({
               productId: product.id,
               productName: product.name,
+              size,
               quantity,
               unitPrice: product.price,
               totalPrice: product.price * quantity,
