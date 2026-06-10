@@ -39,10 +39,10 @@ const PRE_STATUS_LABEL: Partial<Record<OrderStatus, string>> = {
 }
 
 const PRE_STATUS_COLOR: Partial<Record<OrderStatus, string>> = {
-  pending: 'bg-yellow-500/20 text-yellow-400',
-  in_process: 'bg-blue-500/20 text-blue-400',
-  failed: 'bg-red-500/20 text-red-400',
-  cancelled: 'bg-gray-500/20 text-gray-400',
+  pending: '#eab308',
+  in_process: '#6366f1',
+  failed: '#ef4444',
+  cancelled: '#6b7280',
 }
 
 const STATUS_COLORS_PIE: Partial<Record<OrderStatus, string>> = {
@@ -239,8 +239,8 @@ function OrderModal({ order, onClose }: { order: Order; onClose: () => void }) {
 
           {/* Rastreio */}
           {order.trackingCode && (
-            <div className="rounded-xl p-4" style={{ backgroundColor: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.3)' }}>
-              <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#06b6d4' }}>Código de rastreio</p>
+            <div className="rounded-xl p-4" style={{ backgroundColor: 'var(--s2)', border: '1px solid var(--rim-str)' }}>
+              <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--ink-dim)' }}>Código de rastreio</p>
               <p className="font-mono text-sm" style={{ color: 'var(--ink)' }}>{order.trackingCode}</p>
             </div>
           )}
@@ -417,7 +417,7 @@ export default function AdminDashboardPage() {
                   { label: 'Pedidos', value: String(stats.totalOrders), color: 'var(--ink)' },
                   { label: 'Pagos', value: String(stats.paidOrders), color: '#22c55e' },
                   { label: 'Pendentes', value: String(stats.pendingOrders), color: '#f59e0b' },
-                  { label: 'Ticket médio', value: fmt(stats.avgTicket), color: '#8b5cf6' },
+                  { label: 'Ticket médio', value: fmt(stats.avgTicket), color: 'var(--ink)' },
                 ].map((kpi) => (
                   <div key={kpi.label} className="rounded-2xl p-5 border" style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}>
                     <p className="text-xs uppercase tracking-widest mb-1" style={{ color: 'var(--ink-faint)' }}>{kpi.label}</p>
@@ -532,7 +532,13 @@ export default function AdminDashboardPage() {
                             <td className="py-3 px-4" style={{ color: 'var(--ink-dim)' }}>{fmtDate(order.createdAt)}</td>
                             <td className="py-3 px-4 font-bold" style={{ color: 'var(--ink)' }}>{fmt(order.total)}</td>
                             <td className="py-3 px-4">
-                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${PRE_STATUS_COLOR[order.status] ?? 'bg-gray-500/20 text-gray-400'}`}>
+                              <span
+                                className="px-2 py-1 rounded-full text-xs font-bold"
+                                style={{
+                                  backgroundColor: `${PRE_STATUS_COLOR[order.status] ?? '#6b7280'}22`,
+                                  color: PRE_STATUS_COLOR[order.status] ?? '#6b7280',
+                                }}
+                              >
                                 {PRE_STATUS_LABEL[order.status] ?? order.status}
                               </span>
                             </td>
