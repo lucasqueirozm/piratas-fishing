@@ -14,6 +14,7 @@ export default function ProdutoPage() {
   const { id } = useParams()
   const { addToCart } = useCart()
 
+  const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [cep, setCep] = useState('')
   const [shipping, setShipping] = useState<ShippingResult>(null)
   const [shippingError, setShippingError] = useState('')
@@ -101,7 +102,28 @@ export default function ProdutoPage() {
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold uppercase tracking-tight mb-2 leading-tight" style={{ color: 'var(--ink)' }}>
               {product.name}
             </h1>
-            <p className="text-sm mb-6 font-medium" style={{ color: 'var(--ink-faint)' }}>{product.size}</p>
+            {/* Size selector */}
+            <div className="mb-6">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3" style={{ color: 'var(--ink-faint)' }}>
+                Tamanho{selectedSize ? `: ${selectedSize}` : ' — selecione'}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {product.sizes.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setSelectedSize(s)}
+                    className="px-4 py-2 rounded-xl text-sm font-bold border transition-all"
+                    style={
+                      selectedSize === s
+                        ? { backgroundColor: '#FF6B00', borderColor: '#FF6B00', color: '#fff', boxShadow: '0 0 12px rgba(255,107,0,0.3)' }
+                        : { backgroundColor: 'transparent', borderColor: 'var(--rim-str)', color: 'var(--ink-dim)' }
+                    }
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <p className="text-base leading-relaxed mb-8" style={{ color: 'var(--ink-dim)' }}>
               {product.description}
@@ -116,12 +138,18 @@ export default function ProdutoPage() {
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-4" style={{ color: 'var(--ink-faint)' }}>
                 Quantidade
               </p>
+              {!selectedSize && (
+                <p className="text-xs text-center py-2 rounded-lg mb-3" style={{ backgroundColor: 'var(--s3)', color: 'var(--ink-faint)' }}>
+                  Selecione um tamanho acima para adicionar ao carrinho.
+                </p>
+              )}
               <div className="grid grid-cols-2 gap-3 mb-5">
                 {[5, 10, 20, 50].map((qty) => (
                   <button
                     key={qty}
-                    onClick={() => addToCart(product, qty)}
-                    className="py-3 font-semibold text-sm rounded-xl transition-all duration-200 border hover:border-[rgba(255,107,0,0.5)] hover:text-[#FF6B00]"
+                    onClick={() => selectedSize && addToCart(product, qty, selectedSize)}
+                    disabled={!selectedSize}
+                    className="py-3 font-semibold text-sm rounded-xl transition-all duration-200 border hover:border-[rgba(255,107,0,0.5)] hover:text-[#FF6B00] disabled:opacity-40 disabled:cursor-not-allowed"
                     style={{ borderColor: 'var(--rim-str)', color: 'var(--ink-dim)', backgroundColor: 'transparent' }}
                   >
                     + {qty} unidades
@@ -129,8 +157,9 @@ export default function ProdutoPage() {
                 ))}
               </div>
               <button
-                onClick={() => addToCart(product, 1)}
-                className="w-full py-4 bg-[#FF6B00] hover:bg-[#e05f00] text-white font-bold text-base rounded-xl uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(255,107,0,0.25)] hover:shadow-[0_0_32px_rgba(255,107,0,0.45)] hover:-translate-y-0.5"
+                onClick={() => selectedSize && addToCart(product, 1, selectedSize)}
+                disabled={!selectedSize}
+                className="w-full py-4 bg-[#FF6B00] hover:bg-[#e05f00] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-base rounded-xl uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(255,107,0,0.25)] hover:shadow-[0_0_32px_rgba(255,107,0,0.45)] hover:-translate-y-0.5"
               >
                 Adicionar 1 Unidade
               </button>

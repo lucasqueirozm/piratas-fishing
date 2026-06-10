@@ -13,6 +13,7 @@ export type Product = {
 
 export type CartItem = {
   product: Product
+  size: string
   quantity: number
 }
 
@@ -20,9 +21,9 @@ type CartContextType = {
   cart: CartItem[]
   isCartOpen: boolean
   setIsCartOpen: (isOpen: boolean) => void
-  addToCart: (product: Product, quantity?: number) => void
-  removeFromCart: (productId: number) => void
-  updateQuantity: (productId: number, delta: number) => void
+  addToCart: (product: Product, quantity: number, size: string) => void
+  removeFromCart: (productId: number, size: string) => void
+  updateQuantity: (productId: number, size: string, delta: number) => void
   clearCart: () => void
   cartTotal: number
   cartItemCount: number
@@ -30,34 +31,41 @@ type CartContextType = {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
+function itemKey(productId: number, size: string) {
+  return `${productId}::${size}`
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
 
-  function addToCart(product: Product, quantity = 1) {
+  function addToCart(product: Product, quantity = 1, size: string) {
     setCart((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id)
+      const key = itemKey(product.id, size)
+      const existing = prev.find((item) => itemKey(item.product.id, item.size) === key)
       if (existing) {
         return prev.map((item) =>
-          item.product.id === product.id
+          itemKey(item.product.id, item.size) === key
             ? { ...item, quantity: item.quantity + quantity }
             : item,
         )
       }
-      return [...prev, { product, quantity }]
+      return [...prev, { product, size, quantity }]
     })
     track('cart_open')
     setIsCartOpen(true)
   }
 
-  function removeFromCart(productId: number) {
-    setCart((prev) => prev.filter((item) => item.product.id !== productId))
+  function removeFromCart(productId: number, size: string) {
+    setCart((prev) =>
+      prev.filter((item) => itemKey(item.product.id, item.size) !== itemKey(productId, size)),
+    )
   }
 
-  function updateQuantity(productId: number, delta: number) {
+  function updateQuantity(productId: number, size: string, delta: number) {
     setCart((prev) =>
       prev.map((item) =>
-        item.product.id === productId
+        itemKey(item.product.id, item.size) === itemKey(productId, size)
           ? { ...item, quantity: Math.max(1, item.quantity + delta) }
           : item,
       ),

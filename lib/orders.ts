@@ -5,6 +5,7 @@ export type OrderStatus = 'pending' | 'paid' | 'failed' | 'cancelled' | 'in_proc
 export type OrderItem = {
   productId: number
   productName: string
+  size?: string
   quantity: number
   unitPrice: number
   totalPrice: number

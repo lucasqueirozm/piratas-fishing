@@ -74,9 +74,9 @@ export default function CartDrawer() {
               </div>
             </div>
           ) : (
-            cart.map(({ product, quantity }) => (
+            cart.map(({ product, size, quantity }) => (
               <div
-                key={product.id}
+                key={`${product.id}-${size}`}
                 className="flex items-center gap-4 p-4 rounded-xl border"
                 style={{ backgroundColor: 'var(--s2)', borderColor: 'var(--rim)' }}
               >
@@ -94,12 +94,13 @@ export default function CartDrawer() {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-bold leading-tight mb-1 truncate" style={{ color: 'var(--ink)' }}>{product.name}</h4>
+                  <h4 className="text-sm font-bold leading-tight mb-0.5 truncate" style={{ color: 'var(--ink)' }}>{product.name}</h4>
+                  <p className="text-[10px] font-semibold mb-1" style={{ color: 'var(--ink-faint)' }}>{size}</p>
                   <p className="text-[#FF6B00] font-black text-sm">{product.priceStr}</p>
 
                   <div className="flex items-center gap-2 mt-2">
                     <button
-                      onClick={() => updateQuantity(product.id, -1)}
+                      onClick={() => updateQuantity(product.id, size, -1)}
                       className="w-6 h-6 flex items-center justify-center rounded transition-colors font-bold text-sm cursor-pointer"
                       style={{ backgroundColor: 'var(--s4)', color: 'var(--ink-dim)' }}
                     >−</button>
@@ -109,13 +110,13 @@ export default function CartDrawer() {
                       value={quantity}
                       onChange={(e) => {
                         const val = parseInt(e.target.value)
-                        if (!isNaN(val) && val >= 1) updateQuantity(product.id, val - quantity)
+                        if (!isNaN(val) && val >= 1) updateQuantity(product.id, size, val - quantity)
                       }}
                       className="w-10 text-sm font-bold text-center rounded outline-none border"
                       style={{ backgroundColor: 'var(--s0)', borderColor: 'var(--rim)', color: 'var(--ink)' }}
                     />
                     <button
-                      onClick={() => updateQuantity(product.id, 1)}
+                      onClick={() => updateQuantity(product.id, size, 1)}
                       className="w-6 h-6 flex items-center justify-center rounded transition-colors font-bold text-sm cursor-pointer"
                       style={{ backgroundColor: 'var(--s4)', color: 'var(--ink-dim)' }}
                     >+</button>
@@ -123,7 +124,7 @@ export default function CartDrawer() {
                 </div>
 
                 <button
-                  onClick={() => removeFromCart(product.id)}
+                  onClick={() => removeFromCart(product.id, size)}
                   className="p-1.5 rounded-lg transition-colors hover:text-red-500"
                   style={{ color: 'var(--ink-faint)' }}
                   aria-label="Remover"
