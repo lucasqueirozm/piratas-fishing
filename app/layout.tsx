@@ -36,7 +36,6 @@ export const metadata: Metadata = {
     siteName: 'Piratas Fishing',
     locale: 'pt_BR',
     type: 'website',
-    images: [{ url: '/logo.png' }],
   },
 }
 
