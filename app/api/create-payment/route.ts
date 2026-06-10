@@ -3,10 +3,26 @@ import { MercadoPagoConfig, Preference } from 'mercadopago'
 import { createOrder, updateOrderPreference } from '@/lib/orders'
 import type { Customer, OrderItem } from '@/lib/orders'
 import { getProductById } from '@/lib/products'
+import { MIN_ORDER_VALUE, FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
 
 const mpClient = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN ?? '',
 })
+
+function isValidCPF(cpf: string): boolean {
+  const d = cpf.replace(/\D/g, '')
+  if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false
+  let sum = 0
+  for (let i = 0; i < 9; i++) sum += parseInt(d[i]) * (10 - i)
+  let rem = (sum * 10) % 11
+  if (rem === 10 || rem === 11) rem = 0
+  if (rem !== parseInt(d[9])) return false
+  sum = 0
+  for (let i = 0; i < 10; i++) sum += parseInt(d[i]) * (11 - i)
+  rem = (sum * 10) % 11
+  if (rem === 10 || rem === 11) rem = 0
+  return rem === parseInt(d[10])
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,6 +39,9 @@ export async function POST(req: NextRequest) {
     // Validação de campos obrigatórios
     if (!customer?.name || !customer?.email || !customer?.cpf || !customer?.phone) {
       return Response.json({ error: 'Dados do cliente incompletos.' }, { status: 400 })
+    }
+    if (!isValidCPF(customer.cpf)) {
+      return Response.json({ error: 'CPF inválido.' }, { status: 400 })
     }
     const addr = customer?.address
     if (!addr?.cep || addr.cep.replace(/\D/g, '').length !== 8) {
@@ -57,12 +76,11 @@ export async function POST(req: NextRequest) {
     const validatedSubtotal = validatedItems.reduce((s, i) => s + i.totalPrice, 0)
 
     // Pedido mínimo de R$100
-    if (validatedSubtotal < 100) {
+    if (validatedSubtotal < MIN_ORDER_VALUE) {
       return Response.json({ error: 'Pedido mínimo de R$ 100,00.' }, { status: 400 })
     }
 
     // Frete validado no servidor: gratuito acima de R$199,99; obrigatório (>0) abaixo disso.
-    const FREE_SHIPPING_THRESHOLD = 199.99
     const clientShipping = Number(shipping) || 0
     if (validatedSubtotal < FREE_SHIPPING_THRESHOLD && clientShipping <= 0) {
       return Response.json({ error: 'Frete inválido.' }, { status: 400 })

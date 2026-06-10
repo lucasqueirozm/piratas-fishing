@@ -25,6 +25,7 @@ const barlowCondensed = Barlow_Condensed({
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? 'https://piratasfishing.com.br'),
   title: {
     default: 'Piratas Fishing',
     template: '%s | Piratas Fishing',
@@ -35,6 +36,7 @@ export const metadata: Metadata = {
     siteName: 'Piratas Fishing',
     locale: 'pt_BR',
     type: 'website',
+    images: [{ url: '/logo.png' }],
   },
 }
 
