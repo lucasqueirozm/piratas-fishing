@@ -26,12 +26,28 @@ const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin']
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? 'https://piratasfishing.com.br'),
+  applicationName: 'Piratas Fishing',
   title: {
     default: 'Piratas Fishing',
     template: '%s | Piratas Fishing',
   },
   description: 'O Segredo da Fisgada — Iscas de pesca de alta qualidade entregues para todo o Brasil.',
   keywords: ['iscas de pesca', 'camarão', 'pesca', 'isca artificial', 'piratas fishing'],
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: [
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+      { url: '/icon-512.png', type: 'image/png', sizes: '512x512' },
+    ],
+    apple: [
+      { url: '/icon-512.png', type: 'image/png', sizes: '512x512' },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    title: 'Piratas Fishing',
+    statusBarStyle: 'black-translucent',
+  },
   openGraph: {
     siteName: 'Piratas Fishing',
     locale: 'pt_BR',
