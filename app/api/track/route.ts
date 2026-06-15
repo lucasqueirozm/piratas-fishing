@@ -5,10 +5,11 @@ const ALLOWED = new Set(['page_view', 'cart_open', 'checkout_start'])
 
 export async function POST(req: NextRequest) {
   try {
-    // Rejeitar requisições de origens externas (impede bots simples de inflar analytics)
+    // Rejeitar requisições de origens externas (impede bots simples de inflar analytics).
+    // Comparação exata: startsWith aceitaria "https://piratasfishing.com.br.evil.com".
     const origin = req.headers.get('origin')
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-    if (origin && !origin.startsWith(baseUrl)) {
+    if (origin && origin !== baseUrl) {
       return Response.json({ ok: false }, { status: 403 })
     }
 

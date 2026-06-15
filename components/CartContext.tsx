@@ -1,7 +1,9 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { track } from '@/lib/track'
+
+const CART_STORAGE_KEY = 'pf-cart'
 
 export type Product = {
   id: number
@@ -38,6 +40,35 @@ function itemKey(productId: number, size: string) {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [hydrated, setHydrated] = useState(false)
+
+  // Restaura o carrinho do localStorage no primeiro render do cliente.
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(CART_STORAGE_KEY)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        // Sincroniza estado React a partir do localStorage na montagem — padrão
+        // intencional; o persist abaixo é protegido pelo flag `hydrated`.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        if (Array.isArray(parsed)) setCart(parsed)
+      }
+    } catch {
+      // localStorage indisponível ou JSON corrompido — começa com carrinho vazio
+    }
+    setHydrated(true)
+  }, [])
+
+  // Persiste a cada mudança, mas só depois de hidratar (senão o estado inicial
+  // vazio sobrescreveria o carrinho salvo antes de ele ser restaurado).
+  useEffect(() => {
+    if (!hydrated) return
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart))
+    } catch {
+      // storage cheio ou bloqueado — ignora, o carrinho segue em memória
+    }
+  }, [cart, hydrated])
 
   function addToCart(product: Product, quantity = 1, size: string) {
     setCart((prev) => {

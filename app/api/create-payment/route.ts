@@ -3,7 +3,11 @@ import { MercadoPagoConfig, Preference } from 'mercadopago'
 import { createOrder, updateOrderPreference } from '@/lib/orders'
 import type { Customer, OrderItem } from '@/lib/orders'
 import { getProductById } from '@/lib/products'
+import { quoteShipping } from '@/lib/shipping'
 import { MIN_ORDER_VALUE, FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
+
+// Tolerância (R$) ao casar o frete enviado pelo cliente com a cotação do servidor.
+const SHIPPING_MATCH_TOLERANCE = 1
 
 const mpClient = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN ?? '',
@@ -83,12 +87,35 @@ export async function POST(req: NextRequest) {
 
     // Frete validado no servidor: gratuito acima de R$199,99; obrigatório (>0) abaixo disso.
     const clientShipping = Number(shipping) || 0
-    if (validatedSubtotal < FREE_SHIPPING_THRESHOLD && clientShipping <= 0) {
-      return Response.json({ error: 'Frete inválido.' }, { status: 400 })
+    let validatedShipping: number
+
+    if (validatedSubtotal >= FREE_SHIPPING_THRESHOLD) {
+      validatedShipping = 0
+    } else {
+      if (clientShipping <= 0) {
+        return Response.json({ error: 'Frete inválido.' }, { status: 400 })
+      }
+
+      // Recota o frete no servidor e exige que o valor do cliente case com uma
+      // opção real para aquele CEP. Impede pagar frete adulterado (ex.: R$0,01).
+      const totalItems = validatedItems.reduce((s, i) => s + i.quantity, 0)
+      const quote = await quoteShipping(customer.address.cep, totalItems)
+
+      if (quote.status === 'ok' && quote.options.length > 0) {
+        const matches = quote.options.some(
+          (opt) => Math.abs(opt.price - clientShipping) <= SHIPPING_MATCH_TOLERANCE,
+        )
+        if (!matches) {
+          return Response.json({ error: 'Valor de frete inválido. Recalcule o frete.' }, { status: 400 })
+        }
+        validatedShipping = clientShipping
+      } else {
+        // Melhor Envio indisponível ou não configurado: aceita o valor do cliente
+        // dentro de um teto, para o checkout não travar por falha externa.
+        validatedShipping = Math.min(clientShipping, 300)
+      }
     }
-    const validatedShipping = validatedSubtotal >= FREE_SHIPPING_THRESHOLD
-      ? 0
-      : Math.min(clientShipping, 300)
+
     const validatedTotal = validatedSubtotal + validatedShipping
 
     // 1. Persistir pedido com status "pending" antes de ir ao MP

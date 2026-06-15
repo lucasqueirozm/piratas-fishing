@@ -1,8 +1,13 @@
 import { NextRequest } from 'next/server'
 import { createHmac, timingSafeEqual } from 'crypto'
 import { MercadoPagoConfig, Payment } from 'mercadopago'
-import { updateOrderStatus } from '@/lib/orders'
+import { updateOrderStatus, getOrderById } from '@/lib/orders'
 import type { OrderStatus } from '@/lib/orders'
+
+// Status de pré-pagamento: só estes podem ser alterados por um webhook.
+// Depois que o pedido entra no fluxo de fulfillment (paid em diante), quem
+// controla o status é o admin — webhooks duplicados/atrasados são ignorados.
+const PRE_PAYMENT_STATUSES = new Set<OrderStatus>(['pending', 'in_process', 'failed', 'cancelled'])
 
 const mpClient = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN ?? '',
@@ -108,6 +113,13 @@ export async function POST(req: NextRequest) {
 
     const orderId = payment.external_reference
     if (!orderId) return Response.json({ received: true })
+
+    // Só atualiza pedidos ainda em pré-pagamento. Evita que um webhook
+    // duplicado/atrasado de "approved" reverta um pedido já "shipped" para "paid".
+    const current = await getOrderById(orderId)
+    if (current && !PRE_PAYMENT_STATUSES.has(current.status)) {
+      return Response.json({ received: true })
+    }
 
     const status = mpStatusToOrderStatus(payment.status ?? '')
     await updateOrderStatus(orderId, status, String(paymentId), payment.status ?? '')

@@ -23,19 +23,31 @@ export async function GET(req: NextRequest) {
 
   const db = getAdminDb()
 
-  const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-
-  const { error, count } = await db
+  // 1. Remove pedidos pendentes com mais de 7 dias.
+  const ordersCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  const { error: ordersError, count: ordersDeleted } = await db
     .from('orders')
     .delete({ count: 'exact' })
     .eq('status', 'pending')
-    .lt('created_at', cutoff)
+    .lt('created_at', ordersCutoff)
 
-  if (error) {
-    console.error('[cleanup-orders] Erro ao deletar pedidos expirados:', error)
-    return Response.json({ error: error.message }, { status: 500 })
+  if (ordersError) {
+    console.error('[cleanup-orders] Erro ao deletar pedidos expirados:', ordersError)
+    return Response.json({ error: ordersError.message }, { status: 500 })
   }
 
-  console.log(`[cleanup-orders] ${count ?? 0} pedidos pendentes expirados removidos`)
-  return Response.json({ deleted: count ?? 0 })
+  // 2. Remove eventos de analytics com mais de 90 dias (evita estourar o storage do free tier).
+  const eventsCutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()
+  const { error: eventsError, count: eventsDeleted } = await db
+    .from('events')
+    .delete({ count: 'exact' })
+    .lt('created_at', eventsCutoff)
+
+  if (eventsError) {
+    console.error('[cleanup-orders] Erro ao deletar eventos antigos:', eventsError)
+    return Response.json({ error: eventsError.message }, { status: 500 })
+  }
+
+  console.log(`[cleanup-orders] ${ordersDeleted ?? 0} pedidos e ${eventsDeleted ?? 0} eventos removidos`)
+  return Response.json({ ordersDeleted: ordersDeleted ?? 0, eventsDeleted: eventsDeleted ?? 0 })
 }
