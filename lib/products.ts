@@ -460,6 +460,16 @@ export const products: Product[] = [
     category: 'Shad',
   },
   {
+    id: 48,
+    name: 'Shad – Chá',
+    description: 'Cor Chá amadeirada, discreta e eficaz em rios com fundo de areia ou pedra.',
+    price: 8,
+    priceStr: 'R$ 8,00',
+    sizes: SHAD_SIZES,
+    image: '',
+    category: 'Shad',
+  },
+  {
     id: 45,
     name: 'Shad – Amarelo Cauda Laranja',
     description: 'Amarelo com cauda laranja vibrante — combinação de alto impacto para peixes agressivos.',
