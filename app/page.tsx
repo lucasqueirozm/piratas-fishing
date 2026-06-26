@@ -55,7 +55,13 @@ const features = [
 ]
 
 export default async function Home() {
-  const all = await getAllProducts()
+  let all: Awaited<ReturnType<typeof getAllProducts>> = []
+  try {
+    all = await getAllProducts()
+  } catch (err) {
+    // Banco indisponível — a home continua de pé, apenas sem destaques.
+    console.error('[home] falha ao carregar produtos:', err)
+  }
   // Um destaque por categoria, priorizando os que já têm foto.
   const featured = categories
     .map((cat) => all.find((p) => p.category === cat && p.image) ?? all.find((p) => p.category === cat))
