@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import FeaturedCard from '@/components/FeaturedCard'
+import { BrilhoAtrativoSection } from '@/components/BrilhoAtrativo'
 import { getAllProducts } from '@/lib/products'
 import { categories } from '@/lib/product-types'
 
@@ -169,6 +170,9 @@ export default async function Home() {
           <div className="w-px h-10 bg-gradient-to-b from-[#FF6B00]/40 to-transparent" />
         </div>
       </section>
+
+      {/* ─── BRILHO ATRATIVO ─── */}
+      <BrilhoAtrativoSection />
 
       {/* ─── POR QUE NOS ESCOLHER ─── */}
       <section style={{ backgroundColor: 'var(--s1)' }} className="py-24">

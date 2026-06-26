@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useCart } from '@/components/CartContext'
+import { BrilhoAtrativoBlock } from '@/components/BrilhoAtrativo'
 import type { Product } from '@/lib/product-types'
 
 type ShippingResult = { priceStr: string; deliveryTime: number } | null
@@ -228,6 +229,13 @@ export default function ProdutoClient({ product }: { product: Product }) {
             </div>
           </div>
         </div>
+
+        {/* Brilho atrativo — apenas Turbo e Shad */}
+        {(product.category === 'Turbo' || product.category === 'Shad') && (
+          <div className="max-w-xl mx-auto mt-14">
+            <BrilhoAtrativoBlock />
+          </div>
+        )}
       </div>
     </main>
   )
