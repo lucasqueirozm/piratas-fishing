@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     // Impede manipulação de valores via request adulterado.
     const validatedItems: OrderItem[] = []
     for (const item of items) {
-      const product = getProductById(Number(item.productId))
+      const product = await getProductById(Number(item.productId))
       if (!product) {
         return Response.json({ error: `Produto ${item.productId} não encontrado.` }, { status: 400 })
       }

@@ -4,6 +4,7 @@ import './globals.css'
 import { CartProvider } from '@/components/CartContext'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import Navbar from '@/components/Navbar'
+import { getCategoryCounts } from '@/lib/products'
 import CartDrawer from '@/components/CartDrawer'
 import CookieBanner from '@/components/CookieBanner'
 import PageTracker from '@/components/PageTracker'
@@ -55,9 +56,17 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  let counts: { total: number; byCategory: Record<string, number> } | undefined
+  try {
+    counts = await getCategoryCounts()
+  } catch {
+    // Banco indisponível — Navbar mostra contagens zeradas, sem quebrar o site.
+    counts = undefined
+  }
+
   return (
     <html
       lang="pt-BR"
@@ -76,7 +85,7 @@ export default function RootLayout({
         <ThemeProvider>
           <CartProvider>
             <PageTracker />
-            <Navbar />
+            <Navbar counts={counts} />
             {children}
             <CartDrawer />
             <CookieBanner />
