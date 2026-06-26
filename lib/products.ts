@@ -18,7 +18,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-musgo.jpg',
     category: 'Turbo',
   },
   {
@@ -28,7 +28,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-verde-pirata.jpg',
     category: 'Turbo',
   },
   {
@@ -38,7 +38,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-kill-bill.jpg',
     category: 'Turbo',
   },
   {
@@ -48,7 +48,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-apache.jpg',
     category: 'Turbo',
   },
   {
@@ -58,7 +58,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-ouro-ovado.jpg',
     category: 'Turbo',
   },
   {
@@ -68,7 +68,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-fumaca.jpg',
     category: 'Turbo',
   },
   {
@@ -78,7 +78,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-fumaca-ova-preta.jpg',
     category: 'Turbo',
   },
   {
@@ -88,7 +88,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-fumaca-ova-verde.jpg',
     category: 'Turbo',
   },
   {
@@ -98,7 +98,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-desincapado.jpg',
     category: 'Turbo',
   },
   {
@@ -108,7 +108,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-palhacinho.jpg',
     category: 'Turbo',
   },
   {
@@ -128,7 +128,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-laranjinha.jpg',
     category: 'Turbo',
   },
   {
@@ -138,7 +138,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-spartano.jpg',
     category: 'Turbo',
   },
   {
@@ -148,7 +148,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-tricolor.jpg',
     category: 'Turbo',
   },
   {
@@ -158,7 +158,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-tricolor-cauda-verde.jpg',
     category: 'Turbo',
   },
   {
@@ -168,7 +168,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-ferrinho.jpg',
     category: 'Turbo',
   },
   {
@@ -178,7 +178,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-fumaca-ova-vermelha.jpg',
     category: 'Turbo',
   },
   {
@@ -188,7 +188,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-roxinho-translucido.jpg',
     category: 'Turbo',
   },
   {
@@ -198,7 +198,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm', '8,5 cm', '9,5 cm', '10,5 cm'],
-    image: '',
+    image: '/produtos/turbo-roxo.jpg',
     category: 'Turbo',
   },
 
@@ -210,7 +210,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['7,5 cm', '8,5 cm'],
-    image: '',
+    image: '/produtos/reality-tricolor.jpg',
     category: 'Reality',
   },
   {
@@ -220,7 +220,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['7,5 cm', '8,5 cm'],
-    image: '',
+    image: '/produtos/reality-roxinho.jpg',
     category: 'Reality',
   },
   {
@@ -230,7 +230,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['7,5 cm', '8,5 cm'],
-    image: '',
+    image: '/produtos/reality-salmao.jpg',
     category: 'Reality',
   },
   {
@@ -240,7 +240,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['7,5 cm', '8,5 cm'],
-    image: '',
+    image: '/produtos/reality-prateado.jpg',
     category: 'Reality',
   },
   {
@@ -250,7 +250,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['7,5 cm', '8,5 cm'],
-    image: '',
+    image: '/produtos/reality-glow.jpg',
     category: 'Reality',
   },
   {
@@ -280,7 +280,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['7,5 cm', '8,5 cm'],
-    image: '',
+    image: '/produtos/reality-kill-bill.jpg',
     category: 'Reality',
   },
 
@@ -292,7 +292,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm'],
-    image: '',
+    image: '/produtos/shad-kill-bill.jpg',
     category: 'Shad',
   },
   {
@@ -302,7 +302,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm'],
-    image: '',
+    image: '/produtos/shad-roxo.jpg',
     category: 'Shad',
   },
   {
@@ -312,7 +312,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm'],
-    image: '',
+    image: '/produtos/shad-ferrinho.jpg',
     category: 'Shad',
   },
   {
@@ -322,7 +322,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm'],
-    image: '',
+    image: '/produtos/shad-fuligem.jpg',
     category: 'Shad',
   },
   {
@@ -332,7 +332,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm'],
-    image: '',
+    image: '/produtos/shad-prateado.jpg',
     category: 'Shad',
   },
   {
@@ -342,7 +342,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm'],
-    image: '',
+    image: '/produtos/shad-salmao.jpg',
     category: 'Shad',
   },
   {
@@ -352,7 +352,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm'],
-    image: '',
+    image: '/produtos/fumaca-cauda-vermelha.jpg',
     category: 'Shad',
   },
   {
@@ -362,7 +362,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm'],
-    image: '',
+    image: '/produtos/shad-tricolor-cauda-verde-fluorescente.jpg',
     category: 'Shad',
   },
   {
@@ -372,7 +372,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm'],
-    image: '',
+    image: '/produtos/shad-musgo.jpg',
     category: 'Shad',
   },
   {
@@ -382,7 +382,7 @@ export const products: Product[] = [
     price: 8,
     priceStr: 'R$ 8,00',
     sizes: ['6,5 cm', '7,5 cm'],
-    image: '',
+    image: '/produtos/shad-verde-fluorescente.jpg',
     category: 'Shad',
   },
   {
