@@ -6,10 +6,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { categories, type Product } from '@/lib/product-types'
 
-const ALL = 'Todos'
-
 export default function CatalogoClient({ products }: { products: Product[] }) {
-  const [activeCategory, setActiveCategory] = useState<string>(ALL)
+  // Multi-seleção de categorias. Vazio = mostra todas.
+  const [selected, setSelected] = useState<string[]>([])
 
   // Read ?c= URL param on mount for deep links from the mega menu
   useEffect(() => {
@@ -17,17 +16,21 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
       const c = new URLSearchParams(window.location.search).get('c')
       if (c && (categories as string[]).includes(c)) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setActiveCategory(c)
+        setSelected([c])
       }
     } catch {
       // ignore
     }
   }, [])
 
+  function toggleCategory(cat: string) {
+    setSelected((prev) => (prev.includes(cat) ? prev.filter((x) => x !== cat) : [...prev, cat]))
+  }
+
   const filtered =
-    activeCategory === ALL
+    selected.length === 0
       ? products
-      : products.filter((p) => p.category === activeCategory)
+      : products.filter((p) => selected.includes(p.category))
 
   return (
     <main className="min-h-screen flex-grow" style={{ backgroundColor: 'var(--s0)' }}>
@@ -57,16 +60,16 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
             <FilterBtn
               label="Todos"
               count={products.length}
-              active={activeCategory === ALL}
-              onClick={() => setActiveCategory(ALL)}
+              active={selected.length === 0}
+              onClick={() => setSelected([])}
             />
             {categories.map((cat) => (
               <FilterBtn
                 key={cat}
                 label={cat}
                 count={products.filter((p) => p.category === cat).length}
-                active={activeCategory === cat}
-                onClick={() => setActiveCategory(cat)}
+                active={selected.includes(cat)}
+                onClick={() => toggleCategory(cat)}
               />
             ))}
           </div>
@@ -77,7 +80,7 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
         <p className="text-[10px] font-semibold uppercase tracking-widest mb-6" style={{ color: 'var(--ink-faint)' }}>
           {filtered.length} produto{filtered.length !== 1 ? 's' : ''}
-          {activeCategory !== ALL ? ` · ${activeCategory}` : ''}
+          {selected.length > 0 ? ` · ${selected.join(' + ')}` : ''}
         </p>
         {filtered.length === 0 ? (
           <p className="text-sm py-16 text-center" style={{ color: 'var(--ink-faint)' }}>
