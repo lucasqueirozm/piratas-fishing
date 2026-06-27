@@ -1,442 +1,81 @@
-export type Product = {
+import 'server-only'
+import { getAdminDb } from './supabase'
+import { formatPrice, type Product, type ProductCategory } from './product-types'
+
+export type { Product, ProductCategory } from './product-types'
+export { categories } from './product-types'
+
+type ProductRow = {
   id: number
   name: string
   description: string
-  price: number
-  priceStr: string
-  size: string
-  image: string
-  category: 'Turbo' | 'Reality' | 'Shad'
+  price: number | string
+  sizes: string[] | null
+  image: string | null
+  category: ProductCategory
+  active: boolean
+  sort_order: number
 }
 
-export const products: Product[] = [
-  // ── Turbo ──────────────────────────────────────────────────────────────────
-  {
-    id: 1,
-    name: 'Turbo – Musgo',
-    description: 'Cor Musgo que mimetiza o fundo de rios e estuários. Altamente eficaz para peixes que caçam junto ao substrato.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 2,
-    name: 'Turbo – Verde Pirata',
-    description: 'Verde Pirata — cor exclusiva da marca, desenvolvida para manguezais e rios com fundo vegetal.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 3,
-    name: 'Turbo – Kill Bill',
-    description: 'Kill Bill: amarelo e vermelho em contraste máximo. Isca agressiva para predadores territoriais.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 4,
-    name: 'Turbo – Apache',
-    description: 'Cor Apache com brilho atrativo e movimento ultra-realista. Ideal para robalo, pescada e tainha.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 5,
-    name: 'Turbo – Ouro Ovado',
-    description: 'Cor Ouro com ova — combinação premium que se destaca em qualquer ambiente aquático.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 6,
-    name: 'Turbo – Fumaça',
-    description: 'Clássico Fumaça translúcido com glitter e placa holográfica central. Versátil para qualquer condição de pesca.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 7,
-    name: 'Turbo – Fumaça Ova Black',
-    description: 'Corpo Fumaça transparente com ovos pretos — combinação que engana até os predadores mais experientes.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 8,
-    name: 'Turbo – Fumaça Ova Verde',
-    description: 'Fumaça com ova verde para ambientes com vegetação subaquática. Mimetismo perfeito para pesca em manguezais.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 9,
-    name: 'Turbo – Desincapado',
-    description: 'Silicone translúcido que imita perfeitamente o camarão natural. Excelente para pescarias em águas claras.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 10,
-    name: 'Turbo – Palhacinho',
-    description: 'Cor Palhacinho vibrante, multicolorida. Ótima para provocar ataque por curiosidade e territorialidade.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 11,
-    name: 'Turbo – Coringa',
-    description: 'Cor Coringa multicolor com alto poder de atração. Perfeita para dias de sol forte com água clara.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 12,
-    name: 'Turbo – Laranjinha',
-    description: 'Laranjinha vibrante, cor de alto contraste ideal para águas turvas e condições de baixa visibilidade.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 13,
-    name: 'Turbo – Spartano',
-    description: 'Cor Spartano bold para pescadores que buscam destaque. Indicado para pesca embarcada.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 14,
-    name: 'Turbo – Tricolor',
-    description: 'Tricolor clássico com três tons que imitam o camarão natural em diferentes fases de muda.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 15,
-    name: 'Turbo – Calda Verde',
-    description: 'Corpo tricolor com calda verde fluorescente — alto contraste para dias de alta turbidez.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 16,
-    name: 'Turbo – Ferrinho',
-    description: 'Cor Ferrinho metálica com reflexo que atrai predadores em qualquer nível de profundidade.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 17,
-    name: 'Turbo – Fumaça Ova Red',
-    description: 'Silicone fumaça com ova vermelha viva — simula camarão em período reprodutivo, aumentando o poder de atração.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 18,
-    name: 'Turbo – Roxinho Translúcido',
-    description: 'Roxinho translúcido exclusivo Piratas, desenvolvido para pesca noturna e em águas turvas.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-  {
-    id: 19,
-    name: 'Turbo – Roxo',
-    description: 'Roxo intenso com alto poder de atração em condições de baixa luminosidade e águas escuras.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Turbo',
-  },
-
-  // ── Reality ─────────────────────────────────────────────────────────────────
-  {
-    id: 20,
-    name: 'Reality – Tricolor',
-    description: 'Modelo Reality Tricolor com acabamento ultra-realista. Três tons que imitam o camarão natural com perfeição.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Reality',
-  },
-  {
-    id: 21,
-    name: 'Reality – Roxinho',
-    description: 'Reality Roxinho para pesca noturna e em águas de baixa visibilidade. Silicone de alta durabilidade.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Reality',
-  },
-  {
-    id: 22,
-    name: 'Reality – Salmão',
-    description: 'Cor Salmão que imita o camarão rosado natural. Altamente eficaz para robalo e corvina.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Reality',
-  },
-  {
-    id: 23,
-    name: 'Reality – Prateado',
-    description: 'Finish prateado altamente refletivo. Funciona excelente em dias nublados ou em águas escuras.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Reality',
-  },
-  {
-    id: 24,
-    name: 'Reality – Glow',
-    description: 'Glow: brilha no escuro! Indispensável para pesca noturna ou em fundos com pouca luz.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Reality',
-  },
-  {
-    id: 25,
-    name: 'Reality – Fumaça',
-    description: 'Reality Fumaça translúcido com alto realismo. Versátil para qualquer condição e horário de pesca.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Reality',
-  },
-  {
-    id: 26,
-    name: 'Reality – Fuligem',
-    description: 'Fuligem escuro que mimetiza o ambiente de fundo. Ideal para pesca em áreas com sedimento escuro.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Reality',
-  },
-  {
-    id: 27,
-    name: 'Reality – Kill Bill',
-    description: 'Reality Kill Bill com contraste amarelo e vermelho. Agressivo e eficaz para predadores territoriais.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '9 cm',
-    image: '',
-    category: 'Reality',
-  },
-
-  // ── Shad ────────────────────────────────────────────────────────────────────
-  {
-    id: 28,
-    name: 'Shad – Kill Bill',
-    description: 'Shad Kill Bill: amarelo e vermelho em contraste máximo. Isca agressiva para predadores em correnteza.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '10 cm',
-    image: '',
-    category: 'Shad',
-  },
-  {
-    id: 29,
-    name: 'Shad – Roxo',
-    description: 'Shad na cor Roxo — perfeito para pesca noturna e em águas com baixa luminosidade.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '10 cm',
-    image: '',
-    category: 'Shad',
-  },
-  {
-    id: 30,
-    name: 'Shad – Ferrinho',
-    description: 'Cor Ferrinho metálica com reflexo lateral. Atrai predadores em qualquer profundidade.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '10 cm',
-    image: '',
-    category: 'Shad',
-  },
-  {
-    id: 31,
-    name: 'Shad – Fuligem',
-    description: 'Fuligem escuro para pesca em fundos com sedimento. Excelente para linguado e robalo.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '10 cm',
-    image: '',
-    category: 'Shad',
-  },
-  {
-    id: 32,
-    name: 'Shad – Prateado',
-    description: 'Prateado refletivo para dias nublados e águas escuras. Clássico que nunca decepciona.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '10 cm',
-    image: '',
-    category: 'Shad',
-  },
-  {
-    id: 33,
-    name: 'Shad – Salmão',
-    description: 'Cor Salmão rosado que imita peixinho natural. Alta atração para robalo e corvina em estuários.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '10 cm',
-    image: '',
-    category: 'Shad',
-  },
-  {
-    id: 34,
-    name: 'Shad – Fumaça Calda Vermelha',
-    description: 'Corpo Fumaça translúcido com calda vermelha chamativa. Combinação letal em qualquer ambiente.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '10 cm',
-    image: '',
-    category: 'Shad',
-  },
-  {
-    id: 35,
-    name: 'Shad – Tricolor Calda Verde',
-    description: 'Tricolor com calda verde fluorescente — alto contraste para dias com água turva.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '10 cm',
-    image: '',
-    category: 'Shad',
-  },
-  {
-    id: 36,
-    name: 'Shad – Musgo',
-    description: 'Musgo que mimetiza o fundo vegetal de rios e estuários. Altamente eficaz junto ao substrato.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '10 cm',
-    image: '',
-    category: 'Shad',
-  },
-  {
-    id: 37,
-    name: 'Shad – Verde Fluorescente',
-    description: 'Verde fluorescente de alto contraste. Visível mesmo em água turva ou com baixa luminosidade.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '10 cm',
-    image: '',
-    category: 'Shad',
-  },
-  {
-    id: 38,
-    name: 'Shad – Fumaça Calda Preta',
-    description: 'Fumaça com calda preta — contraste sutil e eficaz para predadores seletivos em água limpa.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '10 cm',
-    image: '',
-    category: 'Shad',
-  },
-  {
-    id: 39,
-    name: 'Shad – Chá',
-    description: 'Cor Chá amadeirada, discreta e eficaz em rios com fundo de areia ou pedra.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '10 cm',
-    image: '',
-    category: 'Shad',
-  },
-  {
-    id: 40,
-    name: 'Shad – Amarelo Calda Laranja',
-    description: 'Amarelo com calda laranja vibrante — combinação de alto impacto para peixes agressivos.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '10 cm',
-    image: '',
-    category: 'Shad',
-  },
-  {
-    id: 41,
-    name: 'Shad – Vermelho',
-    description: 'Vermelho intenso com alto poder de atração. Perfeito para pesca em correnteza e embarcada.',
-    price: 8,
-    priceStr: 'R$ 8,00',
-    size: '10 cm',
-    image: '',
-    category: 'Shad',
-  },
-]
-
-export function getProductById(id: number): Product | undefined {
-  return products.find((p) => p.id === id)
+function toProduct(r: ProductRow): Product {
+  const price = Number(r.price)
+  return {
+    id: r.id,
+    name: r.name,
+    description: r.description ?? '',
+    price,
+    priceStr: formatPrice(price),
+    sizes: r.sizes ?? [],
+    image: r.image ?? '',
+    category: r.category,
+  }
 }
 
-export function getFeaturedProducts(count = 3): Product[] {
-  return products.slice(0, count)
+export async function getAllProducts(): Promise<Product[]> {
+  const db = getAdminDb()
+  const { data, error } = await db
+    .from('products')
+    .select('*')
+    .eq('active', true)
+    .order('sort_order', { ascending: true })
+  if (error) throw error
+  return (data ?? []).map((r) => toProduct(r as ProductRow))
 }
 
-export function getProductsByCategory(category: Product['category']): Product[] {
-  return products.filter((p) => p.category === category)
+export async function getProductById(id: number): Promise<Product | undefined> {
+  if (!Number.isFinite(id)) return undefined
+  const db = getAdminDb()
+  const { data, error } = await db
+    .from('products')
+    .select('*')
+    .eq('id', id)
+    .eq('active', true)
+    .maybeSingle()
+  if (error) throw error
+  return data ? toProduct(data as ProductRow) : undefined
 }
 
-export const categories: Product['category'][] = ['Turbo', 'Reality', 'Shad']
+export async function getProductsByCategory(category: ProductCategory): Promise<Product[]> {
+  const db = getAdminDb()
+  const { data, error } = await db
+    .from('products')
+    .select('*')
+    .eq('active', true)
+    .eq('category', category)
+    .order('sort_order', { ascending: true })
+  if (error) throw error
+  return (data ?? []).map((r) => toProduct(r as ProductRow))
+}
+
+export async function getFeaturedProducts(count = 3): Promise<Product[]> {
+  const all = await getAllProducts()
+  return all.slice(0, count)
+}
+
+// Contagem por categoria para o mega menu do Navbar.
+export async function getCategoryCounts(): Promise<{ total: number; byCategory: Record<string, number> }> {
+  const all = await getAllProducts()
+  const byCategory: Record<string, number> = {}
+  for (const p of all) byCategory[p.category] = (byCategory[p.category] ?? 0) + 1
+  return { total: all.length, byCategory }
+}

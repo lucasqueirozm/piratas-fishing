@@ -5,7 +5,9 @@ import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
 import { useCart } from './CartContext'
 import { useTheme } from './ThemeProvider'
-import { products, categories } from '@/lib/products'
+import { categories } from '@/lib/product-types'
+
+type ProductCounts = { total: number; byCategory: Record<string, number> }
 
 const staticLinks = [
   { href: '/', label: 'Início' },
@@ -62,7 +64,7 @@ const categoryMeta: Record<string, { slug: string; icon: React.ReactNode }> = {
   },
 }
 
-export default function Navbar() {
+export default function Navbar({ counts }: { counts?: ProductCounts }) {
   const { setIsCartOpen, cartItemCount } = useCart()
   const { theme, toggle } = useTheme()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -97,7 +99,8 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const totalProducts = products.length
+  const totalProducts = counts?.total ?? 0
+  const countFor = (cat: string) => counts?.byCategory[cat] ?? 0
 
   return (
     <nav
@@ -167,7 +170,7 @@ export default function Navbar() {
                   </p>
                   <div className="grid grid-cols-2 gap-2 mb-4">
                     {categories.map((cat) => {
-                      const count = products.filter((p) => p.category === cat).length
+                      const count = countFor(cat)
                       const meta = categoryMeta[cat]
                       return (
                         <Link
@@ -302,7 +305,7 @@ export default function Navbar() {
             {mobileCatalogOpen && (
               <div className="ml-4 mb-2 space-y-1">
                 {categories.map((cat) => {
-                  const count = products.filter((p) => p.category === cat).length
+                  const count = countFor(cat)
                   return (
                     <Link
                       key={cat}

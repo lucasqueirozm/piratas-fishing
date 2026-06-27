@@ -4,6 +4,7 @@ import './globals.css'
 import { CartProvider } from '@/components/CartContext'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import Navbar from '@/components/Navbar'
+import { getCategoryCounts } from '@/lib/products'
 import CartDrawer from '@/components/CartDrawer'
 import CookieBanner from '@/components/CookieBanner'
 import PageTracker from '@/components/PageTracker'
@@ -25,12 +26,29 @@ const barlowCondensed = Barlow_Condensed({
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? 'https://piratasfishing.com.br'),
+  applicationName: 'Piratas Fishing',
   title: {
     default: 'Piratas Fishing',
     template: '%s | Piratas Fishing',
   },
   description: 'O Segredo da Fisgada — Iscas de pesca de alta qualidade entregues para todo o Brasil.',
   keywords: ['iscas de pesca', 'camarão', 'pesca', 'isca artificial', 'piratas fishing'],
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: [
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+      { url: '/icon-512.png', type: 'image/png', sizes: '512x512' },
+    ],
+    apple: [
+      { url: '/icon-512.png', type: 'image/png', sizes: '512x512' },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    title: 'Piratas Fishing',
+    statusBarStyle: 'black-translucent',
+  },
   openGraph: {
     siteName: 'Piratas Fishing',
     locale: 'pt_BR',
@@ -38,9 +56,17 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  let counts: { total: number; byCategory: Record<string, number> } | undefined
+  try {
+    counts = await getCategoryCounts()
+  } catch {
+    // Banco indisponível — Navbar mostra contagens zeradas, sem quebrar o site.
+    counts = undefined
+  }
+
   return (
     <html
       lang="pt-BR"
@@ -59,7 +85,7 @@ export default function RootLayout({
         <ThemeProvider>
           <CartProvider>
             <PageTracker />
-            <Navbar />
+            <Navbar counts={counts} />
             {children}
             <CartDrawer />
             <CookieBanner />
