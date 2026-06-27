@@ -3,25 +3,23 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { categories, type Product } from '@/lib/product-types'
 
 export default function CatalogoClient({ products }: { products: Product[] }) {
   // Multi-seleção de categorias. Vazio = mostra todas.
   const [selected, setSelected] = useState<string[]>([])
+  const searchParams = useSearchParams()
+  const cParam = searchParams.get('c')
 
-  // Read ?c= URL param on mount for deep links from the mega menu
+  // Aplica o ?c= do menu suspenso — reage a cada navegação (mesmo já estando
+  // na página do catálogo, quando só o parâmetro muda).
   useEffect(() => {
-    try {
-      const c = new URLSearchParams(window.location.search).get('c')
-      if (c && (categories as string[]).includes(c)) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setSelected([c])
-      }
-    } catch {
-      // ignore
+    if (cParam && (categories as string[]).includes(cParam)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelected([cParam])
     }
-  }, [])
+  }, [cParam])
 
   function toggleCategory(cat: string) {
     setSelected((prev) => (prev.includes(cat) ? prev.filter((x) => x !== cat) : [...prev, cat]))

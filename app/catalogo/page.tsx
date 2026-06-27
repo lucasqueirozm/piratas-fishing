@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import CatalogoClient from './CatalogoClient'
 import { getAllProducts } from '@/lib/products'
 
@@ -11,5 +12,9 @@ export default async function CatalogoPage() {
     // Banco indisponível — mostra catálogo vazio em vez de erro 500.
     console.error('[catalogo] falha ao carregar produtos:', err)
   }
-  return <CatalogoClient products={products} />
+  return (
+    <Suspense>
+      <CatalogoClient products={products} />
+    </Suspense>
+  )
 }
