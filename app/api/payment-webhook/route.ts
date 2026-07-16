@@ -85,10 +85,12 @@ export async function POST(req: NextRequest) {
     return Response.json({ received: true }) // corpo ilegível, não retentar
   }
 
-  // Assinatura inválida ou replay: retornar 200 para MP não retentar indefinidamente.
+  // Assinatura inválida/ausente ou timestamp fora da janela: retornar 401 para
+  // que a falha seja VISÍVEL (no painel do MP e nas retentativas) em vez de um
+  // "200 OK" enganoso que esconderia um segredo mal configurado.
   if (!verifyMpSignature(req, rawBody)) {
     console.error('[payment-webhook] Assinatura inválida ou timestamp expirado — requisição rejeitada')
-    return Response.json({ received: true })
+    return Response.json({ error: 'invalid signature' }, { status: 401 })
   }
 
   let body: { type?: string; data?: { id?: string } }
