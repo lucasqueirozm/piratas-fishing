@@ -49,21 +49,43 @@ function verifyMpSignature(req: NextRequest, rawBody: string): boolean {
     return false
   }
 
-  let dataId: string | undefined
+  // O id do manifesto vem do parâmetro "data.id" da URL; usamos o do corpo como
+  // alternativa. MP manda ids numéricos (payment); normalizamos p/ minúsculo por spec.
+  let bodyDataId: string | undefined
   try {
-    dataId = (JSON.parse(rawBody) as { data?: { id?: string } }).data?.id
+    bodyDataId = (JSON.parse(rawBody) as { data?: { id?: string } }).data?.id
   } catch {
-    return false
+    // corpo não-JSON — segue só com o data.id da URL
+  }
+  let urlDataId: string | undefined
+  try {
+    urlDataId = new URL(req.url).searchParams.get('data.id') ?? undefined
+  } catch {
+    // URL sem query — ignora
   }
 
-  const template = `id:${dataId};request-id:${xRequestId};ts:${ts}`
-  const expected = createHmac('sha256', secret).update(template).digest('hex')
-
-  try {
-    return timingSafeEqual(Buffer.from(v1, 'hex'), Buffer.from(expected, 'hex'))
-  } catch {
-    return false
+  const idCandidates = new Set<string>()
+  for (const id of [urlDataId, bodyDataId]) {
+    if (id) { idCandidates.add(id); idCandidates.add(id.toLowerCase()) }
   }
+  if (idCandidates.size === 0) return false
+
+  // MP documenta o template "id:...;request-id:...;ts:...;" mas há variação quanto
+  // ao ";" final. Testamos ambos os formatos e aceitamos se qualquer um bater —
+  // continua exigindo a chave secreta correta, então segue seguro.
+  const provided = Buffer.from(v1, 'hex')
+  for (const id of idCandidates) {
+    for (const template of [
+      `id:${id};request-id:${xRequestId};ts:${ts};`,
+      `id:${id};request-id:${xRequestId};ts:${ts}`,
+    ]) {
+      const expected = Buffer.from(createHmac('sha256', secret).update(template).digest('hex'), 'hex')
+      if (provided.length === expected.length && timingSafeEqual(provided, expected)) {
+        return true
+      }
+    }
+  }
+  return false
 }
 
 function mpStatusToOrderStatus(mpStatus: string): OrderStatus {
