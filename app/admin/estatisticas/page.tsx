@@ -2,9 +2,8 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import type { Order, OrderStatus } from '@/lib/orders'
-
-const FULFILLMENT_STATUSES: OrderStatus[] = ['paid', 'packed', 'shipped', 'tracking_sent', 'completed']
+import type { Order } from '@/lib/orders'
+import { FULFILLMENT_STATUSES } from '@/lib/constants'
 
 function fmt(v: number) {
   return `R$ ${v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`

@@ -7,10 +7,9 @@ import {
   PieChart, Pie, Cell, BarChart, Bar,
 } from 'recharts'
 import type { Order, OrderStatus } from '@/lib/orders'
+import { FULFILLMENT_STATUSES } from '@/lib/constants'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const FULFILLMENT_STATUSES: OrderStatus[] = ['paid', 'supplier_sent', 'packed', 'shipped', 'tracking_sent', 'completed']
 
 // Horas sem confirmação a partir das quais um pedido pendente vira alerta.
 const STALE_PENDING_HOURS = 2

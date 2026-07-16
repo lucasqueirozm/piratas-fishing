@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { getOrders, updateOrderFulfillment } from '@/lib/orders'
 import type { OrderStatus } from '@/lib/orders'
 import { verifySessionToken } from '@/lib/admin-auth'
+import { ORDERS_QUERY_LIMIT } from '@/lib/constants'
 
 const VALID_STATUSES = new Set<string>([
   'pending', 'paid', 'failed', 'cancelled', 'in_process',
@@ -21,8 +22,9 @@ export async function GET(req: NextRequest) {
     return Response.json({ error: 'Não autorizado.' }, { status: 401 })
   }
 
-  const limit = Number(req.nextUrl.searchParams.get('limit') ?? '100')
-  const orders = await getOrders(Math.min(limit, 200))
+  const requested = Number(req.nextUrl.searchParams.get('limit') ?? String(ORDERS_QUERY_LIMIT))
+  const limit = Math.min(Number.isFinite(requested) ? requested : ORDERS_QUERY_LIMIT, ORDERS_QUERY_LIMIT)
+  const orders = await getOrders(limit)
 
   return Response.json({ orders })
 }

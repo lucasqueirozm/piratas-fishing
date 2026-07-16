@@ -3,8 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Order, OrderStatus } from '@/lib/orders'
-
-const FULFILLMENT_STATUSES: OrderStatus[] = ['paid', 'supplier_sent', 'packed', 'shipped', 'tracking_sent', 'completed']
+import { FULFILLMENT_STATUSES } from '@/lib/constants'
 
 const COLUMN_LABEL: Partial<Record<OrderStatus, string>> = {
   paid: 'Pedido recebido',
