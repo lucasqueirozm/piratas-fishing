@@ -12,6 +12,9 @@ import type { Order, OrderStatus } from '@/lib/orders'
 
 const FULFILLMENT_STATUSES: OrderStatus[] = ['paid', 'supplier_sent', 'packed', 'shipped', 'tracking_sent', 'completed']
 
+// Horas sem confirmação a partir das quais um pedido pendente vira alerta.
+const STALE_PENDING_HOURS = 2
+
 const COLUMN_LABEL: Partial<Record<OrderStatus, string>> = {
   paid: 'Pedido recebido',
   supplier_sent: 'Enviada Fornecedor',
@@ -73,6 +76,13 @@ function fmtDate(val: unknown): string {
 function fmtShort(val: unknown): string {
   if (!val) return '—'
   return new Date(String(val)).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+}
+
+function fmtAge(val: unknown): string {
+  const ms = Date.now() - new Date(String(val)).getTime()
+  const h = Math.floor(ms / 3600_000)
+  if (h < 24) return `${h}h`
+  return `${Math.floor(h / 24)}d`
 }
 
 function filterByDays(orders: Order[], days: number) {
@@ -177,6 +187,32 @@ function OrderModal({ order, onClose }: { order: Order; onClose: () => void }) {
             </span>
             <span className="ml-auto text-xs" style={{ color: 'var(--ink-faint)' }}>{fmtDate(order.createdAt)}</span>
           </div>
+
+          {/* Referência MercadoPago — ajuda a localizar o pagamento no painel do MP */}
+          {(order.status === 'pending' || order.status === 'in_process') && (
+            <div className="rounded-xl p-4 space-y-2" style={{ backgroundColor: 'var(--s2)', border: '1px solid rgba(245,158,11,0.3)' }}>
+              <p className="text-xs font-bold uppercase tracking-wider" style={{ color: '#f59e0b' }}>Verificar no MercadoPago</p>
+              <p className="text-xs" style={{ color: 'var(--ink-dim)' }}>
+                Busque por esta referência no painel do MP. Se o pagamento estiver aprovado, avance o pedido no Kanban.
+              </p>
+              <div className="flex justify-between text-xs pt-1">
+                <span style={{ color: 'var(--ink-faint)' }}>Referência (ID)</span>
+                <span className="font-mono" style={{ color: 'var(--ink)' }}>{order.id}</span>
+              </div>
+              {order.paymentId && (
+                <div className="flex justify-between text-xs">
+                  <span style={{ color: 'var(--ink-faint)' }}>Pagamento MP</span>
+                  <span className="font-mono" style={{ color: 'var(--ink)' }}>{order.paymentId}</span>
+                </div>
+              )}
+              {order.mpStatus && (
+                <div className="flex justify-between text-xs">
+                  <span style={{ color: 'var(--ink-faint)' }}>Último status MP</span>
+                  <span style={{ color: 'var(--ink)' }}>{order.mpStatus}</span>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Cliente */}
           <div className="rounded-xl p-4 space-y-2" style={{ backgroundColor: 'var(--s2)' }}>
@@ -343,6 +379,28 @@ export default function AdminDashboardPage() {
 
   const preOrders = orders.filter((o) => !FULFILLMENT_STATUSES.includes(o.status) && matchesSearch(o))
 
+  // Pedidos pendentes/em análise parados há mais de X horas: risco de terem sido
+  // pagos sem o webhook do MercadoPago atualizar o status. O admin deve conferir no MP.
+  // "Agora" fica em estado (atualizado a cada minuto) para não chamar Date.now no render.
+  const [nowMs, setNowMs] = useState<number | null>(null)
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNowMs(Date.now())
+    const t = setInterval(() => setNowMs(Date.now()), 60_000)
+    return () => clearInterval(t)
+  }, [])
+
+  const stalePending = useMemo(() => {
+    if (nowMs === null) return []
+    return orders
+      .filter(
+        (o) =>
+          (o.status === 'pending' || o.status === 'in_process') &&
+          nowMs - new Date(o.createdAt).getTime() >= STALE_PENDING_HOURS * 3600_000,
+      )
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+  }, [orders, nowMs])
+
   const DATE_RANGES: { label: string; value: 0 | 7 | 30 | 90 }[] = [
     { label: '7 dias', value: 7 },
     { label: '30 dias', value: 30 },
@@ -378,6 +436,41 @@ export default function AdminDashboardPage() {
             </div>
           ) : (
             <>
+              {/* ── Aviso: pendentes parados (possível pagamento não confirmado) ── */}
+              {stalePending.length > 0 && (
+                <div className="rounded-2xl border p-4" style={{ backgroundColor: 'rgba(245,158,11,0.08)', borderColor: 'rgba(245,158,11,0.35)' }}>
+                  <div className="flex items-start gap-3">
+                    <svg className="shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                      <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    <div className="min-w-0">
+                      <p className="text-sm font-black" style={{ color: '#f59e0b' }}>
+                        {stalePending.length} pedido{stalePending.length !== 1 ? 's' : ''} pendente{stalePending.length !== 1 ? 's' : ''} há mais de {STALE_PENDING_HOURS}h
+                      </p>
+                      <p className="text-xs mt-1" style={{ color: 'var(--ink-dim)' }}>
+                        Pode ser cliente que pagou sem o sistema atualizar. Confira no MercadoPago (busque pela referência do pedido); se estiver aprovado, avance o pedido no Kanban.
+                      </p>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {stalePending.slice(0, 8).map((o) => (
+                          <button
+                            key={o.id}
+                            onClick={() => setSelectedOrder(o)}
+                            className="text-xs font-bold px-2.5 py-1.5 rounded-lg border transition-colors hover:border-[rgba(245,158,11,0.5)]"
+                            style={{ backgroundColor: 'var(--s2)', borderColor: 'var(--rim)', color: 'var(--ink)' }}
+                          >
+                            {o.customer.name.split(' ')[0]} · {fmt(o.total)} · há {fmtAge(o.createdAt)}
+                          </button>
+                        ))}
+                        {stalePending.length > 8 && (
+                          <span className="text-xs self-center" style={{ color: 'var(--ink-faint)' }}>+{stalePending.length - 8}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* ── Filters bar ── */}
               <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                 <div className="relative flex-1 max-w-sm">
