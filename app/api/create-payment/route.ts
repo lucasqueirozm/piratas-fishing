@@ -128,7 +128,9 @@ export async function POST(req: NextRequest) {
       total: validatedTotal,
     })
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
+    // Remove barra(s) final(is) para não gerar "//api/payment-webhook" (barra dupla),
+    // o que pode fazer o MercadoPago falhar em notificar o pagamento.
+    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000').replace(/\/+$/, '')
 
     // 2. Criar preferência no MercadoPago
     const preference = new Preference(mpClient)
