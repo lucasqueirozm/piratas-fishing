@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/components/CartContext'
 import type { ShippingOption } from '@/app/api/shipping/route'
+import { MIN_ORDER_VALUE as MIN_ORDER, FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
 
 type FormData = {
   name: string
@@ -49,9 +50,6 @@ type ShippingState =
   | { status: 'ok'; options: ShippingOption[] }
   | { status: 'error'; message: string }
   | { status: 'unconfigured' }
-
-const MIN_ORDER = 100
-const FREE_SHIPPING_THRESHOLD = 199.99
 
 export default function CheckoutPage() {
   const { cart, cartTotal, cartItemCount } = useCart()
@@ -186,9 +184,10 @@ export default function CheckoutPage() {
                 state: form.state,
               },
             },
-            items: cart.map(({ product, quantity }) => ({
+            items: cart.map(({ product, size, quantity }) => ({
               productId: product.id,
               productName: product.name,
+              size,
               quantity,
               unitPrice: product.price,
               totalPrice: product.price * quantity,

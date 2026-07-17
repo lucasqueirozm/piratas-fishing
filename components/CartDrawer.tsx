@@ -1,13 +1,14 @@
 'use client'
 
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useCart } from './CartContext'
 import { track } from '@/lib/track'
 
 export default function CartDrawer() {
   const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal } = useCart()
   const router = useRouter()
+  const pathname = usePathname()
 
   const MIN_ORDER = 100
   const FREE_SHIP = 199.99
@@ -21,6 +22,12 @@ export default function CartDrawer() {
     track('checkout_start')
     setIsCartOpen(false)
     router.push('/checkout')
+  }
+
+  function handleContinueShopping() {
+    setIsCartOpen(false)
+    // Já no catálogo: só fecha o carrinho, preservando o filtro de categoria.
+    if (!pathname.startsWith('/catalogo')) router.push('/catalogo')
   }
 
   return (
@@ -72,11 +79,17 @@ export default function CartDrawer() {
                 <p className="text-sm font-bold" style={{ color: 'var(--ink-dim)' }}>Carrinho vazio</p>
                 <p className="text-xs mt-1" style={{ color: 'var(--ink-faint)' }}>Adicione produtos para continuar.</p>
               </div>
+              <button
+                onClick={handleContinueShopping}
+                className="px-6 py-3 bg-[#FF6B00] hover:bg-[#e05f00] text-white font-bold text-xs rounded-xl uppercase tracking-wider transition-colors"
+              >
+                Ver catálogo
+              </button>
             </div>
           ) : (
-            cart.map(({ product, quantity }) => (
+            cart.map(({ product, size, quantity }) => (
               <div
-                key={product.id}
+                key={`${product.id}-${size}`}
                 className="flex items-center gap-4 p-4 rounded-xl border"
                 style={{ backgroundColor: 'var(--s2)', borderColor: 'var(--rim)' }}
               >
@@ -94,12 +107,13 @@ export default function CartDrawer() {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-bold leading-tight mb-1 truncate" style={{ color: 'var(--ink)' }}>{product.name}</h4>
+                  <h4 className="text-sm font-bold leading-tight mb-0.5 truncate" style={{ color: 'var(--ink)' }}>{product.name}</h4>
+                  <p className="text-[10px] font-semibold mb-1" style={{ color: 'var(--ink-faint)' }}>{size}</p>
                   <p className="text-[#FF6B00] font-black text-sm">{product.priceStr}</p>
 
                   <div className="flex items-center gap-2 mt-2">
                     <button
-                      onClick={() => updateQuantity(product.id, -1)}
+                      onClick={() => updateQuantity(product.id, size, -1)}
                       className="w-6 h-6 flex items-center justify-center rounded transition-colors font-bold text-sm cursor-pointer"
                       style={{ backgroundColor: 'var(--s4)', color: 'var(--ink-dim)' }}
                     >−</button>
@@ -109,13 +123,13 @@ export default function CartDrawer() {
                       value={quantity}
                       onChange={(e) => {
                         const val = parseInt(e.target.value)
-                        if (!isNaN(val) && val >= 1) updateQuantity(product.id, val - quantity)
+                        if (!isNaN(val) && val >= 1) updateQuantity(product.id, size, val - quantity)
                       }}
                       className="w-10 text-sm font-bold text-center rounded outline-none border"
                       style={{ backgroundColor: 'var(--s0)', borderColor: 'var(--rim)', color: 'var(--ink)' }}
                     />
                     <button
-                      onClick={() => updateQuantity(product.id, 1)}
+                      onClick={() => updateQuantity(product.id, size, 1)}
                       className="w-6 h-6 flex items-center justify-center rounded transition-colors font-bold text-sm cursor-pointer"
                       style={{ backgroundColor: 'var(--s4)', color: 'var(--ink-dim)' }}
                     >+</button>
@@ -123,7 +137,7 @@ export default function CartDrawer() {
                 </div>
 
                 <button
-                  onClick={() => removeFromCart(product.id)}
+                  onClick={() => removeFromCart(product.id, size)}
                   className="p-1.5 rounded-lg transition-colors hover:text-red-500"
                   style={{ color: 'var(--ink-faint)' }}
                   aria-label="Remover"
@@ -210,6 +224,23 @@ export default function CartDrawer() {
                   Ir para o Checkout
                 </>
               )}
+            </button>
+
+            {/* Continuar comprando — vira ação principal quando falta atingir o mínimo */}
+            <button
+              onClick={handleContinueShopping}
+              className={
+                'w-full py-3 font-bold text-xs rounded-xl uppercase tracking-wider transition-all flex justify-center items-center gap-2 ' +
+                (belowMin
+                  ? 'bg-[#FF6B00] hover:bg-[#e05f00] text-white shadow-[0_0_20px_rgba(255,107,0,0.3)] hover:shadow-[0_0_30px_rgba(255,107,0,0.45)]'
+                  : 'border hover:text-[#FF6B00] hover:border-[rgba(255,107,0,0.5)]')
+              }
+              style={belowMin ? undefined : { borderColor: 'var(--rim-str)', color: 'var(--ink-dim)' }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              Continuar comprando
             </button>
           </div>
         )}

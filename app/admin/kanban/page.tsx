@@ -3,8 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Order, OrderStatus } from '@/lib/orders'
-
-const FULFILLMENT_STATUSES: OrderStatus[] = ['paid', 'supplier_sent', 'packed', 'shipped', 'tracking_sent', 'completed']
+import { FULFILLMENT_STATUSES } from '@/lib/constants'
 
 const COLUMN_LABEL: Partial<Record<OrderStatus, string>> = {
   paid: 'Pedido recebido',
@@ -129,8 +128,8 @@ function DetailPanel({ order, onClose }: { order: Order; onClose: () => void }) 
 
         {/* Rastreio */}
         {order.trackingCode && (
-          <div className="rounded-xl p-4" style={{ backgroundColor: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.3)' }}>
-            <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#06b6d4' }}>Rastreio</p>
+          <div className="rounded-xl p-4" style={{ backgroundColor: 'var(--s3)', border: '1px solid var(--rim-str)' }}>
+            <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--ink-dim)' }}>Rastreio</p>
             <p className="font-mono" style={{ color: 'var(--ink)' }}>{order.trackingCode}</p>
           </div>
         )}

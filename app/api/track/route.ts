@@ -3,12 +3,24 @@ import { getAdminDb } from '@/lib/supabase'
 
 const ALLOWED = new Set(['page_view', 'cart_open', 'checkout_start'])
 
+// Aceita a origem se o host bater com o da NEXT_PUBLIC_BASE_URL, ignorando
+// "www." e barras/porta. Robusto a apex vs www e a barra final na env var
+// (era isso que barrava TODO o tracking com 403). Sem Origin, não bloqueia.
+function isAllowedOrigin(origin: string | null): boolean {
+  if (!origin) return true
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
+  try {
+    const strip = (h: string) => h.replace(/^www\./, '')
+    return strip(new URL(origin).hostname) === strip(new URL(base).hostname)
+  } catch {
+    return false
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
-    // Rejeitar requisições de origens externas (impede bots simples de inflar analytics)
-    const origin = req.headers.get('origin')
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-    if (origin && !origin.startsWith(baseUrl)) {
+    // Rejeita origens externas (impede bots simples de inflar analytics).
+    if (!isAllowedOrigin(req.headers.get('origin'))) {
       return Response.json({ ok: false }, { status: 403 })
     }
 
