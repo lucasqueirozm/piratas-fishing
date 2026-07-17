@@ -15,9 +15,21 @@ export async function GET(req: NextRequest) {
     return Response.json({ error: 'Não autorizado.' }, { status: 401 })
   }
 
-  const rawDays = parseInt(req.nextUrl.searchParams.get('days') ?? '30')
-  const days = isNaN(rawDays) || rawDays < 0 ? 30 : Math.min(rawDays, 365)
-  const cutoff = days > 0 ? new Date(Date.now() - days * 86400000).toISOString() : null
+  // "since" (ISO) tem precedência — usado pelo filtro "Hoje", que precisa da
+  // meia-noite local do admin. Caso contrário, cai no modo "últimos N dias".
+  const sinceParam = req.nextUrl.searchParams.get('since')
+  let cutoff: string | null
+  if (sinceParam) {
+    const d = new Date(sinceParam)
+    if (isNaN(d.getTime())) {
+      return Response.json({ error: 'Parâmetro "since" inválido.' }, { status: 400 })
+    }
+    cutoff = d.toISOString()
+  } else {
+    const rawDays = parseInt(req.nextUrl.searchParams.get('days') ?? '30')
+    const days = isNaN(rawDays) || rawDays < 0 ? 30 : Math.min(rawDays, 365)
+    cutoff = days > 0 ? new Date(Date.now() - days * 86400000).toISOString() : null
+  }
 
   const db = getAdminDb()
 

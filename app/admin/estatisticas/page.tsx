@@ -9,10 +9,27 @@ function fmt(v: number) {
   return `R$ ${v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
 }
 
-function filterByDays(orders: Order[], days: number) {
-  if (days === 0) return orders
+// 'today' = desde a meia-noite de hoje | 0 = todo o período | N = últimos N dias
+type Range = 'today' | 0 | 7 | 30 | 90
+
+function startOfToday(): Date {
+  const d = new Date()
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
+// Retorna o início da janela, ou null quando é "todo o período".
+function rangeCutoff(range: Range): Date | null {
+  if (range === 0) return null
+  if (range === 'today') return startOfToday()
   const cutoff = new Date()
-  cutoff.setDate(cutoff.getDate() - days)
+  cutoff.setDate(cutoff.getDate() - range)
+  return cutoff
+}
+
+function filterByRange(orders: Order[], range: Range) {
+  const cutoff = rangeCutoff(range)
+  if (!cutoff) return orders
   return orders.filter((o) => new Date(o.createdAt) >= cutoff)
 }
 
@@ -40,7 +57,8 @@ function getTopProducts(orders: Order[]) {
   return Object.values(map).sort((a, b) => b.receita - a.receita).slice(0, 6)
 }
 
-const DATE_RANGES: { label: string; value: 0 | 7 | 30 | 90 }[] = [
+const DATE_RANGES: { label: string; value: Range }[] = [
+  { label: 'Hoje', value: 'today' },
   { label: '7 dias', value: 7 },
   { label: '30 dias', value: 30 },
   { label: '90 dias', value: 90 },
@@ -50,7 +68,7 @@ const DATE_RANGES: { label: string; value: 0 | 7 | 30 | 90 }[] = [
 export default function EstatisticasPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [funnelCounts, setFunnelCounts] = useState({ page_view: 0, cart_open: 0, checkout_start: 0 })
-  const [dateRange, setDateRange] = useState<0 | 7 | 30 | 90>(30)
+  const [dateRange, setDateRange] = useState<Range>(30)
   const [loading, setLoading] = useState(true)
   const [eventsReady, setEventsReady] = useState(true)
   const router = useRouter()
@@ -66,7 +84,11 @@ export default function EstatisticasPage() {
   }, [router])
 
   useEffect(() => {
-    fetch(`/api/admin-stats?days=${dateRange}`)
+    // "Hoje" manda o instante da meia-noite; os demais mandam a quantidade de dias.
+    const query = dateRange === 'today'
+      ? `since=${encodeURIComponent(startOfToday().toISOString())}`
+      : `days=${dateRange}`
+    fetch(`/api/admin-stats?${query}`)
       .then(async (res) => {
         if (!res.ok) { setEventsReady(false); return }
         const data = await res.json() as { funnelCounts: Record<string, number> }
@@ -80,7 +102,7 @@ export default function EstatisticasPage() {
       .catch(() => setEventsReady(false))
   }, [dateRange])
 
-  const filtered = useMemo(() => filterByDays(orders, dateRange), [orders, dateRange])
+  const filtered = useMemo(() => filterByRange(orders, dateRange), [orders, dateRange])
   const paid = useMemo(() => filtered.filter((o) => FULFILLMENT_STATUSES.includes(o.status)), [filtered])
   const revenueByState = useMemo(() => getRevenueByState(paid), [paid])
   const topProducts = useMemo(() => getTopProducts(paid), [paid])
@@ -153,7 +175,7 @@ export default function EstatisticasPage() {
                 {
                   label: 'Pedidos pagos',
                   value: String(purchases),
-                  sub: `no período de ${dateRange === 0 ? 'todo período' : `${dateRange} dias`}`,
+                  sub: dateRange === 'today' ? 'hoje' : dateRange === 0 ? 'no período de todo período' : `no período de ${dateRange} dias`,
                   color: '#FF6B00',
                 },
                 {
