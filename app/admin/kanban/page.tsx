@@ -104,7 +104,14 @@ function DetailPanel({ order, onClose }: { order: Order; onClose: () => void }) 
           {order.items.map((item, i) => (
             <div key={i} className="flex justify-between items-start gap-2">
               <div>
-                <p style={{ color: 'var(--ink)' }}>{item.productName}</p>
+                <p className="flex items-center gap-2 flex-wrap" style={{ color: 'var(--ink)' }}>
+                  {item.productName}
+                  {item.size && (
+                    <span className="text-[11px] font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,107,0,0.15)', color: '#FF6B00' }}>
+                      {item.size}
+                    </span>
+                  )}
+                </p>
                 <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>{item.quantity}x · {fmt(item.unitPrice)}</p>
               </div>
               <span className="font-bold whitespace-nowrap" style={{ color: 'var(--ink)' }}>{fmt(item.totalPrice)}</span>

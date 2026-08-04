@@ -131,7 +131,7 @@ function getTopProducts(orders: Order[]) {
 }
 
 function exportCSV(orders: Order[]) {
-  const headers = ['ID', 'Data', 'Cliente', 'Email', 'CPF', 'Telefone', 'Subtotal', 'Frete', 'Total', 'Status', 'Rastreio', 'Cidade', 'Estado']
+  const headers = ['ID', 'Data', 'Cliente', 'Email', 'CPF', 'Telefone', 'Itens', 'Subtotal', 'Frete', 'Total', 'Status', 'Rastreio', 'Cidade', 'Estado']
   const rows = orders.map((o) => [
     o.id ?? '',
     fmtDate(o.createdAt),
@@ -139,6 +139,7 @@ function exportCSV(orders: Order[]) {
     o.customer.email,
     o.customer.cpf,
     o.customer.phone,
+    o.items.map((it) => `${it.quantity}x ${it.productName}${it.size ? ` (${it.size})` : ''}`).join(' | '),
     o.subtotal.toFixed(2),
     o.shipping.toFixed(2),
     o.total.toFixed(2),
@@ -247,7 +248,14 @@ function OrderModal({ order, onClose }: { order: Order; onClose: () => void }) {
             {order.items.map((item, i) => (
               <div key={i} className="flex justify-between items-center text-sm">
                 <div>
-                  <p style={{ color: 'var(--ink)' }}>{item.productName}</p>
+                  <p className="flex items-center gap-2 flex-wrap" style={{ color: 'var(--ink)' }}>
+                    {item.productName}
+                    {item.size && (
+                      <span className="text-[11px] font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,107,0,0.15)', color: '#FF6B00' }}>
+                        {item.size}
+                      </span>
+                    )}
+                  </p>
                   <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>{item.quantity}x · {fmt(item.unitPrice)} cada</p>
                 </div>
                 <span className="font-bold" style={{ color: 'var(--ink)' }}>{fmt(item.totalPrice)}</span>
