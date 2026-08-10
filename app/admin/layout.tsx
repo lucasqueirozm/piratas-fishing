@@ -30,6 +30,17 @@ const NAV = [
     ),
   },
   {
+    href: '/admin/pedidos',
+    exact: false,
+    label: 'Pedidos',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><path d="M14 2v6h6" />
+        <path d="M8 13h8" /><path d="M8 17h5" />
+      </svg>
+    ),
+  },
+  {
     href: '/admin/produtos',
     exact: false,
     label: 'Produtos',
@@ -53,6 +64,10 @@ const NAV = [
     ),
   },
 ]
+
+// '/admin/pedido/' com a barra final não pega '/admin/pedidos' — a lista de pedidos
+// continua com a sidebar, só a folha do relatório fica sem.
+const BARE_ROUTES = ['/admin/login', '/admin/pedido/', '/admin/pedidos/relatorio']
 
 function LogoutButton() {
   const [pending, start] = useTransition()
@@ -85,9 +100,11 @@ function LogoutButton() {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
-  // Login e a folha de impressão do pedido rodam sem o chrome do admin — a folha
-  // porque a sidebar entraria no PDF.
-  if (pathname === '/admin/login' || pathname.startsWith('/admin/pedido/')) return <>{children}</>
+  // Login e as folhas imprimíveis rodam sem o chrome do admin — as folhas porque a
+  // sidebar entraria no PDF.
+  if (BARE_ROUTES.some((route) => pathname === route || pathname.startsWith(route))) {
+    return <>{children}</>
+  }
 
   return (
     <div className="flex" style={{ minHeight: '100vh', backgroundColor: 'var(--s0)' }}>
