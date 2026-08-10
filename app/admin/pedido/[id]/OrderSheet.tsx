@@ -250,10 +250,8 @@ export default function OrderSheet({ order, autoPrint }: { order: Order; autoPri
               <thead>
                 <tr style={{ color: FAINT }} className="text-[10px] font-black uppercase tracking-[0.1em]">
                   <th className="text-left pb-2 font-black">Produto</th>
-                  <th className="text-center pb-2 font-black" style={{ width: 70 }}>Tamanho</th>
-                  <th className="text-center pb-2 font-black" style={{ width: 46 }}>Qtd</th>
-                  <th className="text-right pb-2 font-black" style={{ width: 90 }}>Unitário</th>
-                  <th className="text-right pb-2 font-black" style={{ width: 90 }}>Total</th>
+                  <th className="text-center pb-2 font-black" style={{ width: 130 }}>Tamanho</th>
+                  <th className="text-right pb-2 font-black" style={{ width: 90 }}>Qtd</th>
                 </tr>
               </thead>
               <tbody>
@@ -269,9 +267,8 @@ export default function OrderSheet({ order, autoPrint }: { order: Order; autoPri
                         <span style={{ color: FAINT }}>—</span>
                       )}
                     </td>
-                    <td className="py-2 text-center font-black align-top">{item.quantity}</td>
-                    <td className="py-2 text-right align-top" style={{ color: DIM }}>{fmt(item.unitPrice)}</td>
-                    <td className="py-2 text-right font-black align-top">{fmt(item.totalPrice)}</td>
+                    {/* Sem os preços, a quantidade é o número que o fornecedor separa. */}
+                    <td className="py-2 text-right font-black align-top text-base">{item.quantity}</td>
                   </tr>
                 ))}
               </tbody>
