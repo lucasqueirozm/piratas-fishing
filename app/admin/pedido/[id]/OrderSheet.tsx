@@ -55,10 +55,6 @@ const DATE_TIME = new Intl.DateTimeFormat('pt-BR', {
   timeZone: 'America/Sao_Paulo',
 })
 
-function fmt(value: number) {
-  return `R$ ${value.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
-}
-
 function fmtDateTime(val: string | undefined) {
   if (!val) return '—'
   const date = new Date(val)
@@ -274,27 +270,6 @@ export default function OrderSheet({ order, autoPrint }: { order: Order; autoPri
               </tbody>
             </table>
           </Block>
-        </div>
-
-        {/* Totais */}
-        <div className="flex justify-end mb-6 evitar-quebra">
-          <div style={{ width: 260 }}>
-            <div className="flex justify-between py-1" style={{ color: DIM }}>
-              <span>Subtotal</span>
-              <span>{fmt(order.subtotal)}</span>
-            </div>
-            <div className="flex justify-between py-1" style={{ color: DIM }}>
-              <span>Frete</span>
-              <span>{order.shipping === 0 ? 'Grátis' : fmt(order.shipping)}</span>
-            </div>
-            <div
-              className="flex justify-between items-baseline mt-1.5 pt-2"
-              style={{ borderTop: `2px solid ${INK}` }}
-            >
-              <span className="font-black uppercase tracking-wider text-[11px]" style={{ fontFamily: 'var(--font-display)' }}>Total</span>
-              <span className="font-black text-xl" style={{ color: ACCENT }}>{fmt(order.total)}</span>
-            </div>
-          </div>
         </div>
 
         {/* Rastreio */}
