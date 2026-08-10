@@ -65,9 +65,10 @@ const NAV = [
   },
 ]
 
-// '/admin/pedido/' com a barra final não pega '/admin/pedidos' — a lista de pedidos
-// continua com a sidebar, só a folha do relatório fica sem.
-const BARE_ROUTES = ['/admin/login', '/admin/pedido/', '/admin/pedidos/relatorio']
+// As barras finais importam: '/admin/pedidos' (a lista) não casa com
+// '/admin/pedidos/', então a lista mantém a sidebar e só as folhas abaixo dela
+// (detalhe e relatório) ficam sem — senão a sidebar entraria no PDF.
+const BARE_ROUTES = ['/admin/login', '/admin/pedido/', '/admin/pedidos/']
 
 function LogoutButton() {
   const [pending, start] = useTransition()

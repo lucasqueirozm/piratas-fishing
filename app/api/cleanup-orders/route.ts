@@ -4,8 +4,11 @@ import { updateOrderStatus } from '@/lib/orders'
 
 export const runtime = 'nodejs'
 
-// Pedido pendente é descartado após este tanto de dias úteis sem confirmação.
-const PENDING_MAX_BUSINESS_DAYS = 1
+// Pedido pendente vira "Falhou" após este tanto de horas sem confirmação.
+// Marcar em vez de apagar: 'failed' está em PRE_PAYMENT_STATUSES no webhook, então
+// um boleto que compensa depois ainda recupera o pedido para 'paid'. Apagando, o
+// pagamento chegaria sem registro nenhum para associar.
+const PENDING_MAX_HOURS = 48
 const EVENTS_MAX_DAYS = 90
 
 // Vercel injeta CRON_SECRET automaticamente e envia no header Authorization.
@@ -21,18 +24,6 @@ function isAuthorized(req: NextRequest): boolean {
   }
   const auth = req.headers.get('authorization')
   return auth === `Bearer ${secret}`
-}
-
-// Volta N dias úteis a partir de uma data, pulando sábado e domingo.
-function subtractBusinessDays(from: Date, n: number): Date {
-  const d = new Date(from)
-  let remaining = n
-  while (remaining > 0) {
-    d.setDate(d.getDate() - 1)
-    const dow = d.getDay()
-    if (dow !== 0 && dow !== 6) remaining-- // 0 = domingo, 6 = sábado
-  }
-  return d
 }
 
 type MpPayment = { id: number | string; status: string }
@@ -67,11 +58,11 @@ export async function GET(req: NextRequest) {
 
   const db = getAdminDb()
 
-  // ── 1. Pedidos pendentes parados há mais de 1 dia útil ──────────────────────
-  // Antes de apagar, confere no MercadoPago: boleto leva até 3 dias úteis para
-  // compensar, e o webhook pode ter falhado. Se estiver pago, RECUPERA o pedido
-  // em vez de perdê-lo. Só apaga o que comprovadamente não foi pago.
-  const ordersCutoff = subtractBusinessDays(new Date(), PENDING_MAX_BUSINESS_DAYS).toISOString()
+  // ── 1. Pedidos pendentes parados há mais de 48h ─────────────────────────────
+  // Antes de marcar como falho, confere no MercadoPago: boleto leva até 3 dias
+  // úteis para compensar, e o webhook pode ter falhado. Se estiver pago, RECUPERA
+  // o pedido. Só marca o que comprovadamente não foi pago.
+  const ordersCutoff = new Date(Date.now() - PENDING_MAX_HOURS * 3600_000).toISOString()
 
   const { data: stale, error: staleError } = await db
     .from('orders')
@@ -84,7 +75,7 @@ export async function GET(req: NextRequest) {
     return Response.json({ error: staleError.message }, { status: 500 })
   }
 
-  let deleted = 0
+  let failed = 0
   let recovered = 0
   let skipped = 0
 
@@ -100,18 +91,18 @@ export async function GET(req: NextRequest) {
     }
 
     if (check.kind === 'error') {
-      // Não deu para confirmar com o MP — mantém o pedido e tenta na próxima execução.
+      // Não deu para confirmar com o MP — mantém pendente e tenta na próxima execução.
       skipped++
       console.warn(`[cleanup-orders] Não foi possível verificar no MP, mantendo: ${order.id}`)
       continue
     }
 
-    const { error: delError } = await db.from('orders').delete().eq('id', order.id)
-    if (delError) {
-      console.error(`[cleanup-orders] Erro ao apagar pedido ${order.id}:`, delError)
+    try {
+      await updateOrderStatus(order.id, 'failed')
+      failed++
+    } catch (err) {
+      console.error(`[cleanup-orders] Erro ao marcar pedido ${order.id} como falho:`, err)
       skipped++
-    } else {
-      deleted++
     }
   }
 
@@ -128,10 +119,10 @@ export async function GET(req: NextRequest) {
   }
 
   console.log(
-    `[cleanup-orders] pendentes: ${deleted} apagados, ${recovered} recuperados, ${skipped} mantidos | eventos: ${eventsDeleted ?? 0} removidos`,
+    `[cleanup-orders] pendentes: ${failed} marcados como falhos, ${recovered} recuperados, ${skipped} mantidos | eventos: ${eventsDeleted ?? 0} removidos`,
   )
   return Response.json({
-    ordersDeleted: deleted,
+    ordersFailed: failed,
     ordersRecovered: recovered,
     ordersSkipped: skipped,
     eventsDeleted: eventsDeleted ?? 0,

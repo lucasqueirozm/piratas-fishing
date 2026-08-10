@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import type { Order } from '@/lib/orders'
 import { STATUS_LABEL, STATUS_COLOR } from '@/lib/constants'
 import {
@@ -182,10 +183,22 @@ export default function AdminPedidosPage() {
                     <tbody>
                       {visible.map((order) => {
                         const paid = isRevenue(order.status)
+                        const detalhe = `/admin/pedidos/${order.id}`
                         return (
-                          <tr key={order.id} style={{ borderTop: '1px solid var(--rim)' }}>
+                          <tr
+                            key={order.id}
+                            onClick={() => router.push(detalhe)}
+                            className="cursor-pointer transition-colors hover:brightness-110"
+                            style={{ borderTop: '1px solid var(--rim)' }}
+                          >
                             <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--ink-dim)' }}>{fmtDate(order.createdAt)}</td>
-                            <td className="px-4 py-3 font-mono text-xs whitespace-nowrap" style={{ color: 'var(--ink-faint)' }}>#{order.id?.slice(0, 8)}</td>
+                            <td className="px-4 py-3 font-mono text-xs whitespace-nowrap">
+                              {/* Link de verdade além do clique na linha: mantém teclado e
+                                  "abrir em nova aba" funcionando. */}
+                              <Link href={detalhe} onClick={(e) => e.stopPropagation()} style={{ color: 'var(--ink-faint)' }}>
+                                #{order.id?.slice(0, 8)}
+                              </Link>
+                            </td>
                             <td className="px-4 py-3 font-bold" style={{ color: 'var(--ink)' }}>{order.customer.name}</td>
                             <td className="px-4 py-3 whitespace-nowrap">
                               <span className="inline-flex items-center gap-1.5 text-xs font-bold">
@@ -209,6 +222,7 @@ export default function AdminPedidosPage() {
             </div>
 
             <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>
+              Clique em qualquer linha para abrir o detalhe do pedido com os valores.
               Receita conta apenas pedidos confirmados (do &quot;Pedido recebido&quot; em diante).
               {stats.unpaid > 0 && ` ${stats.unpaid} pedido${stats.unpaid === 1 ? '' : 's'} no período ainda não confirmado${stats.unpaid === 1 ? '' : 's'} — aparece${stats.unpaid === 1 ? '' : 'm'} com "—".`}
             </p>

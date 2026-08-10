@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import type { Order } from '@/lib/orders'
 import { STATUS_LABEL, STATUS_COLOR } from '@/lib/constants'
-import PrintSheet, { Block, fmtDateTime, INK, DIM, FAINT, RULE, ACCENT } from '../../PrintSheet'
+import PrintSheet, { Block, fmtDateTime, fmtMoney, INK, DIM, FAINT, RULE, ACCENT } from '../../PrintSheet'
 
 // O checkout grava CEP/CPF/telefone sem máscara. Numa folha que vai para o fornecedor
 // e vira etiqueta de envio, o valor formatado evita erro de leitura — mas se vier em
@@ -36,14 +36,29 @@ function Field({ label, value }: { label: string; value?: string }) {
   )
 }
 
-export default function OrderSheet({ order, autoPrint }: { order: Order; autoPrint: boolean }) {
+// Duas variantes da mesma folha:
+// - fornecedor (padrão): sem preço nenhum, só o que ele precisa para separar e enviar
+// - showPrices: detalhe financeiro do pedido, com unitário, total por item e totais
+export default function OrderSheet({
+  order,
+  autoPrint,
+  showPrices = false,
+  backHref = '/admin/kanban',
+  backLabel = 'Kanban',
+}: {
+  order: Order
+  autoPrint: boolean
+  showPrices?: boolean
+  backHref?: string
+  backLabel?: string
+}) {
   const { customer, items } = order
   const address = customer.address
   const totalUnits = items.reduce((sum, item) => sum + item.quantity, 0)
   const shortId = (order.id ?? '').slice(0, 8)
 
   return (
-    <PrintSheet autoPrint={autoPrint} backHref="/admin/kanban" backLabel="Kanban">
+    <PrintSheet autoPrint={autoPrint} backHref={backHref} backLabel={backLabel}>
       {/* Cabeçalho */}
       <header className="flex items-start justify-between gap-6 pb-4 mb-5" style={{ borderBottom: `2px solid ${INK}` }}>
         <div className="flex items-center gap-3">
@@ -110,8 +125,14 @@ export default function OrderSheet({ order, autoPrint }: { order: Order; autoPri
             <thead>
               <tr style={{ color: FAINT }} className="text-[10px] font-black uppercase tracking-[0.1em]">
                 <th className="text-left pb-2 font-black">Produto</th>
-                <th className="text-center pb-2 font-black" style={{ width: 130 }}>Tamanho</th>
-                <th className="text-right pb-2 font-black" style={{ width: 90 }}>Qtd</th>
+                <th className="text-center pb-2 font-black" style={{ width: showPrices ? 90 : 130 }}>Tamanho</th>
+                <th className="text-right pb-2 font-black" style={{ width: showPrices ? 52 : 90 }}>Qtd</th>
+                {showPrices && (
+                  <>
+                    <th className="text-right pb-2 font-black" style={{ width: 92 }}>Unitário</th>
+                    <th className="text-right pb-2 font-black" style={{ width: 92 }}>Total</th>
+                  </>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -127,14 +148,46 @@ export default function OrderSheet({ order, autoPrint }: { order: Order; autoPri
                       <span style={{ color: FAINT }}>—</span>
                     )}
                   </td>
-                  {/* Sem os preços, a quantidade é o número que o fornecedor separa. */}
-                  <td className="py-2 text-right font-black align-top text-base">{item.quantity}</td>
+                  {/* Na folha do fornecedor a quantidade é o número que ele separa,
+                      então ganha destaque; no detalhe financeiro ela divide espaço
+                      com os valores. */}
+                  <td className={`py-2 text-right font-black align-top ${showPrices ? '' : 'text-base'}`}>
+                    {item.quantity}
+                  </td>
+                  {showPrices && (
+                    <>
+                      <td className="py-2 text-right align-top" style={{ color: DIM }}>{fmtMoney(item.unitPrice)}</td>
+                      <td className="py-2 text-right font-black align-top">{fmtMoney(item.totalPrice)}</td>
+                    </>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
         </Block>
       </div>
+
+      {/* Totais — só no detalhe financeiro */}
+      {showPrices && (
+        <div className="flex justify-end mb-6 evitar-quebra">
+          <div style={{ width: 280 }}>
+            <div className="flex justify-between py-1" style={{ color: DIM }}>
+              <span>Valor dos produtos</span>
+              <span>{fmtMoney(order.subtotal)}</span>
+            </div>
+            <div className="flex justify-between py-1" style={{ color: DIM }}>
+              <span>Frete</span>
+              <span>{order.shipping === 0 ? 'Grátis' : fmtMoney(order.shipping)}</span>
+            </div>
+            <div className="flex justify-between items-baseline mt-1.5 pt-2" style={{ borderTop: `2px solid ${INK}` }}>
+              <span className="font-black uppercase tracking-wider text-[11px]" style={{ fontFamily: 'var(--font-display)' }}>
+                Valor total
+              </span>
+              <span className="font-black text-xl" style={{ color: ACCENT }}>{fmtMoney(order.total)}</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Rastreio */}
       {order.trackingCode && (
