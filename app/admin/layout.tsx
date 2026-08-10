@@ -85,7 +85,9 @@ function LogoutButton() {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
-  if (pathname === '/admin/login') return <>{children}</>
+  // Login e a folha de impressão do pedido rodam sem o chrome do admin — a folha
+  // porque a sidebar entraria no PDF.
+  if (pathname === '/admin/login' || pathname.startsWith('/admin/pedido/')) return <>{children}</>
 
   return (
     <div className="flex" style={{ minHeight: '100vh', backgroundColor: 'var(--s0)' }}>
