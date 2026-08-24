@@ -19,10 +19,19 @@ function baseUrl() {
 
 // Tabela e estilo inline de propósito: cliente de e-mail não suporta flex/grid de
 // forma confiável, e webfont não carrega na maioria deles.
-function layout(titulo: string, corpo: string, rodape?: string) {
+//
+// `preheader` é o texto que o Gmail mostra ao lado do assunto na lista. Sem ele o
+// cliente lê "PIRATAS FISHING O Segredo da Fisgada" antes de chegar ao conteúdo —
+// desperdício no lugar mais visível da caixa de entrada. O bloco fica oculto no
+// corpo; os caracteres invisíveis depois dele impedem o cabeçalho de vazar para a
+// prévia quando o texto é curto.
+function layout(titulo: string, preheader: string, corpo: string, rodape?: string) {
+  const vazio = '&#847;&zwnj;&nbsp;'.repeat(60)
   return `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${titulo}</title></head>
 <body style="margin:0;padding:24px 12px;background:#f2ede4;font-family:Helvetica,Arial,sans-serif;color:#14110d;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">${preheader}</div>
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">${vazio}</div>
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:10px;overflow:hidden;">
   <tr><td style="background:#14110d;padding:20px 28px;">
     <span style="color:#ffffff;font-size:17px;font-weight:bold;letter-spacing:.5px;">PIRATAS FISHING</span>
@@ -69,7 +78,7 @@ function montar(order: Order, event: OrderEmailEvent): { subject: string; html: 
     case 'paid':
       return {
         subject: `Pagamento confirmado — pedido #${num}`,
-        html: layout('Pagamento confirmado', `
+        html: layout('Pagamento confirmado', 'Recebemos seu pagamento e já começamos a preparar o seu pedido.', `
           <h1 style="margin:0 0 8px;font-size:20px;">Pagamento confirmado, ${nome}!</h1>
           <p style="margin:0 0 4px;font-size:14px;color:#5f574c;line-height:1.6;">Recebemos seu pagamento e já começamos a preparar o pedido <strong>#${num}</strong>. Avisamos assim que ele for postado.</p>
           ${listaItens(order)}
@@ -80,7 +89,7 @@ function montar(order: Order, event: OrderEmailEvent): { subject: string; html: 
     case 'shipped':
       return {
         subject: `Seu pedido foi despachado — #${num}`,
-        html: layout('Pedido despachado', `
+        html: layout('Pedido despachado', 'Seu pedido saiu e está a caminho. O código de rastreio vem em seguida.', `
           <h1 style="margin:0 0 8px;font-size:20px;">Seu pedido saiu, ${nome}</h1>
           <p style="margin:0 0 16px;font-size:14px;color:#5f574c;line-height:1.6;">O pedido <strong>#${num}</strong> foi despachado e está a caminho. Assim que o código de rastreio for gerado, enviamos para você.</p>
           <p style="margin:0 0 4px;font-size:12px;color:#8d8271;text-transform:uppercase;letter-spacing:1px;">Entrega</p>
@@ -94,7 +103,7 @@ function montar(order: Order, event: OrderEmailEvent): { subject: string; html: 
       if (!codigo) return null
       return {
         subject: `Código de rastreio do pedido #${num}`,
-        html: layout('Código de rastreio', `
+        html: layout('Código de rastreio', 'Seu código de rastreio chegou — já dá para acompanhar nos Correios.', `
           <h1 style="margin:0 0 8px;font-size:20px;">Já dá para acompanhar, ${nome}</h1>
           <p style="margin:0 0 16px;font-size:14px;color:#5f574c;line-height:1.6;">Seu pedido <strong>#${num}</strong> foi postado. Use o código abaixo para acompanhar nos Correios:</p>
           <p style="margin:0 0 20px;font-family:monospace;font-size:20px;font-weight:bold;letter-spacing:2px;background:#f6f2ea;border:1px solid #e6e0d5;border-radius:6px;padding:14px;text-align:center;">${codigo}</p>
@@ -106,7 +115,7 @@ function montar(order: Order, event: OrderEmailEvent): { subject: string; html: 
     case 'failed':
       return {
         subject: `Seu pedido #${num} expirou`,
-        html: layout('Pedido expirado', `
+        html: layout('Pedido expirado', 'Não confirmamos o pagamento em 48h. Dá para refazer em um minuto.', `
           <h1 style="margin:0 0 8px;font-size:20px;">Não conseguimos confirmar o pagamento</h1>
           <p style="margin:0 0 16px;font-size:14px;color:#5f574c;line-height:1.6;">Oi, ${nome}. O pedido <strong>#${num}</strong> ficou 48h sem confirmação de pagamento, então liberamos os itens. Se ainda quiser as iscas, é só refazer — leva um minuto.</p>
           ${botao(`${baseUrl()}/catalogo`, 'Voltar ao catálogo')}
