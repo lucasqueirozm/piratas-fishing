@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { getAdminDb } from '@/lib/supabase'
-import { updateOrderStatus } from '@/lib/orders'
+import { updateOrderStatus, getOrderById } from '@/lib/orders'
+import { sendOrderEmail } from '@/lib/email'
 
 export const runtime = 'nodejs'
 
@@ -100,6 +101,11 @@ export async function GET(req: NextRequest) {
     try {
       await updateOrderStatus(order.id, 'failed')
       failed++
+
+      // Avisa o cliente que o pedido expirou e convida a refazer. Falha de e-mail
+      // não desfaz a marcação nem interrompe o resto do lote.
+      const completo = await getOrderById(order.id)
+      if (completo) await sendOrderEmail(completo, 'failed')
     } catch (err) {
       console.error(`[cleanup-orders] Erro ao marcar pedido ${order.id} como falho:`, err)
       skipped++

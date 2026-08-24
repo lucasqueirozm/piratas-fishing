@@ -1,9 +1,16 @@
 import { NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
-import { getOrders, updateOrderFulfillment } from '@/lib/orders'
+import { getOrders, getOrderById, updateOrderFulfillment } from '@/lib/orders'
 import type { OrderStatus } from '@/lib/orders'
 import { verifySessionToken } from '@/lib/admin-auth'
 import { ORDERS_QUERY_LIMIT } from '@/lib/constants'
+import { sendOrderEmail } from '@/lib/email'
+
+// Status cuja entrada dispara e-mail para o cliente. Os demais são internos.
+const EMAIL_ON: Partial<Record<OrderStatus, 'shipped' | 'tracking_sent'>> = {
+  shipped: 'shipped',
+  tracking_sent: 'tracking_sent',
+}
 
 const VALID_STATUSES = new Set<string>([
   'pending', 'paid', 'failed', 'cancelled', 'in_process',
@@ -38,7 +45,22 @@ export async function PATCH(req: NextRequest) {
   if (!body.orderId || !body.status || !VALID_STATUSES.has(body.status)) {
     return Response.json({ error: 'Dados inválidos.' }, { status: 400 })
   }
-  await updateOrderFulfillment(body.orderId, body.status as OrderStatus, body.trackingCode)
+  const status = body.status as OrderStatus
+
+  // Estado anterior antes de gravar: o e-mail só sai na transição de verdade, senão
+  // um PATCH repetido (ou voltar e avançar o card) reenviaria a mesma mensagem.
+  const anterior = await getOrderById(body.orderId)
+
+  await updateOrderFulfillment(body.orderId, status, body.trackingCode)
+
+  const evento = EMAIL_ON[status]
+  if (evento && anterior && anterior.status !== status) {
+    // trackingCode pode ter acabado de ser preenchido neste mesmo PATCH.
+    await sendOrderEmail(
+      { ...anterior, status, trackingCode: body.trackingCode ?? anterior.trackingCode },
+      evento,
+    )
+  }
 
   return Response.json({ ok: true })
 }

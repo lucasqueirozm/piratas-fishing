@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { createHmac, timingSafeEqual } from 'crypto'
 import { MercadoPagoConfig, Payment } from 'mercadopago'
 import { updateOrderStatus, getOrderById } from '@/lib/orders'
+import { sendOrderEmail } from '@/lib/email'
 import type { OrderStatus } from '@/lib/orders'
 
 // Status de pré-pagamento: só estes podem ser alterados por um webhook.
@@ -147,6 +148,13 @@ export async function POST(req: NextRequest) {
 
     const status = mpStatusToOrderStatus(payment.status ?? '')
     await updateOrderStatus(orderId, status, String(paymentId), payment.status ?? '')
+
+    // Confirmação para o cliente, depois do status já gravado. sendOrderEmail nunca
+    // lança, então uma falha de e-mail não vira 500 nem faz o MP retentar um pedido
+    // que já foi processado. A Idempotency-Key cobre a retentativa legítima.
+    if (status === 'paid' && current) {
+      await sendOrderEmail({ ...current, status }, 'paid')
+    }
 
     return Response.json({ received: true })
   } catch (err) {
