@@ -28,6 +28,23 @@ function isValidCPF(cpf: string): boolean {
   return rem === parseInt(d[10])
 }
 
+// O checkout grava o telefone só em dígitos (10 ou 11). O MercadoPago espera DDD e
+// número separados — mandar tudo junto em `number` é um dado malformado a mais na
+// conta do antifraude.
+function splitPhone(raw: string): { area_code?: string; number?: string } {
+  const d = (raw ?? '').replace(/\D/g, '')
+  if (d.length === 10 || d.length === 11) return { area_code: d.slice(0, 2), number: d.slice(2) }
+  return { number: d || undefined }
+}
+
+// `payer` do MP tem nome e sobrenome separados; mandar o nome inteiro em `name`
+// deixa `surname` vazio.
+function splitName(raw: string): { name: string; surname?: string } {
+  const partes = (raw ?? '').trim().split(/\s+/).filter(Boolean)
+  if (partes.length <= 1) return { name: partes[0] ?? '' }
+  return { name: partes[0], surname: partes.slice(1).join(' ') }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json() as {
@@ -146,17 +163,17 @@ export async function POST(req: NextRequest) {
           currency_id: 'BRL',
         })),
         payer: {
-          name: customer.name,
+          ...splitName(customer.name),
           email: customer.email,
           identification: {
             type: 'CPF',
-            number: customer.cpf,
+            number: customer.cpf.replace(/\D/g, ''),
           },
-          phone: {
-            number: customer.phone,
-          },
+          phone: splitPhone(customer.phone),
+          // `payer.address` do MP aceita só CEP, rua e número. Cidade e estado vão
+          // em shipments.receiver_address, que é o objeto que os comporta.
           address: {
-            zip_code: customer.address.cep,
+            zip_code: customer.address.cep.replace(/\D/g, ''),
             street_name: customer.address.street,
             street_number: customer.address.number,
           },
@@ -164,6 +181,15 @@ export async function POST(req: NextRequest) {
         shipments: {
           cost: validatedShipping,
           mode: 'not_specified',
+          receiver_address: {
+            zip_code: customer.address.cep.replace(/\D/g, ''),
+            street_name: customer.address.street,
+            street_number: customer.address.number,
+            city_name: customer.address.city,
+            state_name: customer.address.state,
+            country_name: 'Brasil',
+            ...(customer.address.complement ? { apartment: customer.address.complement } : {}),
+          },
         },
         back_urls: {
           success: `${baseUrl}/checkout/success`,
