@@ -12,6 +12,7 @@ type ProductRow = {
   price: number | string
   sizes: string[] | null
   image: string | null
+  images: string[] | null
   category: ProductCategory
   active: boolean
   sort_order: number
@@ -27,6 +28,7 @@ function toProduct(r: ProductRow): Product {
     priceStr: formatPrice(price),
     sizes: r.sizes ?? [],
     image: r.image ?? '',
+    images: Array.isArray(r.images) ? r.images.filter((u) => typeof u === 'string' && u.trim()) : [],
     category: r.category,
   }
 }

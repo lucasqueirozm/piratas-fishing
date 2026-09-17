@@ -12,6 +12,10 @@ type ShippingResult = { priceStr: string; deliveryTime: number } | null
 export default function ProdutoClient({ product }: { product: Product }) {
   const { addToCart } = useCart()
 
+  // A principal vem primeiro; as extras seguem na ordem cadastrada.
+  const fotos = [product.image, ...product.images].filter(Boolean)
+  const [fotoAtiva, setFotoAtiva] = useState(0)
+
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [cep, setCep] = useState('')
   const [shipping, setShipping] = useState<ShippingResult>(null)
@@ -62,10 +66,10 @@ export default function ProdutoClient({ product }: { product: Product }) {
               className="relative w-full aspect-square rounded-2xl overflow-hidden border shadow-[0_0_60px_rgba(0,0,0,0.3)]"
               style={{ backgroundColor: 'var(--s1)', borderColor: 'var(--rim)' }}
             >
-              {product.image ? (
+              {fotos.length > 0 ? (
                 <Image
-                  src={product.image}
-                  alt={product.name}
+                  src={fotos[fotoAtiva] ?? fotos[0]}
+                  alt={fotos.length > 1 ? `${product.name} — foto ${fotoAtiva + 1} de ${fotos.length}` : product.name}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
@@ -82,6 +86,30 @@ export default function ProdutoClient({ product }: { product: Product }) {
                 </div>
               )}
             </div>
+
+            {/* Miniaturas — só quando há mais de uma foto */}
+            {fotos.length > 1 && (
+              <div className="flex gap-3 mt-4" role="group" aria-label="Fotos do produto">
+                {fotos.map((src, i) => (
+                  <button
+                    key={src}
+                    type="button"
+                    onClick={() => setFotoAtiva(i)}
+                    aria-label={`Ver foto ${i + 1} de ${fotos.length}`}
+                    aria-pressed={i === fotoAtiva}
+                    className="relative w-20 h-20 rounded-xl overflow-hidden border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6B00] focus-visible:ring-offset-2"
+                    style={{
+                      borderColor: i === fotoAtiva ? '#FF6B00' : 'var(--rim)',
+                      opacity: i === fotoAtiva ? 1 : 0.65,
+                      backgroundColor: 'var(--s1)',
+                    }}
+                  >
+                    <Image src={src} alt="" fill className="object-cover" sizes="80px" />
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* Ambient glow behind image */}
             <div
               className="absolute -inset-6 -z-10 rounded-3xl blur-3xl opacity-15 pointer-events-none"

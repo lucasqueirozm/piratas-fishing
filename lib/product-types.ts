@@ -13,6 +13,9 @@ export type Product = {
   priceStr: string
   sizes: string[]
   image: string
+  // Fotos adicionais. A `image` continua sendo a principal, a que vai no card
+  // do catálogo; estas aparecem como miniaturas na página do produto.
+  images: string[]
   category: ProductCategory
 }
 

@@ -19,13 +19,14 @@ type ProductInput = {
   price?: unknown
   sizes?: unknown
   image?: unknown
+  images?: unknown
   category?: unknown
   active?: unknown
 }
 
 // Valida e normaliza o corpo recebido. Retorna { value } ou { error }.
 function parseProduct(body: ProductInput): { value: {
-  name: string; description: string; price: number; sizes: string[]; image: string; category: ProductCategory; active: boolean
+  name: string; description: string; price: number; sizes: string[]; image: string; images: string[]; category: ProductCategory; active: boolean
 } } | { error: string } {
   const name = typeof body.name === 'string' ? body.name.trim() : ''
   if (!name) return { error: 'Nome é obrigatório.' }
@@ -45,9 +46,17 @@ function parseProduct(body: ProductInput): { value: {
 
   const description = typeof body.description === 'string' ? body.description.trim() : ''
   const image = typeof body.image === 'string' ? body.image.trim() : ''
+
+  // Fotos extras: só strings não vazias, sem duplicar a principal, no máximo 6.
+  const images = Array.isArray(body.images)
+    ? [...new Set(body.images.map((u) => String(u).trim()).filter(Boolean))]
+        .filter((u) => u !== image)
+        .slice(0, 6)
+    : []
+
   const active = body.active === undefined ? true : Boolean(body.active)
 
-  return { value: { name, description, price, sizes, image, category: category as ProductCategory, active } }
+  return { value: { name, description, price, sizes, image, images, category: category as ProductCategory, active } }
 }
 
 // GET — lista todos os produtos (inclusive inativos), para o painel.

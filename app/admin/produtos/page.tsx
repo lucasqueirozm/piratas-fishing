@@ -12,6 +12,7 @@ type AdminProduct = {
   price: number | string
   sizes: string[]
   image: string
+  images?: string[]
   category: ProductCategory
   active: boolean
 }
@@ -153,6 +154,7 @@ function ProductForm({
   const [description, setDescription] = useState(initial?.description ?? EMPTY.description)
   const [sizes, setSizes] = useState<string[]>(initial?.sizes ?? [])
   const [image, setImage] = useState(initial?.image ?? '')
+  const [images, setImages] = useState<string[]>(initial?.images ?? [])
   const [active, setActive] = useState(initial?.active ?? true)
   const [sizeInput, setSizeInput] = useState('')
 
@@ -160,6 +162,7 @@ function ProductForm({
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
+  const extraRef = useRef<HTMLInputElement>(null)
 
   function addSize(s: string) {
     const v = s.trim()
@@ -185,6 +188,26 @@ function ProductForm({
     }
   }
 
+  // Mesmo endpoint da principal: passa pelo mesmo processamento (900x900, fundo
+  // escuro, realce), entao a galeria fica visualmente consistente com o card.
+  async function handleUploadExtra(file: File) {
+    setUploading(true)
+    setError('')
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('name', name || 'produto')
+      const res = await fetch('/api/admin-products/upload', { method: 'POST', body: fd })
+      const data = await res.json() as { url?: string; error?: string }
+      if (!res.ok || !data.url) throw new Error(data.error ?? 'Falha no upload.')
+      setImages((prev) => (prev.includes(data.url!) ? prev : [...prev, data.url!]))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Falha no upload.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   async function handleSave() {
     setError('')
     if (!name.trim()) { setError('Informe o nome.'); return }
@@ -194,7 +217,7 @@ function ProductForm({
 
     setSaving(true)
     try {
-      const payload = { name: name.trim(), category, price: priceNum, description: description.trim(), sizes, image, active }
+      const payload = { name: name.trim(), category, price: priceNum, description: description.trim(), sizes, image, images, active }
       const res = await fetch('/api/admin-products', {
         method: isNew ? 'POST' : 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -275,6 +298,46 @@ function ProductForm({
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Fotos extras — aparecem como miniaturas na página do produto */}
+          <div>
+            <span className={labelCls} style={{ color: 'var(--ink-faint)' }}>
+              Fotos extras {images.length > 0 && `(${images.length})`}
+            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              {images.map((url) => (
+                <div key={url} className="relative w-20 h-20 rounded-xl overflow-hidden border group" style={{ backgroundColor: 'var(--s2)', borderColor: 'var(--rim)' }}>
+                  <Image src={url} alt="" fill className="object-cover" sizes="80px" />
+                  <button
+                    onClick={() => setImages((prev) => prev.filter((u) => u !== url))}
+                    aria-label="Remover esta foto"
+                    className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold text-white"
+                    style={{ backgroundColor: 'rgba(0,0,0,0.65)' }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <input
+                ref={extraRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUploadExtra(f); e.target.value = '' }}
+              />
+              <button
+                onClick={() => extraRef.current?.click()}
+                disabled={uploading || images.length >= 6}
+                className="w-20 h-20 rounded-xl border border-dashed flex items-center justify-center text-[10px] font-bold text-center leading-tight transition-colors disabled:opacity-40"
+                style={{ borderColor: 'var(--rim-str)', color: 'var(--ink-faint)' }}
+              >
+                {uploading ? '...' : images.length >= 6 ? 'máx. 6' : '+ foto'}
+              </button>
+            </div>
+            <p className="text-[11px] mt-1.5" style={{ color: 'var(--ink-faint)' }}>
+              A imagem acima é a principal, a que aparece no catálogo. Estas entram como miniaturas na página do produto.
+            </p>
           </div>
 
           {/* Nome */}
