@@ -17,13 +17,11 @@ function getSessionId(): string {
 }
 
 export function track(event: 'page_view' | 'cart_open' | 'checkout_start'): void {
-  try {
-    fetch('/api/track', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event, sessionId: getSessionId() }),
-    }).catch(() => {})
-  } catch {
-    // silently ignore tracking errors
-  }
+  fetch('/api/track', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event, sessionId: getSessionId() }),
+  }).catch((err) => {
+    console.warn('[track] falhou ao registrar evento', event, err)
+  })
 }

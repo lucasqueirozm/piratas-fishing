@@ -30,6 +30,28 @@ const NAV = [
     ),
   },
   {
+    href: '/admin/pedidos',
+    exact: false,
+    label: 'Pedidos',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><path d="M14 2v6h6" />
+        <path d="M8 13h8" /><path d="M8 17h5" />
+      </svg>
+    ),
+  },
+  {
+    href: '/admin/produtos',
+    exact: false,
+    label: 'Produtos',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+        <path d="m3.3 7 8.7 5 8.7-5" /><path d="M12 22V12" />
+      </svg>
+    ),
+  },
+  {
     href: '/admin/estatisticas',
     exact: false,
     label: 'Estatísticas',
@@ -42,6 +64,11 @@ const NAV = [
     ),
   },
 ]
+
+// As barras finais importam: '/admin/pedidos' (a lista) não casa com
+// '/admin/pedidos/', então a lista mantém a sidebar e só as folhas abaixo dela
+// (detalhe e relatório) ficam sem — senão a sidebar entraria no PDF.
+const BARE_ROUTES = ['/admin/login', '/admin/pedido/', '/admin/pedidos/']
 
 function LogoutButton() {
   const [pending, start] = useTransition()
@@ -74,7 +101,11 @@ function LogoutButton() {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
-  if (pathname === '/admin/login') return <>{children}</>
+  // Login e as folhas imprimíveis rodam sem o chrome do admin — as folhas porque a
+  // sidebar entraria no PDF.
+  if (BARE_ROUTES.some((route) => pathname === route || pathname.startsWith(route))) {
+    return <>{children}</>
+  }
 
   return (
     <div className="flex" style={{ minHeight: '100vh', backgroundColor: 'var(--s0)' }}>

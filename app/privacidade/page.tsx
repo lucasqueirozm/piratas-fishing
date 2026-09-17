@@ -1,6 +1,11 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
+// Canal do titular de dados (LGPD). Vem da mesma variável usada em /contato e na
+// home: o domínio não tem caixa de e-mail, então um endereço @piratasfishing.com.br
+// fixo aqui daria bounce em quem exercesse o direito.
+const email = process.env.NEXT_PUBLIC_EMAIL ?? ''
+
 export const metadata: Metadata = {
   title: 'Política de Privacidade | Piratas Fishing',
   description: 'Saiba como a Piratas Fishing coleta, usa e protege seus dados pessoais conforme a LGPD.',
@@ -152,8 +157,8 @@ export default function PrivacidadePage() {
             <ul className="list-disc list-inside space-y-2 ml-2 mt-3">
               <li>
                 <strong className="text-white">E-mail:</strong>{' '}
-                <a href="mailto:privacidade@piratasfishing.com.br" className="text-[#FF6B00] hover:underline">
-                  privacidade@piratasfishing.com.br
+                <a href={`mailto:${email}?subject=LGPD - Titular de dados`} className="text-[#FF6B00] hover:underline">
+                  {email}
                 </a>
               </li>
               <li>

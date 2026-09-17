@@ -3,26 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Order, OrderStatus } from '@/lib/orders'
-
-const FULFILLMENT_STATUSES: OrderStatus[] = ['paid', 'supplier_sent', 'packed', 'shipped', 'tracking_sent', 'completed']
-
-const COLUMN_LABEL: Partial<Record<OrderStatus, string>> = {
-  paid: 'Pedido recebido',
-  supplier_sent: 'Enviada Fornecedor',
-  packed: 'Embalado',
-  shipped: 'Enviado',
-  tracking_sent: 'Rastreio enviado',
-  completed: 'Finalizado',
-}
-
-const COLUMN_COLOR: Partial<Record<OrderStatus, string>> = {
-  paid: '#3b82f6',
-  supplier_sent: '#f97316',
-  packed: '#f59e0b',
-  shipped: '#8b5cf6',
-  tracking_sent: '#06b6d4',
-  completed: '#22c55e',
-}
+import { FULFILLMENT_STATUSES, STATUS_LABEL, STATUS_COLOR } from '@/lib/constants'
 
 const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
   paid: 'supplier_sent',
@@ -57,6 +38,33 @@ function fmtDate(val: unknown): string {
   return new Date(String(val)).toLocaleDateString('pt-BR')
 }
 
+// ─── Impressão ───────────────────────────────────────────────────────────────
+
+// Abre a folha do pedido em nova aba já com o diálogo de impressão — de onde sai o
+// PDF que vai para o fornecedor. <a> em vez de <Link> de propósito: a rota é
+// force-dynamic e o prefetch do Link consultaria o banco só de passar o mouse.
+function PrintOrderLink({ orderId, label }: { orderId: string; label?: string }) {
+  return (
+    <a
+      href={`/admin/pedido/${orderId}?print=1`}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      title="Abrir folha do pedido para imprimir ou salvar em PDF"
+      className={`flex items-center justify-center gap-2 rounded-lg border text-xs font-bold transition-opacity hover:opacity-70 ${
+        label ? 'w-full py-2.5' : 'w-7 h-7 shrink-0'
+      }`}
+      style={{ borderColor: 'var(--rim-str)', color: 'var(--ink-dim)' }}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 9V2h12v7" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+        <rect x="6" y="14" width="12" height="8" rx="1" />
+      </svg>
+      {label}
+    </a>
+  )
+}
+
 // ─── Detail Panel ─────────────────────────────────────────────────────────────
 
 function DetailPanel({ order, onClose }: { order: Order; onClose: () => void }) {
@@ -73,12 +81,14 @@ function DetailPanel({ order, onClose }: { order: Order; onClose: () => void }) 
       <div className="p-5 space-y-4 text-sm">
         {/* Status */}
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLUMN_COLOR[order.status] ?? '#6b7280' }} />
-          <span className="font-bold" style={{ color: COLUMN_COLOR[order.status] ?? 'var(--ink-dim)' }}>
-            {COLUMN_LABEL[order.status] ?? order.status}
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: STATUS_COLOR[order.status] }} />
+          <span className="font-bold" style={{ color: STATUS_COLOR[order.status] }}>
+            {STATUS_LABEL[order.status]}
           </span>
           <span className="ml-auto text-xs" style={{ color: 'var(--ink-faint)' }}>{fmtDate(order.createdAt)}</span>
         </div>
+
+        <PrintOrderLink orderId={order.id!} label="Imprimir / Salvar PDF" />
 
         {/* Cliente */}
         <div className="rounded-xl p-4 space-y-2" style={{ backgroundColor: 'var(--s2)' }}>
@@ -105,7 +115,14 @@ function DetailPanel({ order, onClose }: { order: Order; onClose: () => void }) 
           {order.items.map((item, i) => (
             <div key={i} className="flex justify-between items-start gap-2">
               <div>
-                <p style={{ color: 'var(--ink)' }}>{item.productName}</p>
+                <p className="flex items-center gap-2 flex-wrap" style={{ color: 'var(--ink)' }}>
+                  {item.productName}
+                  {item.size && (
+                    <span className="text-[11px] font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: 'rgba(255,107,0,0.15)', color: '#FF6B00' }}>
+                      {item.size}
+                    </span>
+                  )}
+                </p>
                 <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>{item.quantity}x · {fmt(item.unitPrice)}</p>
               </div>
               <span className="font-bold whitespace-nowrap" style={{ color: 'var(--ink)' }}>{fmt(item.totalPrice)}</span>
@@ -129,8 +146,8 @@ function DetailPanel({ order, onClose }: { order: Order; onClose: () => void }) 
 
         {/* Rastreio */}
         {order.trackingCode && (
-          <div className="rounded-xl p-4" style={{ backgroundColor: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.3)' }}>
-            <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#06b6d4' }}>Rastreio</p>
+          <div className="rounded-xl p-4" style={{ backgroundColor: 'var(--s3)', border: '1px solid var(--rim-str)' }}>
+            <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--ink-dim)' }}>Rastreio</p>
             <p className="font-mono" style={{ color: 'var(--ink)' }}>{order.trackingCode}</p>
           </div>
         )}
@@ -169,14 +186,14 @@ function KanbanCard({
 
   async function handleBack(e: React.MouseEvent) {
     e.stopPropagation()
-    const prevLabel = COLUMN_LABEL[prev!] ?? prev
+    const prevLabel = STATUS_LABEL[prev!]
     if (!window.confirm(`Voltar pedido de ${order.customer.name} para "${prevLabel}"?`)) return
     setLoading('back')
     await onMove(order.id!, prev!)
     setLoading(null)
   }
 
-  const color = COLUMN_COLOR[order.status]!
+  const color = STATUS_COLOR[order.status]
 
   return (
     <div
@@ -198,7 +215,10 @@ function KanbanCard({
         <span>{fmtDate(order.createdAt)}</span>
       </div>
 
-      <p className="font-mono text-xs" style={{ color: 'var(--ink-faint)' }}>#{order.id?.slice(0, 8)}</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-mono text-xs" style={{ color: 'var(--ink-faint)' }}>#{order.id?.slice(0, 8)}</p>
+        <PrintOrderLink orderId={order.id!} />
+      </div>
 
       {order.trackingCode && order.status !== 'shipped' && (
         <p className="text-xs font-mono rounded-lg px-2 py-1" style={{ backgroundColor: 'var(--s1)', color: 'var(--ink-dim)' }}>📦 {order.trackingCode}</p>
@@ -221,7 +241,7 @@ function KanbanCard({
           onClick={handleForward}
           disabled={loading !== null || (needsTracking && !trackingInput.trim())}
           className="w-full py-2 rounded-lg text-xs font-bold text-white transition-opacity disabled:opacity-40"
-          style={{ backgroundColor: COLUMN_COLOR[next] }}
+          style={{ backgroundColor: STATUS_COLOR[next] }}
         >
           {loading === 'forward' ? '...' : `→ ${NEXT_LABEL[order.status]}`}
         </button>
@@ -239,7 +259,7 @@ function KanbanCard({
           className="w-full py-1.5 rounded-lg text-xs font-semibold transition-opacity disabled:opacity-40 border"
           style={{ color: 'var(--ink-faint)', borderColor: 'var(--rim)', backgroundColor: 'transparent' }}
         >
-          {loading === 'back' ? '...' : `← ${COLUMN_LABEL[prev]}`}
+          {loading === 'back' ? '...' : `← ${STATUS_LABEL[prev]}`}
         </button>
       )}
     </div>
@@ -359,14 +379,14 @@ export default function AdminKanbanPage() {
             <div className="flex gap-5 h-full" style={{ minWidth: 'max-content' }}>
               {FULFILLMENT_STATUSES.map((status) => {
                 const colOrders = fulfillmentOrders.filter((o) => o.status === status)
-                const color = COLUMN_COLOR[status]!
+                const color = STATUS_COLOR[status]
                 return (
                   <div key={status} className="flex flex-col" style={{ width: 280 }}>
                     {/* Column header */}
                     <div className="flex items-center gap-2 mb-3 px-1">
                       <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
                       <span className="text-xs font-black uppercase tracking-wider" style={{ color: 'var(--ink-dim)' }}>
-                        {COLUMN_LABEL[status]}
+                        {STATUS_LABEL[status]}
                       </span>
                       <span className="ml-auto text-xs font-black px-2 py-0.5 rounded-full" style={{ backgroundColor: `${color}20`, color }}>
                         {colOrders.length}

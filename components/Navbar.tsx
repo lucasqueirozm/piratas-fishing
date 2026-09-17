@@ -5,7 +5,9 @@ import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
 import { useCart } from './CartContext'
 import { useTheme } from './ThemeProvider'
-import { products, categories } from '@/lib/products'
+import { categories, type ProductCategory } from '@/lib/product-types'
+
+type ProductCounts = { total: number; byCategory: Record<string, number> }
 
 const staticLinks = [
   { href: '/', label: 'Início' },
@@ -13,56 +15,36 @@ const staticLinks = [
   { href: '/contato', label: 'Contato' },
 ]
 
-const categoryMeta: Record<string, { slug: string; icon: React.ReactNode }> = {
-  'Camarão Turbo': {
-    slug: 'Camarão Turbo',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10" /><path d="M12 2c2.5 2.5 4 6 4 10" /><path d="M2 12h10" /><path d="m19 16-3-3 3-3" /><path d="M22 16h-6" />
-      </svg>
-    ),
-  },
-  'Pirata Turbo': {
-    slug: 'Pirata Turbo',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22V12" /><path d="m4.93 4.93 4.24 4.24" /><path d="M2 12h3" /><path d="M19 5 5 19" /><circle cx="12" cy="12" r="3" />
-      </svg>
-    ),
-  },
-  'Shad Turbo': {
-    slug: 'Shad Turbo',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z" />
-        <path d="M18 12h3" /><circle cx="20" cy="12" r="1" fill="currentColor" />
-        <path d="M6.5 12 3 10" /><path d="M6.5 12 3 14" />
-      </svg>
-    ),
-  },
-  'Shad Pirata': {
-    slug: 'Shad Pirata',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z" />
-        <path d="M18 12h3" /><circle cx="20" cy="12" r="1" fill="currentColor" />
-        <path d="M6.5 12 3 10" /><path d="M6.5 12 3 14" />
-        <path d="M12 9v6" />
-      </svg>
-    ),
-  },
-  'Caixa / Kit': {
-    slug: 'Caixa / Kit',
-    icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
-        <path d="m3.3 7 8.7 5 8.7-5" /><path d="M12 22V12" />
-      </svg>
-    ),
-  },
+// Ícone por categoria. Tipado como Record<ProductCategory, …> de propósito: se uma
+// categoria nova entrar em product-types sem ícone aqui, o build quebra em vez de
+// renderizar o menu sem ícone — foi exatamente o que aconteceu quando as categorias
+// antigas ("Camarão Turbo", "Shad Pirata"…) viraram Turbo/Reality/Shad.
+const categoryIcon: Record<ProductCategory, React.ReactNode> = {
+  Turbo: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10" /><path d="M12 2c2.5 2.5 4 6 4 10" /><path d="M2 12h10" /><path d="m19 16-3-3 3-3" /><path d="M22 16h-6" />
+    </svg>
+  ),
+  Reality: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22V12" /><path d="m4.93 4.93 4.24 4.24" /><path d="M2 12h3" /><path d="M19 5 5 19" /><circle cx="12" cy="12" r="3" />
+    </svg>
+  ),
+  Shad: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z" />
+      <path d="M18 12h3" /><circle cx="20" cy="12" r="1" fill="currentColor" />
+      <path d="M6.5 12 3 10" /><path d="M6.5 12 3 14" />
+    </svg>
+  ),
+  Anzol: (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3v9a5 5 0 0 1-10 0" /><path d="M9 6h6" /><circle cx="12" cy="3" r="1" fill="currentColor" />
+    </svg>
+  ),
 }
 
-export default function Navbar() {
+export default function Navbar({ counts }: { counts?: ProductCounts }) {
   const { setIsCartOpen, cartItemCount } = useCart()
   const { theme, toggle } = useTheme()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -97,7 +79,8 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const totalProducts = products.length
+  const totalProducts = counts?.total ?? 0
+  const countFor = (cat: string) => counts?.byCategory[cat] ?? 0
 
   return (
     <nav
@@ -163,12 +146,12 @@ export default function Navbar() {
                   }}
                 >
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-4" style={{ color: 'var(--ink-faint)' }}>
-                    Tipos de Isca
+                    Categorias
                   </p>
                   <div className="grid grid-cols-2 gap-2 mb-4">
-                    {categories.map((cat) => {
-                      const count = products.filter((p) => p.category === cat).length
-                      const meta = categoryMeta[cat]
+                    {categories.filter((cat) => countFor(cat) > 0).map((cat) => {
+                      const count = countFor(cat)
+                      const icone = categoryIcon[cat]
                       return (
                         <Link
                           key={cat}
@@ -177,7 +160,7 @@ export default function Navbar() {
                           className="flex items-center gap-3 p-3 rounded-xl transition-all duration-150 group/item hover:bg-[rgba(255,107,0,0.07)] border border-transparent hover:border-[rgba(255,107,0,0.2)]"
                         >
                           <span className="flex-shrink-0 text-[#FF6B00] opacity-70 group-hover/item:opacity-100 transition-opacity">
-                            {meta?.icon}
+                            {icone}
                           </span>
                           <div>
                             <p className="text-sm font-bold transition-colors group-hover/item:text-[#FF6B00]" style={{ color: 'var(--ink)' }}>
@@ -301,8 +284,8 @@ export default function Navbar() {
             </button>
             {mobileCatalogOpen && (
               <div className="ml-4 mb-2 space-y-1">
-                {categories.map((cat) => {
-                  const count = products.filter((p) => p.category === cat).length
+                {categories.filter((cat) => countFor(cat) > 0).map((cat) => {
+                  const count = countFor(cat)
                   return (
                     <Link
                       key={cat}

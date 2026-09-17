@@ -7,9 +7,8 @@ import { useCart } from '@/components/CartContext'
 export default function CheckoutSuccessPage() {
   const { clearCart } = useCart()
 
-  useEffect(() => {
-    clearCart()
-  }, [clearCart])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { clearCart() }, [])
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: 'var(--s0)' }}>
