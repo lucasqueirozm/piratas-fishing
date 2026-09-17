@@ -61,15 +61,19 @@ export default function CatalogoClient({ products }: { products: Product[] }) {
               active={selected.length === 0}
               onClick={() => setSelected([])}
             />
-            {categories.map((cat) => (
-              <FilterBtn
-                key={cat}
-                label={cat}
-                count={products.filter((p) => p.category === cat).length}
-                active={selected.includes(cat)}
-                onClick={() => toggleCategory(cat)}
-              />
-            ))}
+            {/* Categoria sem produto ativo nao vira filtro: um botao que leva a
+                "nenhum produto" so atrapalha quem esta navegando. */}
+            {categories.map((cat) => ({ cat, count: products.filter((p) => p.category === cat).length }))
+              .filter(({ count }) => count > 0)
+              .map(({ cat, count }) => (
+                <FilterBtn
+                  key={cat}
+                  label={cat}
+                  count={count}
+                  active={selected.includes(cat)}
+                  onClick={() => toggleCategory(cat)}
+                />
+              ))}
           </div>
         </div>
       </div>
