@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useCart } from '@/components/CartContext'
 import { BrilhoAtrativoBlock } from '@/components/BrilhoAtrativo'
 import { formatPrice, type Product } from '@/lib/product-types'
-import { MIN_ORDER_VALUE } from '@/lib/constants'
+import { MIN_ORDER_VALUE, POSTING_BUSINESS_DAYS } from '@/lib/constants'
 
 type ShippingResult = { priceStr: string; deliveryTime: number } | null
 
@@ -238,7 +238,7 @@ export default function ProdutoClient({ product }: { product: Product }) {
                 </div>
               )}
               <p className="mt-3 text-[10px] leading-relaxed" style={{ color: 'var(--ink-faint)' }}>
-                Postagem em até 5 dias úteis após confirmação do pagamento.
+                Postagem em até {POSTING_BUSINESS_DAYS} dias úteis após confirmação do pagamento.
               </p>
             </div>
 

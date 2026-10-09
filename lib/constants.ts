@@ -37,6 +37,11 @@ export const STATUS_COLOR: Record<OrderStatus, string> = {
   completed: '#22c55e',
 }
 
+// Prazo máximo de postagem, em dias úteis, contado da confirmação do pagamento.
+// É o que a vitrine promete ao cliente — vive aqui para não divergir entre as
+// páginas, como já aconteceu com o pedido mínimo.
+export const POSTING_BUSINESS_DAYS = 10
+
 export const MIN_ORDER_VALUE = 200
 export const FREE_SHIPPING_THRESHOLD = 199.99
 export const ADMIN_SESSION_MAX_AGE_MS = 8 * 60 * 60 * 1000 // 8 horas
