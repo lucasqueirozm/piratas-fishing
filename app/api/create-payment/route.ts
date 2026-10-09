@@ -5,6 +5,7 @@ import type { Customer, OrderItem } from '@/lib/orders'
 import { getProductById } from '@/lib/products'
 import { quoteShipping } from '@/lib/shipping'
 import { MIN_ORDER_VALUE, FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
+import { formatPrice } from '@/lib/product-types'
 
 // Tolerância (R$) ao casar o frete enviado pelo cliente com a cotação do servidor.
 const SHIPPING_MATCH_TOLERANCE = 1
@@ -99,10 +100,11 @@ export async function POST(req: NextRequest) {
 
     // Pedido mínimo de R$100
     if (validatedSubtotal < MIN_ORDER_VALUE) {
-      return Response.json({ error: 'Pedido mínimo de R$ 100,00.' }, { status: 400 })
+      return Response.json({ error: `Pedido mínimo de ${formatPrice(MIN_ORDER_VALUE)}.` }, { status: 400 })
     }
 
-    // Frete validado no servidor: gratuito acima de R$199,99; obrigatório (>0) abaixo disso.
+    // Frete validado no servidor: gratuito a partir de FREE_SHIPPING_THRESHOLD;
+    // obrigatório (>0) abaixo disso.
     const clientShipping = Number(shipping) || 0
     let validatedShipping: number
 

@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useCart } from '@/components/CartContext'
 import { BrilhoAtrativoBlock } from '@/components/BrilhoAtrativo'
-import type { Product } from '@/lib/product-types'
+import { formatPrice, type Product } from '@/lib/product-types'
+import { MIN_ORDER_VALUE } from '@/lib/constants'
 
 type ShippingResult = { priceStr: string; deliveryTime: number } | null
 
@@ -187,9 +188,9 @@ export default function ProdutoClient({ product }: { product: Product }) {
                 Adicionar 1 Unidade
               </button>
 
-              {product.price < 100 && (
+              {product.price < MIN_ORDER_VALUE && (
                 <p className="text-xs mt-3 pt-3 border-t" style={{ borderColor: 'var(--rim)', color: 'var(--ink-faint)' }}>
-                  Pedido mínimo R$ 100 — ao menos {Math.ceil(100 / product.price)} unidades desta isca para finalizar a compra.
+                  Pedido mínimo {formatPrice(MIN_ORDER_VALUE)} — ao menos {Math.ceil(MIN_ORDER_VALUE / product.price)} unidades desta isca para finalizar a compra.
                 </p>
               )}
             </div>

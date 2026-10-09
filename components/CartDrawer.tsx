@@ -4,14 +4,19 @@ import Image from 'next/image'
 import { useRouter, usePathname } from 'next/navigation'
 import { useCart } from './CartContext'
 import { track } from '@/lib/track'
+import { MIN_ORDER_VALUE, FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
+import { formatPrice } from '@/lib/product-types'
 
 export default function CartDrawer() {
   const { cart, isCartOpen, setIsCartOpen, removeFromCart, updateQuantity, cartTotal } = useCart()
   const router = useRouter()
   const pathname = usePathname()
 
-  const MIN_ORDER = 100
-  const FREE_SHIP = 199.99
+  // Vinham redeclarados aqui com o valor fixo, então mudar o mínimo em
+  // lib/constants não mexia no carrinho: a loja recusava no checkout um valor
+  // que o carrinho dava como válido.
+  const MIN_ORDER = MIN_ORDER_VALUE
+  const FREE_SHIP = FREE_SHIPPING_THRESHOLD
   const belowMin = cartTotal < MIN_ORDER
   const hasFreeShip = cartTotal >= FREE_SHIP
   const progressPct = Math.min(100, (cartTotal / FREE_SHIP) * 100)
@@ -161,7 +166,7 @@ export default function CartDrawer() {
               {!hasFreeShip && (
                 <>
                   <div className="flex justify-between text-xs mb-1.5" style={{ color: 'var(--ink-faint)' }}>
-                    <span>Frete grátis acima de R$ 199,99</span>
+                    <span>Frete grátis acima de {formatPrice(FREE_SHIP)}</span>
                     <span className="font-bold" style={{ color: '#FF6B00' }}>
                       faltam R$ {(FREE_SHIP - cartTotal).toFixed(2).replace('.', ',')}
                     </span>
@@ -184,7 +189,7 @@ export default function CartDrawer() {
             {/* Aviso pedido mínimo */}
             {belowMin && (
               <p className="text-xs text-center py-1 px-3 rounded-lg" style={{ backgroundColor: 'var(--s2)', color: 'var(--ink-faint)' }}>
-                Pedido mínimo: <span className="font-bold" style={{ color: 'var(--ink-dim)' }}>R$ 100,00</span>
+                Pedido mínimo: <span className="font-bold" style={{ color: 'var(--ink-dim)' }}>{formatPrice(MIN_ORDER)}</span>
               </p>
             )}
 
@@ -215,7 +220,7 @@ export default function CartDrawer() {
               className="w-full py-4 bg-[#FF6B00] hover:bg-[#e05f00] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl uppercase tracking-wider transition-all flex justify-center items-center gap-2.5 shadow-[0_0_20px_rgba(255,107,0,0.3)] enabled:hover:shadow-[0_0_30px_rgba(255,107,0,0.45)]"
             >
               {belowMin ? (
-                `Mínimo R$ 100,00 (faltam R$ ${(MIN_ORDER - cartTotal).toFixed(2).replace('.', ',')})`
+                `Mínimo ${formatPrice(MIN_ORDER)} (faltam R$ ${(MIN_ORDER - cartTotal).toFixed(2).replace('.', ',')})`
               ) : (
                 <>
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

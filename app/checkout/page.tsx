@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useCart } from '@/components/CartContext'
 import type { ShippingOption } from '@/app/api/shipping/route'
 import { MIN_ORDER_VALUE as MIN_ORDER, FREE_SHIPPING_THRESHOLD } from '@/lib/constants'
+import { formatPrice } from '@/lib/product-types'
 
 type FormData = {
   name: string
@@ -141,7 +142,7 @@ export default function CheckoutPage() {
   }
 
   function validate(): string {
-    if (cartTotal < MIN_ORDER) return `Pedido mínimo de R$ 100,00. Adicione mais R$ ${(MIN_ORDER - cartTotal).toFixed(2).replace('.', ',')} ao carrinho.`
+    if (cartTotal < MIN_ORDER) return `Pedido mínimo de ${formatPrice(MIN_ORDER)}. Adicione mais R$ ${(MIN_ORDER - cartTotal).toFixed(2).replace('.', ',')} ao carrinho.`
     if (!form.name.trim()) return 'Informe seu nome completo.'
     if (!form.email.includes('@')) return 'Informe um e-mail válido.'
     if (form.cpf.replace(/\D/g, '').length !== 11) return 'CPF inválido.'
@@ -331,7 +332,7 @@ export default function CheckoutPage() {
                   </svg>
                   <div>
                     <p className="text-sm font-black" style={{ color: '#22c55e' }}>Frete grátis!</p>
-                    <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>Sua compra acima de R$ 199,99 garante frete grátis.</p>
+                    <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>Sua compra acima de {formatPrice(FREE_SHIPPING_THRESHOLD)} garante frete grátis.</p>
                   </div>
                 </div>
               )}
